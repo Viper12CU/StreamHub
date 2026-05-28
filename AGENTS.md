@@ -13,6 +13,7 @@
 ## Config quirks
 - `next.config.mjs` sets `typescript.ignoreBuildErrors = true` (type errors won't fail builds).
 - `next.config.mjs` sets `images.unoptimized = true` (no Next image optimization).
+- `next.config.mjs` allows remote images from `images.unsplash.com` via `images.remotePatterns`.
 
 ## Styling notes
 - Tailwind v4 via `postcss.config.mjs` and `@tailwindcss/postcss`.

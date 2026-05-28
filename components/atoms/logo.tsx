@@ -7,7 +7,7 @@ interface LogoProps {
 export function Logo({ className }: LogoProps) {
   return (
     <div className={cn(
-      "font-black text-2xl text-secondary tracking-tighter",
+      "font-black text-2xl text-primary tracking-tighter",
       className
     )}>
       StreamHub

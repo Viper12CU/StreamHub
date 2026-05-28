@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "swiper": {
+      "type": "remote",
+      "url": "https://swiperjs.com/mcp",
+      "enabled": true
+    }
+  }
+}
