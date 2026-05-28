@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/organisms/navbar"
 import { HeroSection } from "@/components/organisms/hero-section"
-import { ServicesSection } from "@/components/organisms/services-section"
+import { HeroSlider } from "@/components/organisms/hero-slider"
 import { HowItWorksSection } from "@/components/organisms/how-it-works-section"
 import { PromoBanner } from "@/components/organisms/promo-banner"
 import { TrustSection } from "@/components/organisms/trust-section"
@@ -17,7 +17,7 @@ export function HomeTemplate({ children }: HomeTemplateProps) {
       <main>
         <HeroSection />
         <HowItWorksSection />
-        <ServicesSection />
+        <HeroSlider />
         <PromoBanner />
         <TrustSection />
         {children}
