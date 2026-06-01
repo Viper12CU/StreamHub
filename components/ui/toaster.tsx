@@ -1,35 +1,28 @@
 'use client'
 
-import { useToast } from '@/hooks/use-toast'
-import {
-  Toast,
-  ToastClose,
-  ToastDescription,
-  ToastProvider,
-  ToastTitle,
-  ToastViewport,
-} from '@/components/ui/toast'
+import { useTheme } from 'next-themes'
+import { Toaster as SileoToaster } from 'sileo'
 
 export function Toaster() {
-  const { toasts } = useToast()
+  const { theme = 'system' } = useTheme()
 
   return (
-    <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
-        return (
-          <Toast key={id} {...props}>
-            <div className="grid gap-1">
-              {title && <ToastTitle>{title}</ToastTitle>}
-              {description && (
-                <ToastDescription>{description}</ToastDescription>
-              )}
-            </div>
-            {action}
-            <ToastClose />
-          </Toast>
-        )
-      })}
-      <ToastViewport />
-    </ToastProvider>
+    <SileoToaster
+      position="bottom-right"
+      theme={theme as 'light' | 'dark' | 'system'}
+      options={{
+        duration: 4000,
+        fill: 'rgba(17, 24, 39, 0.8)',
+        roundness: 16,
+        styles: {
+          title: 'text-[13px] font-semibold text-white tracking-[-0.01em]',
+          description: 'text-[12px] text-white/75! font-semibold',
+          badge:
+            'text-[10px] uppercase tracking-[0.2em] text-primary bg-primary/10 px-2 py-0.5 rounded-full',
+          button:
+            'text-[12px] font-semibold text-white/80 hover:text-primary transition-colors',
+        },
+      }}
+    />
   )
 }

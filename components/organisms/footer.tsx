@@ -5,7 +5,7 @@ import { CreditCard, Landmark, Wifi } from "lucide-react"
 
 const footerLinks = [
   { href: "/#catalogo", label: "Catálogo" },
-  { href: "/catalogo", label: "Planes" },
+  { href: "/catalog", label: "Planes" },
   { href: "/checkout", label: "Checkout" },
 ]
 
@@ -17,7 +17,7 @@ export function Footer() {
         <div className="space-y-4 text-center md:text-left">
           <Logo />
           <p className="text-sm text-muted-foreground">
-            © 2024 StreamHub Cuba. Entrega instantánea y garantía premium.
+            © {new Date().getFullYear()} StreamHub Cuba. Entrega instantánea y garantía premium.
           </p>
           <div className="flex gap-4 justify-center md:justify-start pt-2">
             <CreditCard className="w-5 h-5 opacity-50" />

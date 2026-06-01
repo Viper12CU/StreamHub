@@ -1,23 +1,24 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useCallback } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { BrandingSection } from "@/components/organisms/branding-section"
 import { LoginFormCard } from "@/components/organisms/login-form-card"
-import { ToastNotification } from "@/components/molecules/toast-notification"
 import { Button } from "@/components/atoms/button"
 import { ArrowLeft } from "lucide-react"
+import { sileo } from "sileo";
 
 export function LoginTemplate() {
-  const [showToast, setShowToast] = useState(false)
-
+  const router = useRouter()
   const handleLoginSuccess = useCallback(() => {
-    setShowToast(true)
-  }, [])
-
-  const handleCloseToast = useCallback(() => {
-    setShowToast(false)
-  }, [])
+    sileo.success({
+      title: "Inicio de sesión exitoso",
+      description:
+        "Bienvenido de nuevo a StreamHub. Disfruta de tu experiencia de streaming!",
+    })
+    router.push("/")
+  }, [router])
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -39,13 +40,6 @@ export function LoginTemplate() {
           <LoginFormCard onSuccess={handleLoginSuccess} />
         </section>
       </main>
-      
-      {/* Success Toast */}
-      <ToastNotification
-        message="Cuenta creada. Bienvenido!"
-        visible={showToast}
-        onClose={handleCloseToast}
-      />
     </div>
   )
 }

@@ -150,12 +150,6 @@ export function HeroSlider() {
         </div>
 
         <div className="mt-12 flex w-full flex-col items-center gap-6 lg:mt-0 lg:w-auto lg:items-end">
-          <div
-            ref={floatingRef}
-            className="hidden lg:block rounded-full border border-white/20 px-5 py-2 text-xs uppercase tracking-[0.35em] text-white/70"
-          >
-            07 plataformas premium
-          </div>
           <DestinationCards
             slides={heroSlides}
             activeIndex={activeIndex}

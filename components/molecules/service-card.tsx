@@ -64,7 +64,7 @@ export function ServiceCard({
             Desde ${price}{" "}
             <span className="text-sm font-normal text-muted-foreground">{currency}</span>
           </span>
-          <Link href={`/producto/${encodeURIComponent(name.toLowerCase().replace(/\s+/g, "-"))}`}>
+          <Link href={`/product/${encodeURIComponent(name.toLowerCase().replace(/\s+/g, "-"))}`}>
             <Button size="sm">Ver opciones</Button>
           </Link>
         </div>

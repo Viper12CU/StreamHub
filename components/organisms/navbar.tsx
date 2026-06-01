@@ -13,12 +13,13 @@ const navItems = [
   { href: "/#how", label: "Cómo funciona", type: "section" as const, sectionId: "how" },
   { href: "/#precios", label: "Precios", type: "section" as const, sectionId: "precios" },
   { href: "/#contacto", label: "Contacto", type: "section" as const, sectionId: "contacto" },
-  { href: "/catalogo", label: "Planes", type: "page" as const },
+  { href: "/catalog", label: "Planes", type: "page" as const },
 ]
 
 export function Navbar() {
   const pathname = usePathname()
   const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
     if (pathname !== "/") {
@@ -52,6 +53,22 @@ export function Navbar() {
     return () => observer.disconnect()
   }, [pathname])
 
+  useEffect(() => {
+    const updateAuthState = () => {
+      const sessionFlag = localStorage.getItem("streamhub_session")
+      setIsLoggedIn(sessionFlag === "true")
+    }
+
+    updateAuthState()
+    window.addEventListener("storage", updateAuthState)
+    window.addEventListener("streamhub-auth-change", updateAuthState)
+
+    return () => {
+      window.removeEventListener("storage", updateAuthState)
+      window.removeEventListener("streamhub-auth-change", updateAuthState)
+    }
+  }, [])
+
   return (
     <header className="fixed top-0 w-full z-50 px-4 md:px-10 py-6">
       <nav className="max-w-7xl mx-auto bg-background/40 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3 flex justify-between items-center transition-all">
@@ -81,14 +98,17 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link href="/login">
-            <Button variant="secondary" size="sm" className="rounded-full px-5">
-              Iniciar sesión
-            </Button>
-          </Link>
-          <Link href="/checkout">
-            <Button size="sm" className="rounded-full px-6">Mi Cuenta</Button>
-          </Link>
+          {isLoggedIn ? (
+            <Link href="/account">
+              <Button size="sm" className="rounded-full px-6">Mi Cuenta</Button>
+            </Link>
+          ) : (
+            <Link href="/login">
+              <Button variant="secondary" size="sm" className="rounded-full px-5">
+                Iniciar sesión
+              </Button>
+            </Link>
+          )}
         </div>
       </nav>
     </header>

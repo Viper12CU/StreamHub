@@ -18,3 +18,7 @@
 ## Styling notes
 - Tailwind v4 via `postcss.config.mjs` and `@tailwindcss/postcss`.
 - Global styles and custom classes live in `app/globals.css` (including `scroll-behavior: smooth`).
+- For any design changes, always align with `DESIGN.md`.
+
+## Notifications
+- Use `sileo` for app-wide toast notifications (general toaster). When a notification is needed, implement it with `sileo`.

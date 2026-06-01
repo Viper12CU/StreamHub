@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -38,7 +39,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="dark bg-background">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..700,0..1,-50..200"
+        />
+      </head>
       <body className={`${inter.variable} font-sans antialiased`}>
+        <Toaster/>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

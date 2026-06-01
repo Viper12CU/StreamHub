@@ -35,7 +35,7 @@ export function CheckoutTemplate({
 
   const breadcrumbs = [
     { label: "Inicio", href: "/" },
-    { label: "Catalogo", href: "/catalogo" },
+    { label: "Catalogo", href: "/catalog" },
     { label: "Checkout" },
   ];
 
