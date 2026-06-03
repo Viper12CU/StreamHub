@@ -3,21 +3,22 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { HomeTemplate } from "@/components/templates/home-template"
+import { useSession } from "@/lib/session-context"
 
 export default function HomePage() {
   const router = useRouter()
-  const [isReady, setIsReady] = useState(false)
+  const { isAuthenticated, isLoading } = useSession()
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    const sessionFlag = localStorage.getItem("streamhub_session")
-    if (sessionFlag === "true") {
+    if (!isLoading && isAuthenticated) {
       router.replace("/account")
       return
     }
-    setIsReady(true)
-  }, [router])
+    if (!isLoading) setReady(true)
+  }, [isLoading, isAuthenticated, router])
 
-  if (!isReady) return null
+  if (!ready) return null
 
   return <HomeTemplate />
 }

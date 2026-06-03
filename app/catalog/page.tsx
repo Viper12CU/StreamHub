@@ -1,81 +1,11 @@
+import { Suspense } from "react";
 import { CatalogTemplate } from "@/components/templates/catalog-template";
-import type { Product } from "@/components/molecules/product-card";
-
-const products: Product[] = [
-  {
-    id: "1",
-    name: "Netflix Premium",
-    description: "1 Pantalla, Calidad 4K HDR, PIN de seguridad para tu perfil privado.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCiX3B31Lt3AICmVcHyyyqh0epsKLeiLO41u9Chj2pW-OrlaOmXqM6g_O9A1t6d7s1I6wNvgYdv-SpDMzwDPaMoW9lRtUkzcM2ySAdRfMMomnxBmZk1tBGle_f_FdJf43_r3uH6qYMwAWGHFuwlnao0Cz58LrGU7qeTL8aLP8163SrMzdHXsx8SuGehxE5Fkx8En7ArYTx0TGE9YxI41jlFCiLnMeRqieCt6QbIsRanRCTmjro3YjelHol7iNUDxARkdPZwQNVNkw",
-    accessType: "profile",
-    status: "available",
-    duration: "1 mes",
-    priceCUP: "$250 CUP",
-    priceMLC: "$5 MLC",
-    brandColor: "#E50914",
-  },
-  {
-    id: "2",
-    name: "Disney+ Combo",
-    description: "7 Perfiles, 4 Pantallas simultáneas, Pixar/Marvel/Star Wars y más.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBO4UTARKGL12AqC_P-vlNK2Zj20L5yc7DI529kE-PrO92ZWdRUvCeMKJbCtHzzGSEa-1eoeyw90Cxy-jY06DPRdDqo7r2FAmV1cw42gAax8nDirrKxoV1ztKVFzg6LOrG3x3eSyKl5z4Cy10Q6J-7A2xrDHrFaAfZslMdkW5Jv2b1DtBm2PQtMFck2HkdSdSVC8QTBxFuJPC9jTKzBzMgGNlG2p57kag-Yfg6mEGXwQQhmwDh6s7xiCy7O3cSDEKtNQ4-Q5Dg_7Q",
-    accessType: "account",
-    status: "limited",
-    duration: "1 mes",
-    priceCUP: "$600 CUP",
-    priceMLC: "$12 MLC",
-    brandColor: "#006E99",
-  },
-  {
-    id: "3",
-    name: "Spotify Premium",
-    description: "Activación en tu propia cuenta, Sin anuncios, Modo offline y máxima calidad.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAUkrSLfrPR77pZdcpwdKlk6fnc4fabEY-cntTGliiYUVvvCJNFXeBFAeEr-MHKQDMxkw8vLX6BsXCQ30HrH704iH3wAyCKH8Z21XPm-aDC6Vx7DqRlf_gYCfY1nh97l75sRgkcH7I6zHVCq75blZOqq25Zctt_KGwxm75DhQpai-FnWr2IiD5zkr8VaVXVoQgAFAucEtosXyDkrXoHOXNet3_o7ulljwuwTpX4rX5SRdtn0JtTcoQeQJAIwpsn3Rziz2vD8yHt4Q",
-    accessType: "code",
-    status: "available",
-    duration: "1 año",
-    priceCUP: "$1200 CUP",
-    priceMLC: "$24 MLC",
-    brandColor: "#1DB954",
-  },
-  {
-    id: "4",
-    name: "YouTube Premium",
-    description: "Sin anuncios, YouTube Music incluido, Reproducción en segundo plano.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC2DzVJHEduPYzHesSu-umKjxtaoGwdBiovUIhkFZHr0TvcAa1IvwcF3QV7-0Trv-3WNyMtPm20ogKEIEgLwexYFp9B4emcsFdAFRk4aX2uXDs2fi5waM7dHGrFSOQczwfp1ln1N7o348goATSlwVQ40j9ANY3fs_1PtMsJaqrNCLifNoSI91mJBdcIMe0dLn7hWHf_nJq-RokhkoSERbWxr0UxwefPbLAJtmVfba1aIvlYUhMIt-ThenJSz7ymdJjTR9i-JD6E7A",
-    accessType: "profile",
-    status: "soldout",
-    duration: "1 mes",
-    priceCUP: "$180 CUP",
-    priceMLC: "$3.5 MLC",
-    brandColor: "#FF0000",
-  },
-  {
-    id: "5",
-    name: "Prime Video",
-    description: "Originales de Amazon, Calidad 4K, 3 dispositivos simultáneos.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuA2cozk8eEzAdcqgWX5NoQZChrsUi2rrWy_FAAHY3O0OJoEtR4OTLLeyeQ1Cca01rjURyrcNc9poPq7btbLUedG2PZUjxYhUqW4O_fnLbfUtIxjr7s4PMILtF9wXtGsKxYZD5XQ0-vtitRgePFsGhoHNIKf_2ImrIPzqQm6Q0SkACFD3H63iSILtMBDwzduKVxjEMWpNgb5lQNThNQFO9x3c62VHM8-gMnia2oIEapabZFE1QEYKhZJ-nBij7b3tkvlRwu6sekY_w",
-    accessType: "account",
-    status: "available",
-    duration: "3 meses",
-    priceCUP: "$450 CUP",
-    priceMLC: "$9 MLC",
-    brandColor: "#00A8E1",
-  },
-  {
-    id: "6",
-    name: "Canva Pro",
-    description: "Acceso a kit de marca, Elementos premium, Banco de imágenes ilimitado.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAqqPX-jYFaIUxaq24e8LOeXAz9ftI1gumGfHdPPhkij9rHZ-5OA6KvlrfBttPNHUNncmW5_PzpuwQyvd06j8NT1ySp-VbopEX9SYhwqWviDDRbmS5Fk1DPLNVDEJqFejTsvhpgS2UE_g7jJxuN7tz6OF6FWePlIAPsC6hxKinmWFwXkjoiR6vB5PBsCRR4wHdxwPxoYj3FtV81EoXoNKlECxvcCyQJeALSNjm3D6a_ACksJp9egBsJxoFvYkQ10N3w5o889lBbMg",
-    accessType: "invitation",
-    status: "available",
-    duration: "1 año",
-    priceCUP: "$300 CUP",
-    priceMLC: "$6 MLC",
-    brandColor: "#00C4CC",
-  },
-];
+import { products } from "@/components/data/products";
 
 export default function CatalogoPage() {
-  return <CatalogTemplate products={products} />;
+  return (
+    <Suspense>
+      <CatalogTemplate products={products} />
+    </Suspense>
+  );
 }

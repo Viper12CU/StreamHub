@@ -1,9 +1,35 @@
 'use client'
 
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/atoms/button'
 import { GlassCard } from '@/components/ui/glass-card'
+import { useSession } from '@/lib/session-context'
+import { signOut } from '@/lib/api/auth'
+import { sileo } from 'sileo'
 
 export function PreferencesSection() {
+  const router = useRouter()
+  const { clearSession } = useSession()
+  const [loading, setLoading] = useState(false)
+
+  const handleSignOut = async () => {
+    setLoading(true)
+    try {
+      await signOut()
+      clearSession()
+      sileo.success({ title: 'Sesion cerrada', description: 'Has cerrado sesion correctamente.' })
+      router.push('/login')
+    } catch (error) {
+      sileo.error({
+        title: 'Error al cerrar sesion',
+        description: error instanceof Error ? error.message : 'Ocurrio un error inesperado.',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <section className="space-y-4" id="configuracion">
       <h2 className="text-xl font-semibold flex items-center gap-2">
@@ -82,6 +108,13 @@ export function PreferencesSection() {
           </div>
         </div>
       </GlassCard>
+      <Button
+        className="rounded-2xl px-6 bg-red-600 hover:bg-red-500 text-white"
+        onClick={handleSignOut}
+        disabled={loading}
+      >
+        {loading ? 'Cerrando sesion...' : 'Cerrar sesion'}
+      </Button>
     </section>
   )
 }

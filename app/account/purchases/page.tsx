@@ -1,4 +1,5 @@
 import { PurchaseHistorySection } from '@/components/organisms/account/purchase-history-section'
+import { PurchaseSuggestions } from '@/components/organisms/account/purchase-suggestions'
 
 export const metadata = {
   title: 'Mis Compras | StreamHub Cuba',
@@ -6,5 +7,10 @@ export const metadata = {
 }
 
 export default function AccountPurchasesPage() {
-  return <PurchaseHistorySection />
+  return (
+    <>
+      <PurchaseHistorySection />
+      <PurchaseSuggestions />
+    </>
+  )
 }

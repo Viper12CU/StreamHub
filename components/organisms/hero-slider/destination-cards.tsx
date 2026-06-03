@@ -1,6 +1,7 @@
 "use client"
 
 import { type MutableRefObject } from "react"
+import { useRouter } from "next/navigation"
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Autoplay, Mousewheel } from "swiper/modules"
 import type { Swiper as SwiperClass } from "swiper"
@@ -23,6 +24,7 @@ export function DestinationCards({
   onCardSelect: (index: number) => void
   swiperRef: MutableRefObject<SwiperClass | null>
 }) {
+  const router = useRouter()
   return (
     <div className="w-full lg:w-[360px]">
       <Swiper
@@ -53,6 +55,7 @@ export function DestinationCards({
               onClick={() => {
                 onCardSelect(index)
                 onCardClick(index)
+                router.push(`/catalog?platform=${slide.slug}`)
               }}
               className="w-full text-left"
             >

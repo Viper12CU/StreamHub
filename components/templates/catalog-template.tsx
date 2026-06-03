@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Navbar } from "@/components/organisms/navbar";
 import { Footer } from "@/components/organisms/footer";
 import { PageHeader } from "@/components/molecules/page-header";
@@ -13,9 +14,25 @@ interface CatalogTemplateProps {
   products: Product[];
 }
 
+function getInitialPlatform(searchParams: URLSearchParams): string {
+  const platform = searchParams.get("platform");
+  if (!platform) return "All";
+  const map: Record<string, string> = {
+    netflix: "Netflix",
+    spotify: "Spotify",
+    disney: "Disney",
+    youtube: "YouTube",
+    prime: "Prime",
+    hbo: "HBO",
+  };
+  return map[platform.toLowerCase()] ?? "All";
+}
+
 export function CatalogTemplate({ products }: CatalogTemplateProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [filters, setFilters] = useState<FiltersState>({
-    platform: "All",
+    platform: getInitialPlatform(searchParams),
     accessType: "",
     sortBy: "price-asc",
   });
@@ -27,6 +44,11 @@ export function CatalogTemplate({ products }: CatalogTemplateProps) {
     }
     return true;
   });
+
+  const handleBuy = (product: Product) => {
+    const slug = encodeURIComponent(product.name.toLowerCase().replace(/\s+/g, "-"));
+    router.push(`/product/${slug}`);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -40,7 +62,7 @@ export function CatalogTemplate({ products }: CatalogTemplateProps) {
 
         <FiltersSection filters={filters} onFiltersChange={setFilters} />
 
-        <ProductsGrid products={filteredProducts} />
+        <ProductsGrid products={filteredProducts} onBuy={handleBuy} />
 
         <LoadMoreButton />
       </main>

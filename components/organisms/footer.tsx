@@ -5,7 +5,6 @@ import { CreditCard, Landmark, Wifi } from "lucide-react"
 
 const footerLinks = [
   { href: "/#catalogo", label: "Catálogo" },
-  { href: "/catalog", label: "Planes" },
   { href: "/checkout", label: "Checkout" },
 ]
 

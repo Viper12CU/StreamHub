@@ -1,6 +1,7 @@
 "use client"
 
 import { useLayoutEffect, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 import { gsap } from "gsap"
 import { heroSlides } from "@/components/data/hero-slider-data"
 import { BackgroundLayer } from "./background-layer"
@@ -8,6 +9,7 @@ import { AnimatedContent } from "./animated-content"
 import { DestinationCards } from "./destination-cards"
 
 export function HeroSlider() {
+  const router = useRouter()
   const [activeIndex, setActiveIndex] = useState(0)
   const prevIndex = useRef(0)
   const sliderRef = useRef<HTMLDivElement>(null)
@@ -139,11 +141,11 @@ export function HeroSlider() {
               }}
             />
             <div className="mt-10 flex flex-wrap gap-4">
-              <button className="rounded-full border border-white/20 px-6 py-2 text-xs uppercase tracking-[0.35em] text-white/80">
+              <button
+                onClick={() => router.push("/catalog")}
+                className="rounded-full border border-white/20 px-6 py-2 text-xs uppercase tracking-[0.35em] text-white/80 hover:bg-white/10 transition-colors"
+              >
                 Ver catalogo
-              </button>
-              <button className="rounded-full bg-white/90 px-6 py-2 text-xs uppercase tracking-[0.35em] text-black">
-                Comprar ahora
               </button>
             </div>
           </div>

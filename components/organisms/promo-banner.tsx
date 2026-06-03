@@ -3,7 +3,7 @@ import { Button } from "@/components/atoms/button"
 
 export function PromoBanner() {
   return (
-    <section className="py-16 px-4 md:px-10" id="precios">
+    <section className="py-16 px-4 md:px-10" id="promo">
       <div className="max-w-7xl mx-auto rounded-[2rem] overflow-hidden relative bg-gradient-to-r from-primary/90 to-secondary/90 p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
