@@ -34,8 +34,8 @@ export function CheckoutTemplate({
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const breadcrumbs = [
-    { label: "Inicio", href: "/" },
-    { label: "Catalogo", href: "/catalog" },
+    { label: "Inicio", href: "/web" },
+    { label: "Catalogo", href: "/web/catalog" },
     { label: "Checkout" },
   ];
 

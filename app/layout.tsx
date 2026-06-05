@@ -11,7 +11,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'StreamHub Cuba | Streaming Premium al Instante',
-  description: 'Tu acceso a Netflix, Spotify y más — directo desde Cuba. Cuentas, perfiles y códigos de activación con entrega inmediata y garantía premium de 30 días.',
+  description: 'Tu acceso a Netflix, Spotify y mas — directo desde Cuba. Cuentas, perfiles y codigos de activacion con entrega inmediata y garantia premium de 30 dias.',
   generator: 'v0.app',
   icons: {
     icon: [

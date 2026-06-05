@@ -9,10 +9,10 @@ import { Button } from "@/components/atoms/button"
 import { useSession } from "@/lib/session-context"
 
 const navItems = [
-  { href: "/", label: "Inicio", type: "page" as const },
-  { href: "/#catalogo", label: "Catálogo", type: "section" as const, sectionId: "catalogo" },
-  { href: "/#how", label: "Cómo funciona", type: "section" as const, sectionId: "how" },
-  { href: "/#promo", label: "Ofertas", type: "section" as const, sectionId: "promo" },
+  { href: "/web", label: "Inicio", type: "page" as const },
+  { href: "/web#catalogo", label: "Catálogo", type: "section" as const, sectionId: "catalogo" },
+  { href: "/web#how", label: "Cómo funciona", type: "section" as const, sectionId: "how" },
+  { href: "/web#promo", label: "Ofertas", type: "section" as const, sectionId: "promo" },
 ]
 
 export function Navbar() {
@@ -21,7 +21,7 @@ export function Navbar() {
   const [activeSection, setActiveSection] = useState<string | null>(null)
 
   useEffect(() => {
-    if (pathname !== "/") {
+    if (pathname !== "/web") {
       setActiveSection(null)
       return
     }
@@ -61,8 +61,8 @@ export function Navbar() {
           {navItems.map((item) => {
             const isActive =
               item.type === "page"
-                ? pathname === item.href || (item.href === "/" && pathname === "/" && !activeSection)
-                : pathname === "/" && activeSection === item.sectionId
+                ? pathname === item.href || (item.href === "/web" && pathname === "/web" && !activeSection)
+                : pathname === "/web" && activeSection === item.sectionId
 
             if (item.type === "page") {
               return (
@@ -82,11 +82,11 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
-            <Link href="/account">
+            <Link href="/web/account">
               <Button size="sm" className="rounded-full px-6">Mi Cuenta</Button>
             </Link>
           ) : (
-            <Link href="/login">
+            <Link href="/web/login">
               <Button variant="secondary" size="sm" className="rounded-full px-5">
                 Iniciar sesión
               </Button>

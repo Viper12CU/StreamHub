@@ -29,7 +29,7 @@ export function PromoBanner() {
               $320 <span className="text-2xl">MLC</span>
             </div>
           </div>
-          <Link href="/checkout">
+          <Link href="/web/checkout">
             <Button
               variant="ghost"
               size="lg"

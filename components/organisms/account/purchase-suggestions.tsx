@@ -20,7 +20,7 @@ export function PurchaseSuggestions() {
           Sugerencias para ti
         </h2>
         <Link
-          href="/catalog"
+          href="/web/catalog"
           className="text-xs uppercase tracking-[0.2em] text-primary hover:underline"
         >
           Ver todo
@@ -32,7 +32,7 @@ export function PurchaseSuggestions() {
             key={product.id}
             onClick={() => {
               const slug = encodeURIComponent(product.name.toLowerCase().replace(/\s+/g, '-'))
-              router.push(`/product/${slug}`)
+              router.push(`/web/product/${slug}`)
             }}
             className={cn(
               'glass-panel rounded-xl overflow-hidden text-left group',

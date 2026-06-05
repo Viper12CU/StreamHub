@@ -1,39 +1,21 @@
-import { CheckCircle, AlertTriangle, XCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-type StatusType = "available" | "limited" | "soldout";
+import { cn } from "@/lib/utils"
 
 interface StatusBadgeProps {
-  status: StatusType;
-  className?: string;
+  status: string
+  variant?: "success" | "error" | "warning" | "neutral"
 }
 
-const statusConfig = {
-  available: {
-    label: "Disponible",
-    icon: CheckCircle,
-    className: "text-green-400",
-  },
-  limited: {
-    label: "Últimas unidades",
-    icon: AlertTriangle,
-    className: "text-amber-400",
-  },
-  soldout: {
-    label: "Agotado",
-    icon: XCircle,
-    className: "text-red-400",
-  },
-};
+const variantClasses = {
+  success: "bg-green-500/10 text-green-400",
+  error: "bg-error-container/20 text-error",
+  warning: "bg-amber-500/20 text-amber-500",
+  neutral: "bg-surface-container-high text-on-surface-variant",
+}
 
-export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const config = statusConfig[status];
-  const Icon = config.icon;
-
+export function StatusBadge({ status, variant = "neutral" }: StatusBadgeProps) {
   return (
-    <span className={cn("text-xs font-semibold flex items-center gap-1", config.className, className)}>
-      <Icon className="w-4 h-4" />
-      {config.label}
+    <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold", variantClasses[variant])}>
+      {status}
     </span>
-  );
+  )
 }

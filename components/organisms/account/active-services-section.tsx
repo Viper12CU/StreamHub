@@ -15,7 +15,7 @@ export function ActiveServicesSection() {
           </span>
           Servicios Activos
         </h2>
-        <Link href="/account/active-services" className="text-xs uppercase tracking-[0.2em] text-primary">
+        <Link href="/web/account/active-services" className="text-xs uppercase tracking-[0.2em] text-primary">
           Ver todos
         </Link>
       </div>

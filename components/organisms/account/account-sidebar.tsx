@@ -6,16 +6,16 @@ import { Button } from "@/components/atoms/button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/account", label: "Inicio", icon: "dashboard" },
-  { href: "/account/purchases", label: "Mis Compras", icon: "shopping_bag" },
+  { href: "/web/account", label: "Inicio", icon: "dashboard" },
+  { href: "/web/account/purchases", label: "Mis Compras", icon: "shopping_bag" },
   {
-    href: "/account/active-services",
+    href: "/web/account/active-services",
     label: "Servicios Activos",
     icon: "subscriptions",
   },
-  { href: "/account/wishlist", label: "Wishlist", icon: "favorite" },
-  { href: "/catalog", label: "Catálogo", icon: "storefront" },
-  { href: "/account/settings", label: "Configuracion", icon: "settings" },
+  { href: "/web/account/wishlist", label: "Wishlist", icon: "favorite" },
+  { href: "/web/catalog", label: "Catálogo", icon: "storefront" },
+  { href: "/web/account/settings", label: "Configuracion", icon: "settings" },
 ];
 
 interface AccountSidebarProps {

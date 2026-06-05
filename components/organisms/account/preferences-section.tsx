@@ -19,7 +19,7 @@ export function PreferencesSection() {
       await signOut()
       clearSession()
       sileo.success({ title: 'Sesion cerrada', description: 'Has cerrado sesion correctamente.' })
-      router.push('/login')
+      router.push('/web/login')
     } catch (error) {
       sileo.error({
         title: 'Error al cerrar sesion',

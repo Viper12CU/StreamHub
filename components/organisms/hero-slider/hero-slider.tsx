@@ -142,7 +142,7 @@ export function HeroSlider() {
             />
             <div className="mt-10 flex flex-wrap gap-4">
               <button
-                onClick={() => router.push("/catalog")}
+                onClick={() => router.push("/web/catalog")}
                 className="rounded-full border border-white/20 px-6 py-2 text-xs uppercase tracking-[0.35em] text-white/80 hover:bg-white/10 transition-colors"
               >
                 Ver catalogo

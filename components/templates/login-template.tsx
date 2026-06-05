@@ -10,7 +10,7 @@ export function LoginTemplate() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <div className="pt-8 px-4 md:px-10 absolute z-10">
-        <Link href="/">
+        <Link href="/web">
           <Button variant="secondary" size="sm" className="rounded-full px-5">
             <ArrowLeft className="w-4 h-4" />
             Volver

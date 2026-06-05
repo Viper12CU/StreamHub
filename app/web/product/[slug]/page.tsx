@@ -1,9 +1,9 @@
 import { ProductDetailTemplate } from "@/components/templates/product-detail-template";
 
 const breadcrumbs = [
-  { label: "Inicio", href: "/" },
-  { label: "Catalogo", href: "/catalog" },
-  { label: "Netflix", href: "/catalog?platform=netflix" },
+  { label: "Inicio", href: "/web" },
+  { label: "Catalogo", href: "/web/catalog" },
+  { label: "Netflix", href: "/web/catalog?platform=netflix" },
   { label: "Perfil Compartido 1 mes" },
 ];
 

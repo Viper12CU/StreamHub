@@ -61,7 +61,7 @@ export function LoginFormCard() {
           title: "Inicio de sesion exitoso",
           description: "Bienvenido de nuevo a StreamHub.",
         })
-        router.push("/account")
+        router.push("/web/account")
       } else {
         await signUp({ email: registerEmail, password: registerPassword, name: fullName })
         sileo.success({
