@@ -90,6 +90,15 @@ components/
 - `molecules/inventory-insights.tsx` — Panel de salud del inventario (stock bajo, sin stock, mayor stock)
 - `molecules/top-performers.tsx` — Ranking de mejores vendedores (top 5)
 - `molecules/product-analytics.tsx` — Analytics de productos (ingresos, plataforma, tendencias)
+- `molecules/inventory-tabs.tsx` — Tabs de tipo de inventario (Todo, Cuentas, Perfiles, Códigos, Paquetes)
+- `molecules/inventory-filters.tsx` — Filtros de inventario (plataforma, estado, producto, cliente, expiración, orden)
+- `molecules/inventory-table.tsx` — Tabla de activos digitales con selección múltiple y acciones
+- `molecules/asset-detail-drawer.tsx` — Drawer de detalle de activo (info, credenciales, historial, uso)
+- `molecules/create-asset-modal.tsx` — Modal de creación de activo (4 tipos: cuenta, perfil, código, paquete)
+- `molecules/inventory-health.tsx` — Dashboard de salud del inventario (distribución, plataformas, expiración)
+- `molecules/low-stock-monitoring.tsx` — Monitoreo de stock bajo con tabla y acciones
+- `molecules/recent-inventory-activity.tsx` — Timeline de actividad reciente del inventario
+- `molecules/inventory-assignment-center.tsx` — Centro de asignación de activos a órdenes
 - `organisms/admin/admin-sidebar.tsx` — Sidebar completa (11 items de navegación)
 - `organisms/admin/admin-top-bar.tsx` — Top bar completa (compone AdminSearchInput, AdminUserProfile)
 
