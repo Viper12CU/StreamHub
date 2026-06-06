@@ -17,8 +17,8 @@ function StepIndicator({ currentStep, totalSteps }: { currentStep: number; total
         <div key={s} className="flex-1 flex items-center gap-2">
           <div className={cn(
             "w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all duration-200",
-            s < currentStep ? "bg-primary text-on-primary" :
-            s === currentStep ? "bg-primary text-on-primary ring-4 ring-primary/20" :
+            s < currentStep ? "bg-primary text-white" :
+            s === currentStep ? "bg-primary text-white ring-4 ring-primary/20" :
             "bg-surface-container-high text-on-surface-variant"
           )}>
             {s < currentStep ? (
@@ -358,13 +358,13 @@ export function CreateProductModal({ onClose }: CreateProductModalProps) {
             {step < 4 ? (
               <button
                 onClick={() => setStep(step + 1)}
-                className="flex items-center gap-2 px-5 py-2.5 bg-primary text-on-primary text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+                className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
               >
                 Siguiente
                 <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </button>
             ) : (
-              <button className="flex items-center gap-2 px-5 py-2.5 bg-primary text-on-primary text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+              <button className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
                 <span className="material-symbols-outlined text-sm">check</span>
                 Crear Producto
               </button>

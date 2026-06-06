@@ -127,9 +127,9 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
                     <div className={cn(
                       "w-8 h-8 rounded-full flex items-center justify-center transition-all",
                       i < orderData.workflowStep
-                        ? "bg-primary text-on-primary shadow-lg shadow-primary/30"
+                        ? "bg-primary text-white shadow-lg shadow-primary/30"
                         : i === orderData.workflowStep - 1
-                        ? "bg-primary text-on-primary ring-4 ring-primary/20"
+                        ? "bg-primary text-white ring-4 ring-primary/20"
                         : "bg-surface-container-high text-on-surface-variant"
                     )}>
                       <span className="material-symbols-outlined text-sm">{step.icon}</span>
@@ -327,7 +327,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
         {/* Footer */}
         <div className="p-4 border-t border-white/5 bg-surface-container-lowest/90 backdrop-blur-xl space-y-3">
           <div className="flex gap-2">
-            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-on-primary text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
               <span className="material-symbols-outlined text-sm">local_shipping</span>
               Entregar Orden
             </button>
@@ -367,7 +367,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
               </button>
               <button
                 onClick={() => setShowConfirmModal(null)}
-                className="flex-1 py-2.5 bg-primary text-on-primary text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+                className="flex-1 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
               >
                 Confirmar
               </button>

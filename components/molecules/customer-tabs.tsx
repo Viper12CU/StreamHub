@@ -2,31 +2,29 @@
 
 import { cn } from "@/lib/utils"
 
-interface OrderTabsProps {
+interface CustomerTabsProps {
   activeTab: string
   onTabChange: (tab: string) => void
 }
 
 const tabs = [
-  { id: "all", label: "Todas las Órdenes", icon: "receipt_long", count: 1248 },
-  { id: "pending", label: "Pendientes", icon: "pending", count: 18 },
-  { id: "payment_review", label: "Revisión de Pago", icon: "payment", count: 7 },
-  { id: "approved", label: "Aprobadas", icon: "check_circle", count: 42 },
-  { id: "inventory_assignment", label: "Asignación de Inventario", icon: "inventory_2", count: 15 },
-  { id: "delivered", label: "Entregadas", icon: "local_shipping", count: 1117 },
-  { id: "cancelled", label: "Canceladas", icon: "cancel", count: 24 },
+  { id: "all", label: "Todos los Clientes", icon: "group", count: 3482 },
+  { id: "active", label: "Activos", icon: "check_circle", count: 2965 },
+  { id: "inactive", label: "Inactivos", icon: "person_off", count: 374 },
+  { id: "vip", label: "VIP", icon: "diamond", count: 118 },
+  { id: "pending", label: "Órdenes Pendientes", icon: "pending", count: 42 },
+  { id: "suspended", label: "Suspendidos", icon: "block", count: 25 },
 ]
 
 const tabColors: Record<string, string> = {
-  pending: "text-amber-500",
-  payment_review: "text-orange-400",
-  approved: "text-green-400",
-  inventory_assignment: "text-secondary",
-  delivered: "text-green-400",
-  cancelled: "text-error",
+  active: "text-green-400",
+  inactive: "text-on-surface-variant",
+  vip: "text-amber-500",
+  pending: "text-orange-400",
+  suspended: "text-error",
 }
 
-export function OrderTabs({ activeTab, onTabChange }: OrderTabsProps) {
+export function CustomerTabs({ activeTab, onTabChange }: CustomerTabsProps) {
   return (
     <section className="glass rounded-xl border border-white/5 overflow-hidden">
       <div className="flex overflow-x-auto custom-scrollbar">

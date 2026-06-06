@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 
-interface OrderFiltersProps {
+interface CustomerFiltersProps {
   onToggle: () => void
   isOpen: boolean
 }
@@ -42,37 +42,16 @@ function FilterSection({ title, icon, children }: FilterSectionProps) {
   )
 }
 
-const orderStatuses = [
-  "Pendiente",
-  "Pago Enviado",
-  "Revisión de Pago",
-  "Aprobada",
-  "Inventario Asignado",
-  "Entregada",
-  "Cancelada",
-  "Reembolsada",
-]
+const customerStatuses = ["Activo", "Inactivo", "VIP", "Suspendido"]
 
-const paymentMethods = ["Transfermóvil", "Zelle", "MLC"]
+const sortOptions = ["Más Recientes", "Mayor Valor", "Más Órdenes", "Reciente Activo", "Nombre"]
 
-const platforms = [
-  { name: "Netflix", color: "bg-primary-container" },
-  { name: "Disney+", color: "bg-tertiary" },
-  { name: "Spotify", color: "bg-secondary" },
-  { name: "YouTube Premium", color: "bg-[#ff0000]" },
-  { name: "HBO Max", color: "bg-[#b829e3]" },
-  { name: "Crunchyroll", color: "bg-[#f47521]" },
-  { name: "IPTV", color: "bg-amber-500" },
-  { name: "Otro", color: "bg-surface-container-highest" },
-]
-
-const sortOptions = ["Más Recientes", "Más Antiguas", "Mayor Valor", "Menor Valor"]
-
-export function OrderFilters({ onToggle, isOpen }: OrderFiltersProps) {
+export function CustomerFilters({ onToggle, isOpen }: CustomerFiltersProps) {
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({})
-  const [dateRange, setDateRange] = useState({ start: "", end: "" })
-  const [valueRange, setValueRange] = useState({ min: "", max: "" })
-  const [customerSearch, setCustomerSearch] = useState("")
+  const [registrationRange, setRegistrationRange] = useState({ start: "", end: "" })
+  const [lastPurchaseRange, setLastPurchaseRange] = useState({ start: "", end: "" })
+  const [lifetimeValue, setLifetimeValue] = useState({ min: "", max: "" })
+  const [totalOrders, setTotalOrders] = useState({ min: "", max: "" })
 
   const toggleFilter = (category: string, value: string) => {
     setActiveFilters((prev) => {
@@ -85,9 +64,10 @@ export function OrderFilters({ onToggle, isOpen }: OrderFiltersProps) {
   }
 
   const activeCount = Object.values(activeFilters).reduce((acc, arr) => acc + arr.length, 0)
-    + (dateRange.start ? 1 : 0) + (dateRange.end ? 1 : 0)
-    + (valueRange.min ? 1 : 0) + (valueRange.max ? 1 : 0)
-    + (customerSearch ? 1 : 0)
+    + (registrationRange.start ? 1 : 0) + (registrationRange.end ? 1 : 0)
+    + (lastPurchaseRange.start ? 1 : 0) + (lastPurchaseRange.end ? 1 : 0)
+    + (lifetimeValue.min ? 1 : 0) + (lifetimeValue.max ? 1 : 0)
+    + (totalOrders.min ? 1 : 0) + (totalOrders.max ? 1 : 0)
 
   return (
     <section className="glass rounded-xl overflow-hidden border border-white/5">
@@ -114,9 +94,10 @@ export function OrderFilters({ onToggle, isOpen }: OrderFiltersProps) {
               onClick={(e) => {
                 e.stopPropagation()
                 setActiveFilters({})
-                setDateRange({ start: "", end: "" })
-                setValueRange({ min: "", max: "" })
-                setCustomerSearch("")
+                setRegistrationRange({ start: "", end: "" })
+                setLastPurchaseRange({ start: "", end: "" })
+                setLifetimeValue({ min: "", max: "" })
+                setTotalOrders({ min: "", max: "" })
               }}
               className="text-[11px] text-primary font-medium hover:underline"
             >
@@ -137,10 +118,10 @@ export function OrderFilters({ onToggle, isOpen }: OrderFiltersProps) {
         isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
       )}>
         <div className="px-4 pb-4 space-y-5 border-t border-white/5 pt-4">
-          {/* Order Status */}
-          <FilterSection title="Estado de Orden" icon="flag">
+          {/* Status */}
+          <FilterSection title="Estado del Cliente" icon="flag">
             <div className="flex flex-wrap gap-2">
-              {orderStatuses.map((status) => (
+              {customerStatuses.map((status) => (
                 <FilterChip
                   key={status}
                   label={status}
@@ -151,85 +132,78 @@ export function OrderFilters({ onToggle, isOpen }: OrderFiltersProps) {
             </div>
           </FilterSection>
 
-          {/* Payment Method */}
-          <FilterSection title="Método de Pago" icon="account_balance_wallet">
-            <div className="flex flex-wrap gap-2">
-              {paymentMethods.map((method) => (
-                <FilterChip
-                  key={method}
-                  label={method}
-                  active={activeFilters.payment?.includes(method)}
-                  onClick={() => toggleFilter("payment", method)}
-                />
-              ))}
-            </div>
-          </FilterSection>
-
-          {/* Platform */}
-          <FilterSection title="Plataforma" icon="smart_display">
-            <div className="flex flex-wrap gap-2">
-              {platforms.map((platform) => (
-                <button
-                  key={platform.name}
-                  onClick={() => toggleFilter("platform", platform.name)}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 text-[11px] font-medium rounded-full transition-all duration-200 border",
-                    activeFilters.platform?.includes(platform.name)
-                      ? "bg-primary/15 text-primary border-primary/30 shadow-sm shadow-primary/10"
-                      : "bg-surface-container-low text-on-surface-variant border-white/5 hover:bg-surface-container-high hover:border-white/10"
-                  )}
-                >
-                  <span className={cn("w-2 h-2 rounded-full", platform.color)} />
-                  {platform.name}
-                </button>
-              ))}
-            </div>
-          </FilterSection>
-
-          {/* Date Range, Customer, Value Range & Sort */}
+          {/* Date Ranges & Value Ranges */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            <FilterSection title="Rango de Fechas" icon="calendar_today">
+            <FilterSection title="Fecha de Registro" icon="calendar_today">
               <div className="flex items-center gap-2">
                 <input
                   type="date"
-                  value={dateRange.start}
-                  onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                  value={registrationRange.start}
+                  onChange={(e) => setRegistrationRange({ ...registrationRange, start: e.target.value })}
                   className="flex-1 px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
                 />
                 <span className="text-on-surface-variant/40 text-xs">—</span>
                 <input
                   type="date"
-                  value={dateRange.end}
-                  onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                  value={registrationRange.end}
+                  onChange={(e) => setRegistrationRange({ ...registrationRange, end: e.target.value })}
                   className="flex-1 px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
                 />
               </div>
             </FilterSection>
 
-            <FilterSection title="Cliente" icon="person">
-              <input
-                type="text"
-                value={customerSearch}
-                onChange={(e) => setCustomerSearch(e.target.value)}
-                placeholder="Buscar por nombre o email..."
-                className="w-full px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
-              />
+            <FilterSection title="Última Compra" icon="shopping_cart">
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={lastPurchaseRange.start}
+                  onChange={(e) => setLastPurchaseRange({ ...lastPurchaseRange, start: e.target.value })}
+                  className="flex-1 px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
+                />
+                <span className="text-on-surface-variant/40 text-xs">—</span>
+                <input
+                  type="date"
+                  value={lastPurchaseRange.end}
+                  onChange={(e) => setLastPurchaseRange({ ...lastPurchaseRange, end: e.target.value })}
+                  className="flex-1 px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
+                />
+              </div>
             </FilterSection>
 
-            <FilterSection title="Valor de Orden" icon="attach_money">
+            <FilterSection title="Valor de Vida" icon="attach_money">
               <div className="flex items-center gap-2">
                 <input
                   type="number"
-                  value={valueRange.min}
-                  onChange={(e) => setValueRange({ ...valueRange, min: e.target.value })}
+                  value={lifetimeValue.min}
+                  onChange={(e) => setLifetimeValue({ ...lifetimeValue, min: e.target.value })}
                   placeholder="Mín"
                   className="flex-1 px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
                 />
                 <span className="text-on-surface-variant/40 text-xs">—</span>
                 <input
                   type="number"
-                  value={valueRange.max}
-                  onChange={(e) => setValueRange({ ...valueRange, max: e.target.value })}
+                  value={lifetimeValue.max}
+                  onChange={(e) => setLifetimeValue({ ...lifetimeValue, max: e.target.value })}
+                  placeholder="Máx"
+                  className="flex-1 px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
+                />
+              </div>
+            </FilterSection>
+
+            <FilterSection title="Total Órdenes" icon="receipt_long">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={totalOrders.min}
+                  onChange={(e) => setTotalOrders({ ...totalOrders, min: e.target.value })}
+                  placeholder="Mín"
+                  className="flex-1 px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
+                />
+                <span className="text-on-surface-variant/40 text-xs">—</span>
+                <input
+                  type="number"
+                  value={totalOrders.max}
+                  onChange={(e) => setTotalOrders({ ...totalOrders, max: e.target.value })}
                   placeholder="Máx"
                   className="flex-1 px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
                 />

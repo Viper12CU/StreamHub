@@ -12,7 +12,6 @@ const navItems = [
   { label: "Productos", icon: "category", href: "/admin/products" },
   { label: "Inventario", icon: "inventory_2", href: "/admin/inventory" },
   { label: "Pedidos", icon: "shopping_cart", href: "/admin/orders" },
-  { label: "Pagos", icon: "payments", href: "/admin/payments" },
   { label: "Clientes", icon: "group", href: "/admin/customers" },
 ]
 

@@ -75,7 +75,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Floating Action Button */}
-      <button className="fixed bottom-10 right-10 w-14 h-14 bg-primary-container text-on-primary-container rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+      <button className="fixed bottom-10 right-10 w-14 h-14 bg-primary-container text-white-container rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
         <span className="material-symbols-outlined text-2xl">add</span>
       </button>
     </>

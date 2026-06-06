@@ -110,6 +110,14 @@ components/
 - `molecules/order-analytics.tsx` — Analytics de órdenes (donut estados, barras métodos pago, ingresos, volumen)
 - `molecules/recent-order-activity.tsx` — Timeline de actividad reciente de órdenes
 - `molecules/operational-alerts.tsx` — Panel de alertas operacionales (6 alertas con severidad)
+- `molecules/customer-tabs.tsx` — Tabs de estado de clientes (6 estados con conteo)
+- `molecules/customer-filters.tsx` — Filtros avanzados de clientes (estado, fechas, valor, órdenes, orden)
+- `molecules/customer-table.tsx` — Tabla de clientes con avatar, selección múltiple (click en row abre drawer)
+- `molecules/customer-detail-drawer.tsx` — Drawer de perfil de cliente (info, estado, suscripciones, órdenes, pagos, soporte, notas)
+- `molecules/create-customer-modal.tsx` — Modal de creación de cliente (3 pasos: info, cuenta, resumen)
+- `molecules/customer-analytics.tsx` — Analytics de clientes (crecimiento, segmentos, top clientes, retención)
+- `molecules/recent-customer-activity.tsx` — Timeline de actividad reciente de clientes
+- `molecules/customer-insights.tsx` — Panel de insights (valor vida, inactivos, expiraciones, compras repetidas)
 - `organisms/admin/admin-sidebar.tsx` — Sidebar completa (11 items de navegación)
 - `organisms/admin/admin-top-bar.tsx` — Top bar completa (compone AdminSearchInput, AdminUserProfile)
 

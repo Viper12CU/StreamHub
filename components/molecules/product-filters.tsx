@@ -112,7 +112,7 @@ export function ProductFilters({ onToggle, isOpen }: ProductFiltersProps) {
           <div>
             <span className="text-sm font-semibold text-on-surface">Filtros</span>
             {activeCount > 0 && (
-              <span className="ml-2 px-2 py-0.5 bg-primary text-on-primary text-[10px] font-bold rounded-full">
+              <span className="ml-2 px-2 py-0.5 bg-primary text-white text-[10px] font-bold rounded-full">
                 {activeCount}
               </span>
             )}

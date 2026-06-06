@@ -9,7 +9,7 @@ export function AdminLogo({ collapsed = false }: AdminLogoProps) {
     <div className={cn("flex items-center", collapsed ? "justify-center" : "gap-4 px-2")}>
       <div className="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center glow-red shrink-0">
         <span
-          className="material-symbols-outlined text-on-primary-container"
+          className="material-symbols-outlined text-white-container"
           style={{ fontVariationSettings: "'FILL' 1" }}
         >
           cloud_sync

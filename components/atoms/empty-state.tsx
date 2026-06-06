@@ -34,7 +34,7 @@ export function EmptyState({ icon, title, description, action, variant = "defaul
       <h4 className="text-sm font-semibold text-on-surface mb-1">{title}</h4>
       <p className="text-xs text-on-surface-variant text-center max-w-[200px]">{description}</p>
       {action && (
-        <button className="mt-4 px-4 py-2 bg-primary text-on-primary text-xs font-semibold rounded-lg hover:bg-primary/90 transition-colors">
+        <button className="mt-4 px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-primary/90 transition-colors">
           {action.label}
         </button>
       )}

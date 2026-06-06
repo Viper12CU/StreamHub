@@ -85,7 +85,7 @@ export function CreateOrderModal({ onClose }: CreateOrderModalProps) {
                 <div className={cn(
                   "w-7 h-7 rounded-full flex items-center justify-center transition-all shrink-0",
                   i <= step
-                    ? "bg-primary text-on-primary shadow-lg shadow-primary/20"
+                    ? "bg-primary text-white shadow-lg shadow-primary/20"
                     : "bg-surface-container-high text-on-surface-variant"
                 )}>
                   <span className="material-symbols-outlined text-sm">{s.icon}</span>
@@ -325,7 +325,7 @@ export function CreateOrderModal({ onClose }: CreateOrderModalProps) {
           {step < 3 ? (
             <button
               onClick={() => setStep(step + 1)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-on-primary text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
             >
               Siguiente
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -333,7 +333,7 @@ export function CreateOrderModal({ onClose }: CreateOrderModalProps) {
           ) : (
             <button
               onClick={onClose}
-              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-on-primary text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
             >
               <span className="material-symbols-outlined text-sm">check</span>
               Crear Orden

@@ -35,7 +35,7 @@ export function InventoryTabs({ activeTab, onTabChange }: InventoryTabsProps) {
             <span className={cn(
               "px-1.5 py-0.5 text-[10px] font-bold rounded-full",
               activeTab === tab.id
-                ? "bg-primary text-on-primary"
+                ? "bg-primary text-white"
                 : "bg-surface-container-high text-on-surface-variant"
             )}>
               {tab.count}

@@ -29,7 +29,7 @@ export function TopPerformers() {
           <div key={product.rank} className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg transition-colors">
             <span className={cn(
               "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold",
-              product.rank === 1 ? "bg-primary text-on-primary" :
+              product.rank === 1 ? "bg-primary text-white" :
               product.rank === 2 ? "bg-secondary text-on-secondary" :
               product.rank === 3 ? "bg-amber-500 text-black" :
               "bg-surface-container-high text-on-surface-variant"

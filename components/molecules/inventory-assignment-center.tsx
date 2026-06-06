@@ -100,7 +100,7 @@ export function InventoryAssignmentCenter({ onClose }: InventoryAssignmentCenter
           <div className="space-y-2 pt-2">
             <button
               onClick={() => setShowConfirm(true)}
-              className="w-full py-2.5 bg-primary text-on-primary text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+              className="w-full py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
             >
               Asignar Activo
             </button>
@@ -124,7 +124,7 @@ export function InventoryAssignmentCenter({ onClose }: InventoryAssignmentCenter
               <button onClick={() => setShowConfirm(false)} className="flex-1 py-2 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors">
                 Cancelar
               </button>
-              <button onClick={() => { setShowConfirm(false); onClose() }} className="flex-1 py-2 bg-primary text-on-primary text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors">
+              <button onClick={() => { setShowConfirm(false); onClose() }} className="flex-1 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors">
                 Confirmar
               </button>
             </div>

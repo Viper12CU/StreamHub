@@ -175,7 +175,7 @@ export function InventoryTable({ selectedAssets, onSelectAssets, onViewAsset, ac
       <div className="p-4 border-t border-white/5 flex items-center justify-between">
         <span className="text-xs text-on-surface-variant">Mostrando {filteredAssets.length} de 1,245 activos</span>
         <div className="flex gap-1">
-          <button className="px-3 py-1.5 bg-primary text-on-primary text-[10px] font-semibold rounded-lg">1</button>
+          <button className="px-3 py-1.5 bg-primary text-white text-[10px] font-semibold rounded-lg">1</button>
           <button className="px-3 py-1.5 bg-surface-container-low text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-surface-container-high transition-colors">2</button>
           <button className="px-3 py-1.5 bg-surface-container-low text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-surface-container-high transition-colors">3</button>
           <button className="px-3 py-1.5 bg-surface-container-low text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-surface-container-high transition-colors">...</button>

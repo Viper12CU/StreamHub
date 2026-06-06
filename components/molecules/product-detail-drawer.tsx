@@ -191,7 +191,7 @@ export function ProductDetailDrawer({ productId, onClose }: ProductDetailDrawerP
         <div className="p-4 border-t border-white/5 bg-surface-container-lowest/90 backdrop-blur-xl space-y-3">
           {/* Primary Actions */}
           <div className="flex gap-2">
-            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-on-primary text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
               <span className="material-symbols-outlined text-sm">edit</span>
               Editar Producto
             </button>

@@ -40,7 +40,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-4">
           <div className="w-16 h-16 rounded-2xl bg-primary-container flex items-center justify-center mx-auto glow-red">
-            <span className="material-symbols-outlined text-on-primary-container text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>cloud_sync</span>
+            <span className="material-symbols-outlined text-white-container text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>cloud_sync</span>
           </div>
           <div>
             <h1 className="text-3xl font-bold text-primary tracking-tight">StreamHub</h1>

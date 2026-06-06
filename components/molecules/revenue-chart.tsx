@@ -34,7 +34,7 @@ export function RevenueChart() {
               className={cn(
                 "px-4 py-2 text-xs font-semibold rounded-md transition-colors",
                 activeFilter === filter
-                  ? "bg-primary text-on-primary"
+                  ? "bg-primary text-white"
                   : "hover:bg-white/5 text-on-surface-variant"
               )}
             >
