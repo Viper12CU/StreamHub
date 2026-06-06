@@ -64,7 +64,6 @@ function getExpirationStyle(days: number | null) {
 
 export function InventoryTable({ selectedAssets, onSelectAssets, onViewAsset, activeTab }: InventoryTableProps) {
   const [selectAll, setSelectAll] = useState(false)
-  const [openMenu, setOpenMenu] = useState<string | null>(null)
 
   const filteredAssets = activeTab === "all"
     ? assets
@@ -120,7 +119,6 @@ export function InventoryTable({ selectedAssets, onSelectAssets, onViewAsset, ac
               <th className="py-3">Cliente</th>
               <th className="py-3">Expiración</th>
               <th className="py-3">Actualizado</th>
-              <th className="py-3 text-right">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -169,39 +167,6 @@ export function InventoryTable({ selectedAssets, onSelectAssets, onViewAsset, ac
                   </div>
                 </td>
                 <td className="py-3 text-[10px] text-on-surface-variant">{asset.lastUpdated}</td>
-                <td className="py-3 text-right relative">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setOpenMenu(openMenu === asset.id ? null : asset.id) }}
-                    className="material-symbols-outlined text-on-surface-variant hover:text-on-surface text-sm"
-                  >
-                    more_vert
-                  </button>
-                  {openMenu === asset.id && (
-                    <div className="absolute right-0 top-8 z-10 w-48 bg-surface-container-low border border-white/10 rounded-xl shadow-xl py-1">
-                      <button
-                        onClick={() => { onViewAsset(asset.id); setOpenMenu(null) }}
-                        className="w-full text-left px-4 py-2 text-xs hover:bg-white/5 flex items-center gap-2"
-                      >
-                        <span className="material-symbols-outlined text-sm">visibility</span> Ver detalles
-                      </button>
-                      <button className="w-full text-left px-4 py-2 text-xs hover:bg-white/5 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-sm">edit</span> Editar activo
-                      </button>
-                      <button className="w-full text-left px-4 py-2 text-xs hover:bg-white/5 flex items-center gap-2 text-primary">
-                        <span className="material-symbols-outlined text-sm">person_add</span> Asignar
-                      </button>
-                      <button className="w-full text-left px-4 py-2 text-xs hover:bg-white/5 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-sm">swap_horiz</span> Reasignar
-                      </button>
-                      <button className="w-full text-left px-4 py-2 text-xs hover:bg-white/5 flex items-center gap-2 text-amber-500">
-                        <span className="material-symbols-outlined text-sm">block</span> Suspender
-                      </button>
-                      <button className="w-full text-left px-4 py-2 text-xs hover:bg-white/5 flex items-center gap-2 text-error">
-                        <span className="material-symbols-outlined text-sm">delete</span> Eliminar
-                      </button>
-                    </div>
-                  )}
-                </td>
               </tr>
             ))}
           </tbody>

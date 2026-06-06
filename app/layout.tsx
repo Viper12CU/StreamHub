@@ -38,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className="dark bg-background">
+    <html lang="es" className="dark bg-background data-scroll-behavior: smooth; ">
       <head>
         <link
           rel="stylesheet"

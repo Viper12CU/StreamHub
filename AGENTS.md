@@ -99,6 +99,17 @@ components/
 - `molecules/low-stock-monitoring.tsx` — Monitoreo de stock bajo con tabla y acciones
 - `molecules/recent-inventory-activity.tsx` — Timeline de actividad reciente del inventario
 - `molecules/inventory-assignment-center.tsx` — Centro de asignación de activos a órdenes
+- `molecules/order-tabs.tsx` — Tabs de estado de órdenes (7 estados con conteo)
+- `molecules/order-filters.tsx` — Filtros avanzados de órdenes (estado, pago, plataforma, fechas, cliente, valor, orden)
+- `molecules/order-table.tsx` — Tabla de órdenes con selección múltiple y menú acciones (click en row abre drawer)
+- `molecules/order-detail-drawer.tsx` — Drawer de detalle de orden (info, cliente, productos, pago, inventario, entrega, workflow, notas)
+- `molecules/create-order-modal.tsx` — Modal de creación de orden (4 pasos: cliente, producto, pago, resumen)
+- `molecules/payment-verification-center.tsx` — Centro de verificación de pagos (5 pendientes, >24h urgent)
+- `molecules/inventory-assignment-queue.tsx` — Cola de asignación de inventario (auto/manual)
+- `molecules/delivery-queue.tsx` — Cola de entrega de órdenes
+- `molecules/order-analytics.tsx` — Analytics de órdenes (donut estados, barras métodos pago, ingresos, volumen)
+- `molecules/recent-order-activity.tsx` — Timeline de actividad reciente de órdenes
+- `molecules/operational-alerts.tsx` — Panel de alertas operacionales (6 alertas con severidad)
 - `organisms/admin/admin-sidebar.tsx` — Sidebar completa (11 items de navegación)
 - `organisms/admin/admin-top-bar.tsx` — Top bar completa (compone AdminSearchInput, AdminUserProfile)
 

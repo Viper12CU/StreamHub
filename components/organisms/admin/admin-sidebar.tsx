@@ -14,7 +14,6 @@ const navItems = [
   { label: "Pedidos", icon: "shopping_cart", href: "/admin/orders" },
   { label: "Pagos", icon: "payments", href: "/admin/payments" },
   { label: "Clientes", icon: "group", href: "/admin/customers" },
-  { label: "Auditoría", icon: "fact_check", href: "/admin/audit" },
 ]
 
 interface AdminSidebarProps {
