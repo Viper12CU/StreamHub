@@ -6,9 +6,11 @@ import { cn } from "@/lib/utils"
 import { AdminLogo } from "@/components/molecules/admin-logo"
 import { AdminNavItem } from "@/components/atoms/admin-nav-item"
 import { CollapseButton } from "@/components/atoms/collapse-button"
+import { signOut } from "@/lib/api/auth"
 
 const navItems = [
   { label: "Dashboard", icon: "dashboard", href: "/admin" },
+  { label: "Plataformas", icon: "smart_display", href: "/admin/platforms" },
   { label: "Productos", icon: "category", href: "/admin/products" },
   { label: "Inventario", icon: "inventory_2", href: "/admin/inventory" },
   { label: "Pedidos", icon: "shopping_cart", href: "/admin/orders" },
@@ -24,8 +26,10 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
 
-  const handleLogout = () => {
-    localStorage.setItem("admin_auth", "false")
+  const handleLogout = async () => {
+    try {
+      await signOut()
+    } catch {}
     router.push("/admin/login")
   }
 

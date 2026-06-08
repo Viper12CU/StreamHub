@@ -6,7 +6,7 @@ interface StatusBadgeProps {
 }
 
 const variantClasses = {
-  success: "bg-green-500/10 text-green-400",
+  success: "bg-green-500/10 text-green-500",
   error: "bg-error-container/20 text-error",
   warning: "bg-amber-500/20 text-amber-500",
   neutral: "bg-surface-container-high text-on-surface-variant",

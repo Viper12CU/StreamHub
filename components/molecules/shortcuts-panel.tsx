@@ -7,10 +7,10 @@ interface Shortcut {
 }
 
 const shortcuts: Shortcut[] = [
-  { icon: "add_box", label: "Crear Producto", color: "bg-surface-container-low", hoverColor: "hover:bg-primary-container hover:text-white-container", iconBg: "bg-primary/20" },
+  { icon: "add_box", label: "Crear Producto", color: "bg-surface-container-low", hoverColor: "hover:bg-primary-container hover:text-on-primary-container", iconBg: "bg-primary/20" },
   { icon: "inventory_2", label: "Agregar Inventario", color: "bg-surface-container-low", hoverColor: "hover:bg-secondary-container hover:text-on-secondary-container", iconBg: "bg-secondary/20" },
   { icon: "shopping_cart", label: "Crear Pedido", color: "bg-surface-container-low", hoverColor: "hover:bg-tertiary-container hover:text-on-tertiary-container", iconBg: "bg-tertiary/20" },
-  { icon: "verified", label: "Verificar Pagos", color: "bg-surface-container-low", hoverColor: "hover:bg-primary-container hover:text-white-container", iconBg: "bg-primary/20" },
+  { icon: "verified", label: "Verificar Pagos", color: "bg-surface-container-low", hoverColor: "hover:bg-primary-container hover:text-on-primary-container", iconBg: "bg-primary/20" },
   { icon: "group", label: "Gestionar Usuarios", color: "bg-surface-container-low", hoverColor: "hover:bg-secondary-container hover:text-on-secondary-container", iconBg: "bg-secondary/20" },
   { icon: "analytics", label: "Ver Reportes", color: "bg-surface-container-low", hoverColor: "hover:bg-error-container hover:text-on-error-container", iconBg: "bg-error/20" },
 ]

@@ -18,7 +18,7 @@ export function AdminNavItem({ href, icon, label, isActive = false, collapsed = 
         "flex items-center gap-6 rounded-lg transition-all duration-300",
         collapsed ? "justify-center px-0 py-3" : "px-4 py-3",
         isActive
-          ? "bg-primary-container text-white-container shadow-[0_0_15px_rgba(229,9,20,0.3)]"
+          ? "bg-primary-container text-on-primary-container shadow-[0_0_15px_rgba(229,9,20,0.3)]"
           : "text-on-surface-variant hover:text-on-surface hover:bg-white/5 hover:translate-x-1",
       )}
     >

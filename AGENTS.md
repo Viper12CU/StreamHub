@@ -43,6 +43,7 @@ Redirige a `/admin/login`. Layout con sidebar colapsable y top bar.
 | `/admin/coupons` | `app/admin/coupons/page.tsx` |
 | `/admin/inventory` | `app/admin/inventory/page.tsx` |
 | `/admin/products` | `app/admin/products/page.tsx` |
+| `/admin/platforms` | `app/admin/platforms/page.tsx` |
 | `/admin/customers` | `app/admin/customers/page.tsx` |
 | `/admin/tickets` | `app/admin/tickets/page.tsx` |
 | `/admin/audit` | `app/admin/audit/page.tsx` |
@@ -118,6 +119,16 @@ components/
 - `molecules/customer-analytics.tsx` — Analytics de clientes (crecimiento, segmentos, top clientes, retención)
 - `molecules/recent-customer-activity.tsx` — Timeline de actividad reciente de clientes
 - `molecules/customer-insights.tsx` — Panel de insights (valor vida, inactivos, expiraciones, compras repetidas)
+- `molecules/platform-tabs.tsx` — Tabs de estado de plataformas (4 estados con conteo)
+- `molecules/platform-filters.tsx` — Filtros avanzados de plataformas (estado, categoría, volumen, orden)
+- `molecules/platform-grid.tsx` — Grid/Table view de plataformas con cards y tabla (toggle)
+- `molecules/platform-detail-drawer.tsx` — Drawer de detalle de plataforma (info, branding, productos, inventario, ingresos, rendimiento, top productos)
+- `molecules/create-platform-modal.tsx` — Modal de creación de plataforma (5 pasos: info, descripción, branding, display, resumen)
+- `molecules/edit-platform-modal.tsx` — Modal de edición de plataforma (4 secciones: info, descripción, branding, display)
+- `molecules/platform-analytics.tsx` — Analytics de plataformas (ingresos, órdenes, inventario, clientes)
+- `molecules/top-products-by-platform.tsx` — Tabla de top productos por plataforma (ventas, ingresos, inventario)
+- `molecules/platform-health.tsx` — Monitoreo de salud de plataformas (inventario bajo, productos inactivos, caída ingresos, activos por expirar)
+- `molecules/recent-platform-activity.tsx` — Timeline de actividad reciente de plataformas
 - `organisms/admin/admin-sidebar.tsx` — Sidebar completa (11 items de navegación)
 - `organisms/admin/admin-top-bar.tsx` — Top bar completa (compone AdminSearchInput, AdminUserProfile)
 
@@ -135,6 +146,7 @@ components/
 ```
 lib/
   api/auth.ts          — Funciones de autenticación (signIn, signUp, signOut, setSessionToken)
+  api/platforms.ts     — API de plataformas (CRUD, analytics, health, cache 30s)
   axios.ts             — Instancia de axios configurada
   session-context.tsx  — Context de sesión (useSession, SessionProvider)
   utils.ts             — Utilidad cn() para classnames
@@ -143,6 +155,14 @@ hooks/
 ```
 
 ## Config quirks
+
+## Backend Reference
+- Backend repository location: `../StreamHub Backend`
+- The frontend proxies all `/api/*` requests to `http://localhost:3001/api/*` (see `next.config.mjs`).
+- Expected backend services include product, platform, order, inventory, and customer APIs.
+- Ensure the backend is running before launching the frontend (`pnpm dev`).
+
+
 - `next.config.mjs` sets `typescript.ignoreBuildErrors = true` (type errors won't fail builds).
 - `next.config.mjs` sets `images.unoptimized = true` (no Next image optimization).
 - `next.config.mjs` allows remote images from `images.unsplash.com` via `images.remotePatterns`.
@@ -159,6 +179,7 @@ hooks/
   - `.material-symbols-outlined` — Configuración de iconos Material
   - `.platform-accent-*` — Border left colors (netflix, spotify, disney, youtube, hbo)
   - `.custom-scrollbar` — Scrollbar personalizado
+  - `.skeleton-shimmer` — Shimmer animation para skeletons (gradiente `#2a2a2a` → `#353534`)
   - `.hero-gradient`, `.animated-gradient`, `.service-card`, etc.
 - Design tokens in `DESIGN.md` (colores, tipografía, spacing, elevación).
 - Surface tokens: `--surface`, `--surface-container`, `--on-surface`, etc.
@@ -173,11 +194,11 @@ hooks/
   ```
 
 ## Auth behavior (Admin)
-- `localStorage("admin_auth")` controls admin access.
-- `true` = authenticated, can access any `/admin/*` route.
-- `null`/`false` = not authenticated, redirects to `/admin/login`.
-- Set on login: `localStorage.setItem("admin_auth", "true")`.
-- Cleared on logout: `localStorage.removeItem("admin_auth")`.
+- Uses `getSession` from `lib/api/auth.ts` to validate sessions via the backend API.
+- Admin layout calls `getSession()` on mount; if it fails, redirects to `/admin/login`.
+- Login calls `signIn()` then `getSession()` to validate the session.
+- Logout calls `signOut()` then redirects to `/admin/login`.
+- Session token is stored in memory via `setSessionToken()` and sent as `Authorization: Bearer` header.
 
 ## Routing conventions
 - All internal links in `/web` components must use `/web/*` prefix.

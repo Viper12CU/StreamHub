@@ -1,13 +1,22 @@
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils"
 
-function Skeleton({ className, ...props }: React.ComponentProps<'div'>) {
+interface SkeletonProps {
+  className?: string
+  variant?: "rect" | "circle" | "text"
+  animate?: boolean
+}
+
+export function Skeleton({ className, variant = "rect", animate = true }: SkeletonProps) {
   return (
     <div
-      data-slot="skeleton"
-      className={cn('bg-accent animate-pulse rounded-md', className)}
-      {...props}
+      className={cn(
+        animate && "skeleton-shimmer",
+        !animate && "bg-surface-container-high",
+        variant === "circle" && "rounded-full",
+        variant === "text" && "rounded",
+        variant === "rect" && "rounded-lg",
+        className
+      )}
     />
   )
 }
-
-export { Skeleton }

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { AdminSidebar } from "@/components/organisms/admin/admin-sidebar"
 import { AdminTopBar } from "@/components/organisms/admin/admin-top-bar"
+import { getSession } from "@/lib/api/auth"
 
 export default function AdminLayout({
   children,
@@ -18,10 +19,22 @@ export default function AdminLayout({
   const isLoginPage = pathname === "/admin/login"
 
   useEffect(() => {
-    const auth = localStorage.getItem("admin_auth")
-    setIsAuthenticated(auth === "true")
-    setIsLoading(false)
-  }, [])
+    if (isLoginPage) {
+      setIsLoading(false)
+      return
+    }
+
+    getSession()
+      .then(() => {
+        setIsAuthenticated(true)
+      })
+      .catch(() => {
+        setIsAuthenticated(false)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
+  }, [isLoginPage])
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated && !isLoginPage) {
@@ -49,7 +62,7 @@ export default function AdminLayout({
         </section>
 
         <footer className="mt-auto p-6 text-center opacity-30">
-          <p className="text-xs">© 2024 StreamHub Admin Portal. All rights reserved.</p>
+          <p className="text-xs">&copy; 2024 StreamHub Admin Portal. All rights reserved.</p>
         </footer>
       </main>
     </div>
