@@ -147,14 +147,24 @@ components/
 lib/
   api/auth.ts          — Funciones de autenticación (signIn, signUp, signOut, setSessionToken)
   api/platforms.ts     — API de plataformas (CRUD, analytics, health, cache 30s)
+  api/products.ts      — API de productos (CRUD, analytics, health, bulk, duplicate, cache 30s)
+  constants/products.ts — Constantes compartidas: statusMap, productTypeMap, productTypes, statusOptions, generateSlug, formatDate, formatDateFull, formatRelativeDate, getInventoryColor, safeToFixed
   axios.ts             — Instancia de axios configurada
   session-context.tsx  — Context de sesión (useSession, SessionProvider)
   utils.ts             — Utilidad cn() para classnames
 hooks/
   use-mobile.ts        — Hook para detectar dispositivo móvil
+  use-platforms.ts     — Hook con cache de plataformas activas (usePlatforms)
 ```
 
 ## Config quirks
+
+### localStorage persistence
+- `admin-platforms-view` — Grid/table view mode for platforms page
+- `admin-products-view` — Grid/table view mode for products page
+- `admin-sidebar-collapsed` — Sidebar collapsed/expanded state (`"true"`/`"false"`)
+
+Each `useState` reads from `localStorage` on init; a `useEffect` syncs on change.
 
 ## Backend Reference
 - Backend repository location: `../StreamHub Backend`

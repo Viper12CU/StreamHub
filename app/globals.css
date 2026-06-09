@@ -97,6 +97,14 @@
   body {
     @apply bg-background text-foreground;
   }
+  option {
+    background-color: var(--surface-container-low);
+    color: var(--on-surface);
+  }
+  option:checked {
+    background-color: var(--primary);
+    color: white;
+  }
 }
 
 /* Glass Panel Effect */

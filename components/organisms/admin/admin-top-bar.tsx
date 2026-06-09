@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { AdminSearchInput } from "@/components/molecules/admin-search-input"
-import { AdminUserProfile } from "@/components/molecules/admin-user-profile"
 import { useIsMobile } from "@/hooks/use-mobile"
 
 interface AdminTopBarProps {
@@ -40,7 +39,6 @@ export function AdminTopBar({ collapsed }: AdminTopBarProps) {
             <span className="material-symbols-outlined">help</span>
           </button>
         </div>
-        <AdminUserProfile />
       </div>
     </header>
   )

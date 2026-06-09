@@ -12,6 +12,7 @@ interface PlatformGridProps {
   platforms: PlatformWithMetrics[]
   loading: boolean
   hasActiveFilters?: boolean
+  productCounts?: Record<string, number>
 }
 
 const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
@@ -108,7 +109,7 @@ function EmptyState({ hasActiveFilters }: { hasActiveFilters?: boolean }) {
   )
 }
 
-function PlatformGridInner({ activeTab, onSelectPlatform, viewMode, platforms, loading, hasActiveFilters }: PlatformGridProps) {
+function PlatformGridInner({ activeTab, onSelectPlatform, viewMode, platforms, loading, hasActiveFilters, productCounts = {} }: PlatformGridProps) {
   const filteredPlatforms = useMemo(() => {
     return activeTab === "all"
       ? platforms
@@ -167,7 +168,7 @@ function PlatformGridInner({ activeTab, onSelectPlatform, viewMode, platforms, l
                   </td>
                   <td className="py-3 text-xs font-medium text-on-surface">{platform.name}</td>
                   <td className="py-3 text-xs text-on-surface-variant capitalize">{platform.category}</td>
-                  <td className="py-3 text-xs text-on-surface">{platform.products_count}</td>
+                  <td className="py-3 text-xs text-on-surface">{productCounts[platform.id] ?? 0}</td>
                   <td className="py-3 text-xs text-on-surface">{platform.inventory_available}</td>
                   <td className="py-3 text-xs font-semibold text-primary">${(platform.revenue_monthly ?? 0).toLocaleString()}</td>
                   <td className="py-3">
@@ -213,7 +214,7 @@ function PlatformGridInner({ activeTab, onSelectPlatform, viewMode, platforms, l
           <div className="grid grid-cols-3 gap-2 mb-3">
             <div className="text-center p-2 bg-surface-container-low rounded-lg">
               <p className="text-[10px] text-on-surface-variant uppercase">Productos</p>
-              <p className="text-sm font-bold text-on-surface">{platform.products_count}</p>
+              <p className="text-sm font-bold text-on-surface mt-1">{productCounts[platform.id] ?? 0}</p>
             </div>
             <div className="text-center p-2 bg-surface-container-low rounded-lg">
               <p className="text-[10px] text-on-surface-variant uppercase">Inventario</p>

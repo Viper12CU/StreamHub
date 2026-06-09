@@ -1,85 +1,198 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { StatusBadge } from "@/components/atoms/status-badge"
-
-interface Product {
-  id: string
-  name: string
-  description: string
-  platform: string
-  type: string
-  price: string
-  inventory: number
-  sales: number
-  revenue: string
-  status: "active" | "draft" | "archived" | "out_of_stock"
-  lastUpdated: string
-  thumbnail: string
-}
+import { Skeleton } from "@/components/ui/skeleton"
+import { statusMap, productTypeMap, getInventoryColor, formatRelativeDate } from "@/lib/constants/products"
+import type { ProductWithDetails } from "@/lib/api/products"
 
 interface ProductTableProps {
+  products: ProductWithDetails[]
+  loading: boolean
+  pagination: { page: number; totalPages: number; total: number }
   selectedProducts: string[]
   onSelectProducts: (ids: string[]) => void
   onViewProduct: (id: string) => void
+  onPageChange: (page: number) => void
+  viewMode?: "grid" | "table"
 }
 
-const products: Product[] = [
-  { id: "PROD-001", name: "Netflix Premium 4K", description: "Cuenta completa con 4 pantallas simultáneas", platform: "Netflix", type: "Cuenta Completa", price: "$24.99", inventory: 52, sales: 438, revenue: "$10,945", status: "active", lastUpdated: "Hace 2h", thumbnail: "https://images.unsplash.com/photo-1574375927938-d5a98e8d7e28?w=100&h=100&fit=crop" },
-  { id: "PROD-002", name: "Spotify Family", description: "Hasta 6 cuentas Premium", platform: "Spotify", type: "Perfil Compartido", price: "$15.99", inventory: 34, sales: 312, revenue: "$4,989", status: "active", lastUpdated: "Hace 4h", thumbnail: "https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=100&h=100&fit=crop" },
-  { id: "PROD-003", name: "Disney+ Premium", description: "Acceso completo con 4K UHD", platform: "Disney+", type: "Cuenta Completa", price: "$12.99", inventory: 3, sales: 198, revenue: "$2,572", status: "active", lastUpdated: "Hace 6h", thumbnail: "https://images.unsplash.com/photo-1585959629489-d315be2a599c?w=100&h=100&fit=crop" },
-  { id: "PROD-004", name: "YouTube Premium", description: "Sin anuncios + YouTube Music", platform: "YouTube Premium", type: "Suscripción", price: "$11.99", inventory: 0, sales: 156, revenue: "$1,870", status: "out_of_stock", lastUpdated: "Hace 1d", thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=100&h=100&fit=crop" },
-  { id: "PROD-005", name: "HBO Max Ultra", description: "4K + Descarga offline", platform: "HBO Max", type: "Cuenta Completa", price: "$14.99", inventory: 28, sales: 142, revenue: "$2,129", status: "active", lastUpdated: "Hace 12h", thumbnail: "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=100&h=100&fit=crop" },
-  { id: "PROD-006", name: "Crunchyroll Mega", description: "Acceso completo a anime", platform: "Crunchyroll", type: "Cuenta Completa", price: "$7.99", inventory: 45, sales: 98, revenue: "$783", status: "active", lastUpdated: "Hace 2d", thumbnail: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=100&h=100&fit=crop" },
-  { id: "PROD-007", name: "Netflix Standard", description: "2 pantallas simultáneas", platform: "Netflix", type: "Perfil Compartido", price: "$8.99", inventory: 67, sales: 289, revenue: "$2,598", status: "active", lastUpdated: "Hace 3d", thumbnail: "https://images.unsplash.com/photo-1574375927938-d5a98e8d7e28?w=100&h=100&fit=crop" },
-  { id: "PROD-008", name: "Spotify Individual", description: "Cuenta Premium individual", platform: "Spotify", type: "Cuenta Completa", price: "$9.99", inventory: 89, sales: 234, revenue: "$2,337", status: "active", lastUpdated: "Hace 3d", thumbnail: "https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=100&h=100&fit=crop" },
-  { id: "PROD-009", name: "IPTV Premium", description: "10,000+ canales en vivo", platform: "IPTV", type: "Código de Activación", price: "$19.99", inventory: 12, sales: 87, revenue: "$1,739", status: "active", lastUpdated: "Hace 4d", thumbnail: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=100&h=100&fit=crop" },
-  { id: "PROD-010", name: "Disney+ + ESPN", description: "Paquete combo deportes", platform: "Disney+", type: "Paquete de Suscripción", price: "$16.99", inventory: 2, sales: 145, revenue: "$2,464", status: "active", lastUpdated: "Hace 5d", thumbnail: "https://images.unsplash.com/photo-1585959629489-d315be2a599c?w=100&h=100&fit=crop" },
-]
-
-const platformColors: Record<string, string> = {
-  Netflix: "bg-primary-container",
-  Spotify: "bg-secondary",
-  "YouTube Premium": "bg-[#ff0000]",
-  "HBO Max": "bg-[#b829e3]",
-  "Disney+": "bg-tertiary",
-  Crunchyroll: "bg-[#f47521]",
-  IPTV: "bg-amber-500",
+function TableSkeleton() {
+  return (
+    <div className="glass rounded-xl overflow-hidden border border-white/5">
+      <div className="p-4 border-b border-white/5">
+        <Skeleton className="h-5 w-40" />
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead className="border-b border-white/5 text-[10px] font-semibold text-on-surface-variant opacity-60">
+            <tr>
+              <th className="py-3 px-4 w-10"><Skeleton className="h-4 w-4" /></th>
+              <th className="py-3"><Skeleton className="h-3 w-24" /></th>
+              <th className="py-3"><Skeleton className="h-3 w-20" /></th>
+              <th className="py-3"><Skeleton className="h-3 w-20" /></th>
+              <th className="py-3 text-right"><Skeleton className="h-3 w-12" /></th>
+              <th className="py-3 text-right"><Skeleton className="h-3 w-14" /></th>
+              <th className="py-3 text-right"><Skeleton className="h-3 w-10" /></th>
+              <th className="py-3 text-right"><Skeleton className="h-3 w-14" /></th>
+              <th className="py-3"><Skeleton className="h-3 w-14" /></th>
+              <th className="py-3"><Skeleton className="h-3 w-14" /></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <tr key={i}>
+                <td className="py-3 px-4"><Skeleton className="h-4 w-4" /></td>
+                <td className="py-3"><Skeleton className="h-4 w-32" /></td>
+                <td className="py-3"><Skeleton className="h-4 w-20" /></td>
+                <td className="py-3"><Skeleton className="h-4 w-20" /></td>
+                <td className="py-3 text-right"><Skeleton className="h-4 w-12" /></td>
+                <td className="py-3 text-right"><Skeleton className="h-4 w-14" /></td>
+                <td className="py-3 text-right"><Skeleton className="h-4 w-10" /></td>
+                <td className="py-3 text-right"><Skeleton className="h-4 w-14" /></td>
+                <td className="py-3"><Skeleton className="h-5 w-16 rounded-full" /></td>
+                <td className="py-3"><Skeleton className="h-3 w-14" /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
 }
 
-const statusMap = {
-  active: { label: "Activo", variant: "success" as const },
-  draft: { label: "Borrador", variant: "neutral" as const },
-  archived: { label: "Archivado", variant: "neutral" as const },
-  out_of_stock: { label: "Sin Stock", variant: "error" as const },
+function PaginationFooter({ pagination, onPageChange }: { pagination: { page: number; totalPages: number; total: number }; onPageChange: (page: number) => void }) {
+  return (
+    <div className="p-4 border-t border-white/5 flex items-center justify-between">
+      <span className="text-xs text-on-surface-variant">
+        Mostrando {pagination.total} productos
+      </span>
+      {pagination.totalPages > 1 && (
+        <nav className="flex gap-1" aria-label="Paginación de productos">
+          {Array.from({ length: Math.min(pagination.totalPages, 5) }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => onPageChange(i + 1)}
+              aria-label={`Ir a página ${i + 1}`}
+              aria-current={pagination.page === i + 1 ? "page" : undefined}
+              className={cn(
+                "px-3 py-1.5 text-[10px] font-semibold rounded-lg transition-colors",
+                pagination.page === i + 1
+                  ? "bg-primary text-white"
+                  : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high"
+              )}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </nav>
+      )}
+    </div>
+  )
 }
 
-function getInventoryColor(count: number) {
-  if (count > 20) return "text-green-400"
-  if (count >= 5) return "text-amber-500"
-  return "text-error"
+function EmptyState({ onCreateClick }: { onCreateClick?: () => void }) {
+  return (
+    <div className="glass rounded-xl p-12 border border-white/5 text-center">
+      <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-4 block">inventory</span>
+      <p className="text-sm font-semibold text-on-surface mb-1">No hay productos registrados</p>
+      <p className="text-xs text-on-surface-variant/60 mb-4">Crea tu primer producto para comenzar a vender</p>
+      {onCreateClick && (
+        <button
+          onClick={onCreateClick}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary/50"
+        >
+          <span className="material-symbols-outlined text-sm">add</span>
+          Crear Primer Producto
+        </button>
+      )}
+    </div>
+  )
 }
 
-export function ProductTable({ selectedProducts, onSelectProducts, onViewProduct }: ProductTableProps) {
+export function ProductTable({ products, loading, pagination, selectedProducts, onSelectProducts, onViewProduct, onPageChange, viewMode = "table" }: ProductTableProps) {
   const [selectAll, setSelectAll] = useState(false)
 
-  const handleSelectAll = () => {
+  const handleSelectAll = useCallback(() => {
     if (selectAll) {
       onSelectProducts([])
     } else {
       onSelectProducts(products.map((p) => p.id))
     }
     setSelectAll(!selectAll)
-  }
+  }, [selectAll, products, onSelectProducts])
 
-  const handleSelectProduct = (e: React.MouseEvent, id: string) => {
+  const handleSelectProduct = useCallback((e: React.ChangeEvent<HTMLInputElement>, id: string) => {
     e.stopPropagation()
     const updated = selectedProducts.includes(id)
       ? selectedProducts.filter((pid) => pid !== id)
       : [...selectedProducts, id]
     onSelectProducts(updated)
     setSelectAll(updated.length === products.length)
+  }, [selectedProducts, products.length, onSelectProducts])
+
+  if (loading) return <TableSkeleton />
+  if (products.length === 0) return <EmptyState />
+
+  if (viewMode === "grid") {
+    return (
+      <div className="glass rounded-xl overflow-hidden border border-white/5">
+        <div className="p-4 border-b border-white/5 flex items-center justify-between">
+          <h3 className="text-base font-semibold text-on-surface">Catálogo de Productos</h3>
+          <span className="text-xs text-on-surface-variant">{products.length} de {pagination.total}</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              onClick={() => onViewProduct(product.id)}
+              className="glass rounded-xl p-4 border border-white/5 hover:border-primary/20 transition-all cursor-pointer group"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0"
+                    style={{ backgroundColor: product.platform_color }}
+                  >
+                    {product.name.charAt(0)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors truncate">{product.name}</p>
+                    <p className="text-[10px] text-on-surface-variant truncate">{product.platform_name}</p>
+                  </div>
+                </div>
+                <StatusBadge
+                  status={statusMap[product.status]?.label || product.status}
+                  variant={statusMap[product.status]?.variant || "neutral"}
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                <div className="text-center p-2 bg-surface-container-low rounded-lg">
+                  <p className="text-[10px] text-on-surface-variant uppercase">Precio</p>
+                  <p className="text-xs font-bold text-on-surface">${Number(product.price_sale).toFixed(2)}</p>
+                </div>
+                <div className="text-center p-2 bg-surface-container-low rounded-lg">
+                  <p className="text-[10px] text-on-surface-variant uppercase">Inventario</p>
+                  <p className={cn("text-xs font-bold", getInventoryColor(product.available_units))}>{product.available_units}</p>
+                </div>
+                <div className="text-center p-2 bg-surface-container-low rounded-lg">
+                  <p className="text-[10px] text-on-surface-variant uppercase">Ingresos</p>
+                  <p className="text-xs font-bold text-primary">${(product.total_revenue || 0).toLocaleString()}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-[10px] text-on-surface-variant">
+                <span>{productTypeMap[product.product_type] || product.product_type}</span>
+                <span>{formatRelativeDate(product.updated_at)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <PaginationFooter pagination={pagination} onPageChange={onPageChange} />
+      </div>
+    )
   }
 
   return (
@@ -96,18 +209,19 @@ export function ProductTable({ selectedProducts, onSelectProducts, onViewProduct
                   type="checkbox"
                   checked={selectAll}
                   onChange={handleSelectAll}
+                  aria-label="Seleccionar todos los productos de esta página"
                   className="w-4 h-4 rounded accent-primary"
                 />
               </th>
-              <th className="py-3">Producto</th>
-              <th className="py-3">Plataforma</th>
-              <th className="py-3">Tipo</th>
-              <th className="py-3 text-right">Precio</th>
-              <th className="py-3 text-right">Inventario</th>
-              <th className="py-3 text-right">Ventas</th>
-              <th className="py-3 text-right">Ingresos</th>
-              <th className="py-3">Estado</th>
-              <th className="py-3">Actualizado</th>
+              <th className="py-3 px-3">Producto</th>
+              <th className="py-3 px-3">Plataforma</th>
+              <th className="py-3 px-3">Tipo</th>
+              <th className="py-3 px-3 text-right">Precio</th>
+              <th className="py-3 px-3 text-right">Inventario</th>
+              <th className="py-3 px-3 text-right">Ventas</th>
+              <th className="py-3 px-3 text-right">Ingresos</th>
+              <th className="py-3 px-3">Estado</th>
+              <th className="py-3 px-3">Actualizado</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -123,59 +237,52 @@ export function ProductTable({ selectedProducts, onSelectProducts, onViewProduct
                     checked={selectedProducts.includes(product.id)}
                     onChange={(e) => handleSelectProduct(e, product.id)}
                     onClick={(e) => e.stopPropagation()}
+                    aria-label={`Seleccionar ${product.name}`}
                     className="w-4 h-4 rounded accent-primary"
                   />
                 </td>
-                <td className="py-3">
+                <td className="py-3 px-3">
                   <div className="flex items-center gap-3">
-                    <img
-                      src={product.thumbnail}
-                      alt={product.name}
-                      className="w-10 h-10 rounded-lg object-cover bg-surface-container-low"
-                    />
-                    <div>
-                      <p className="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors">{product.name}</p>
-                      <p className="text-[10px] text-on-surface-variant truncate max-w-[150px]">{product.description}</p>
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0"
+                      style={{ backgroundColor: product.platform_color }}
+                    >
+                      {product.name.charAt(0)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors truncate">{product.name}</p>
+                      <p className="text-[10px] text-on-surface-variant truncate">{product.description || product.slug}</p>
                     </div>
                   </div>
                 </td>
-                <td className="py-3">
+                <td className="py-3 px-3 whitespace-nowrap">
                   <div className="flex items-center gap-1.5">
-                    <span className={cn("w-2 h-2 rounded-full", platformColors[product.platform] || "bg-surface-container-highest")} />
-                    <span className="text-xs text-on-surface-variant">{product.platform}</span>
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: product.platform_color }} />
+                    <span className="text-xs text-on-surface-variant">{product.platform_name}</span>
                   </div>
                 </td>
-                <td className="py-3 text-xs text-on-surface-variant">{product.type}</td>
-                <td className="py-3 text-xs font-semibold text-on-surface text-right">{product.price}</td>
-                <td className="py-3 text-right">
-                  <span className={cn("text-xs font-semibold", getInventoryColor(product.inventory))}>
-                    {product.inventory} {product.inventory === 1 ? "Unidad" : "Unidades"}
+                <td className="py-3 px-3 text-xs text-on-surface-variant whitespace-nowrap">{productTypeMap[product.product_type] || product.product_type}</td>
+                <td className="py-3 px-3 text-xs font-semibold text-on-surface text-right whitespace-nowrap">${Number(product.price_sale).toFixed(2)}</td>
+                <td className="py-3 px-3 text-right whitespace-nowrap">
+                  <span className={cn("text-xs font-semibold", getInventoryColor(product.available_units))}>
+                    {product.available_units} {product.available_units === 1 ? "Unidad" : "Unidades"}
                   </span>
                 </td>
-                <td className="py-3 text-xs text-on-surface text-right">{product.sales}</td>
-                <td className="py-3 text-xs font-semibold text-primary text-right">{product.revenue}</td>
-                <td className="py-3">
+                <td className="py-3 px-3 text-xs text-on-surface text-right whitespace-nowrap">{product.sold_units}</td>
+                <td className="py-3 px-3 text-xs font-semibold text-primary text-right whitespace-nowrap">${(product.total_revenue || 0).toLocaleString()}</td>
+                <td className="py-3 px-3 whitespace-nowrap">
                   <StatusBadge
-                    status={statusMap[product.status].label}
-                    variant={statusMap[product.status].variant}
+                    status={statusMap[product.status]?.label || product.status}
+                    variant={statusMap[product.status]?.variant || "neutral"}
                   />
                 </td>
-                <td className="py-3 text-[10px] text-on-surface-variant">{product.lastUpdated}</td>
+                <td className="py-3 px-3 text-[10px] text-on-surface-variant whitespace-nowrap">{formatRelativeDate(product.updated_at)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div className="p-4 border-t border-white/5 flex items-center justify-between">
-        <span className="text-xs text-on-surface-variant">Mostrando {products.length} de 145 productos</span>
-        <div className="flex gap-1">
-          <button className="px-3 py-1.5 bg-primary text-white text-[10px] font-semibold rounded-lg">1</button>
-          <button className="px-3 py-1.5 bg-surface-container-low text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-surface-container-high transition-colors">2</button>
-          <button className="px-3 py-1.5 bg-surface-container-low text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-surface-container-high transition-colors">3</button>
-          <button className="px-3 py-1.5 bg-surface-container-low text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-surface-container-high transition-colors">...</button>
-          <button className="px-3 py-1.5 bg-surface-container-low text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-surface-container-high transition-colors">15</button>
-        </div>
-      </div>
+      <PaginationFooter pagination={pagination} onPageChange={onPageChange} />
     </div>
   )
 }

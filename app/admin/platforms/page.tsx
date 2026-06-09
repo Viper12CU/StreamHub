@@ -16,6 +16,7 @@ import { RecentPlatformActivity } from "@/components/molecules/recent-platform-a
 import {
   getPlatforms,
   getHealthAlerts,
+  getPlatformProducts,
   createPlatform,
   clearPlatformCache,
   type PlatformWithMetrics,
@@ -31,8 +32,17 @@ export default function PlatformsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingPlatform, setEditingPlatform] = useState<PlatformWithMetrics | null>(null)
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<"grid" | "table">("grid")
+  const [viewMode, setViewMode] = useState<"grid" | "table">(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("admin-platforms-view") as "grid" | "table") || "grid"
+    }
+    return "grid"
+  })
   const [search, setSearch] = useState("")
+
+  useEffect(() => {
+    localStorage.setItem("admin-platforms-view", viewMode)
+  }, [viewMode])
 
   const [platforms, setPlatforms] = useState<PlatformWithMetrics[]>([])
   const [healthAlerts, setHealthAlerts] = useState<HealthAlert[]>([])
@@ -40,6 +50,8 @@ export default function PlatformsPage() {
   const [healthLoading, setHealthLoading] = useState(true)
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 })
+  const [productCounts, setProductCounts] = useState<Record<string, number>>({})
+  const [totalProductCount, setTotalProductCount] = useState(0)
 
   const [filters, setFilters] = useState<PlatformFiltersType>({})
   const [sortBy, setSortBy] = useState("name")
@@ -87,9 +99,36 @@ export default function PlatformsPage() {
     }
   }, [])
 
+  const fetchProductCounts = useCallback(async (platformIds: string[]) => {
+    try {
+      const results = await Promise.all(
+        platformIds.map(async (id) => {
+          const products = await getPlatformProducts(id)
+          return { id, count: products.length }
+        })
+      )
+      const counts: Record<string, number> = {}
+      let total = 0
+      for (const r of results) {
+        counts[r.id] = r.count
+        total += r.count
+      }
+      setProductCounts(counts)
+      setTotalProductCount(total)
+    } catch {
+      // Non-critical
+    }
+  }, [])
+
   useEffect(() => {
     fetchHealth()
   }, [fetchHealth])
+
+  useEffect(() => {
+    if (platforms.length > 0) {
+      fetchProductCounts(platforms.map((p) => p.id))
+    }
+  }, [platforms, fetchProductCounts])
 
   useEffect(() => {
     fetchPlatforms()
@@ -136,7 +175,7 @@ export default function PlatformsPage() {
     return [...platforms].sort((a, b) => {
       switch (sortBy) {
         case "Ingresos": return b.revenue_monthly - a.revenue_monthly
-        case "Productos": return b.products_count - a.products_count
+        case "Productos": return (productCounts[b.id] || 0) - (productCounts[a.id] || 0)
         case "Inventario": return b.inventory_available - a.inventory_available
         case "Mas Reciente": return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         case "Nombre":
@@ -152,7 +191,9 @@ export default function PlatformsPage() {
     archived: platforms.filter((p) => p.status === "archived").length,
   }), [platforms])
 
-  const totalProducts = useMemo(() => platforms.reduce((sum, p) => sum + (p.products_count || 0), 0), [platforms])
+  const totalProducts = useMemo(() => {
+    return platforms.reduce((sum, p) => sum + (productCounts[p.id] || 0), 0)
+  }, [platforms, productCounts])
   const totalInventory = useMemo(() => platforms.reduce((sum, p) => sum + (p.inventory_available || 0), 0), [platforms])
   const totalRevenue = useMemo(() => platforms.reduce((sum, p) => sum + (p.revenue_monthly || 0), 0), [platforms])
 
@@ -266,8 +307,8 @@ export default function PlatformsPage() {
             />
             <MetricCard
               label="Productos Conectados"
-              description={`${totalProducts} Productos`}
-              value={String(totalProducts)}
+              description={`${totalProductCount} registrados`}
+              value={String(totalProductCount)}
               accent="border-secondary"
               icon="shopping_cart"
               iconColor="text-secondary"
@@ -325,6 +366,7 @@ export default function PlatformsPage() {
         platforms={sortedPlatforms}
         loading={loading}
         hasActiveFilters={hasActiveFilters}
+        productCounts={productCounts}
       />
 
       {/* Pagination */}

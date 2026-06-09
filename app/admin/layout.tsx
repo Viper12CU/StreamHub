@@ -17,11 +17,20 @@ export default function AdminLayout({
   const pathname = usePathname()
   const router = useRouter()
   const isMobile = useIsMobile()
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("admin-sidebar-collapsed") === "true"
+    }
+    return false
+  })
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const isLoginPage = pathname === "/admin/login"
+
+  useEffect(() => {
+    localStorage.setItem("admin-sidebar-collapsed", String(collapsed))
+  }, [collapsed])
 
   useEffect(() => {
     if (isLoginPage) {
