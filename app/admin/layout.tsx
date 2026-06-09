@@ -4,7 +4,10 @@ import { useState, useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { AdminSidebar } from "@/components/organisms/admin/admin-sidebar"
 import { AdminTopBar } from "@/components/organisms/admin/admin-top-bar"
+import { AdminBottomBar } from "@/components/organisms/admin/admin-bottom-bar"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { getSession } from "@/lib/api/auth"
+import { sileo } from "sileo"
 
 export default function AdminLayout({
   children,
@@ -13,8 +16,10 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname()
   const router = useRouter()
+  const isMobile = useIsMobile()
   const [collapsed, setCollapsed] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const isLoginPage = pathname === "/admin/login"
 
@@ -25,11 +30,19 @@ export default function AdminLayout({
     }
 
     getSession()
-      .then(() => {
-        setIsAuthenticated(true)
+      .then(({ user }) => {
+        const role = user?.role
+        if (role === "admin") {
+          setIsAuthenticated(true)
+          setIsAdmin(true)
+        } else {
+          setIsAuthenticated(true)
+          setIsAdmin(false)
+        }
       })
       .catch(() => {
         setIsAuthenticated(false)
+        setIsAdmin(false)
       })
       .finally(() => {
         setIsLoading(false)
@@ -37,17 +50,45 @@ export default function AdminLayout({
   }, [isLoginPage])
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated && !isLoginPage) {
-      router.replace("/admin/login")
+    if (!isLoading && !isLoginPage) {
+      if (!isAuthenticated) {
+        router.replace("/admin/login")
+      } else if (!isAdmin) {
+        sileo.error({
+          title: "No autorizado",
+          description: "No tienes permisos de administrador para acceder a esta seccion.",
+        })
+        router.replace("/admin/login")
+      }
     }
-  }, [isLoading, isAuthenticated, isLoginPage, router])
+  }, [isLoading, isAuthenticated, isAdmin, isLoginPage, router])
 
   if (isLoginPage) {
     return <>{children}</>
   }
 
-  if (isLoading || !isAuthenticated) {
+  if (isLoading || !isAuthenticated || !isAdmin) {
     return null
+  }
+
+  if (isMobile) {
+    return (
+      <div className="bg-background text-on-background min-h-screen flex flex-col">
+        <main className="flex-1 flex flex-col min-h-screen pb-20">
+          <AdminTopBar collapsed={false} />
+
+          <section className="mt-20 p-4 flex flex-col gap-6 animate-in fade-in duration-700">
+            {children}
+          </section>
+
+          <footer className="mt-auto p-6 text-center opacity-30">
+            <p className="text-xs">&copy; 2024 StreamHub Admin Portal. All rights reserved.</p>
+          </footer>
+        </main>
+
+        <AdminBottomBar />
+      </div>
+    )
   }
 
   return (

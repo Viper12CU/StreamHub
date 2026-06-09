@@ -69,6 +69,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
           className={cn(
             "flex items-center gap-6 text-on-surface-variant hover:text-error transition-colors rounded-lg w-full",
             collapsed ? "justify-center px-0 py-3" : "px-4 py-3",
+            "cursor-pointer",
           )}
         >
           <span className="material-symbols-outlined">logout</span>
