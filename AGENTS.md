@@ -93,13 +93,13 @@ components/
 - `molecules/product-analytics.tsx` — Analytics de productos (ingresos, plataforma, tendencias)
 - `molecules/inventory-tabs.tsx` — Tabs de tipo de inventario (Todo, Cuentas, Perfiles, Códigos, Paquetes)
 - `molecules/inventory-filters.tsx` — Filtros de inventario (plataforma, estado, producto, cliente, expiración, orden)
-- `molecules/inventory-table.tsx` — Tabla de activos digitales con selección múltiple y acciones
-- `molecules/asset-detail-drawer.tsx` — Drawer de detalle de activo (info, credenciales, historial, uso)
-- `molecules/create-asset-modal.tsx` — Modal de creación de activo (4 tipos: cuenta, perfil, código, paquete)
+- `molecules/inventory-table.tsx` — Tabla de activos digitales con selección múltiple y paginación (API integrada)
+- `molecules/asset-detail-drawer.tsx` — Drawer de detalle de activo con credenciales y acciones (API integrada)
+- `molecules/create-asset-modal.tsx` — Modal de creación de activo 3 pasos (API integrada)
 - `molecules/inventory-health.tsx` — Dashboard de salud del inventario (distribución, plataformas, expiración)
 - `molecules/low-stock-monitoring.tsx` — Monitoreo de stock bajo con tabla y acciones
 - `molecules/recent-inventory-activity.tsx` — Timeline de actividad reciente del inventario
-- `molecules/inventory-assignment-center.tsx` — Centro de asignación de activos a órdenes
+- `molecules/inventory-assignment-center.tsx` — Centro de asignación de activos a órdenes (futuro: requiere orders)
 - `molecules/order-tabs.tsx` — Tabs de estado de órdenes (7 estados con conteo)
 - `molecules/order-filters.tsx` — Filtros avanzados de órdenes (estado, pago, plataforma, fechas, cliente, valor, orden)
 - `molecules/order-table.tsx` — Tabla de órdenes con selección múltiple y menú acciones (click en row abre drawer)
@@ -146,6 +146,7 @@ components/
 ```
 lib/
   api/auth.ts          — Funciones de autenticación (signIn, signUp, signOut, setSessionToken)
+  api/inventory.ts     — API de inventario (CRUD, stats, health, low-stock, activity, bulk, assign, cache 30s)
   api/platforms.ts     — API de plataformas (CRUD, analytics, health, cache 30s)
   api/products.ts      — API de productos (CRUD, analytics, health, bulk, duplicate, cache 30s)
   constants/products.ts — Constantes compartidas: statusMap, productTypeMap, productTypes, statusOptions, generateSlug, formatDate, formatDateFull, formatRelativeDate, getInventoryColor, safeToFixed

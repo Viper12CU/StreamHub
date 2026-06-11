@@ -114,15 +114,15 @@ export default function ProductsPage() {
 
   const fetchCounts = useCallback(async () => {
     try {
-      const [activeRes, draftRes, oosRes] = await Promise.all([
+      const [activeRes, draftRes, healthData] = await Promise.all([
         getProducts({ status: "active" }, 1, 1),
         getProducts({ status: "draft" }, 1, 1),
-        getProducts({ status: "out_of_stock" }, 1, 1),
+        getProductHealth(),
       ])
       setCounts({
         active: activeRes.pagination.total,
         draft: draftRes.pagination.total,
-        out_of_stock: oosRes.pagination.total,
+        out_of_stock: healthData.out_of_stock_products.length,
       })
     } catch {
       // Non-critical

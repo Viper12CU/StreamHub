@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils"
 interface InventoryFiltersProps {
   onToggle: () => void
   isOpen: boolean
+  platforms?: Array<{ name: string; color?: string | null }>
+  onFilterChange?: (filters: Record<string, string[]>) => void
 }
 
 function FilterChip({ label, active, onClick }: { label: string; active?: boolean; onClick: () => void }) {
@@ -42,21 +44,10 @@ function FilterSection({ title, icon, children }: FilterSectionProps) {
   )
 }
 
-const platforms = [
-  { name: "Netflix", color: "bg-primary-container" },
-  { name: "Disney+", color: "bg-tertiary" },
-  { name: "Spotify", color: "bg-secondary" },
-  { name: "YouTube Premium", color: "bg-[#ff0000]" },
-  { name: "HBO Max", color: "bg-[#b829e3]" },
-  { name: "Crunchyroll", color: "bg-[#f47521]" },
-  { name: "IPTV", color: "bg-amber-500" },
-  { name: "Otro", color: "bg-surface-container-highest" },
-]
-
 const statuses = ["Disponible", "Reservado", "Asignado", "Expirado", "Suspendido"]
 const sortOptions = ["Reciente", "Fecha de Expiración", "Plataforma", "Estado"]
 
-export function InventoryFilters({ onToggle, isOpen }: InventoryFiltersProps) {
+export function InventoryFilters({ onToggle, isOpen, platforms = [], onFilterChange }: InventoryFiltersProps) {
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({})
   const [dateRange, setDateRange] = useState({ start: "", end: "" })
 
@@ -66,8 +57,15 @@ export function InventoryFilters({ onToggle, isOpen }: InventoryFiltersProps) {
       const updated = current.includes(value)
         ? current.filter((v) => v !== value)
         : [...current, value]
-      return { ...prev, [category]: updated }
+      const newFilters = { ...prev, [category]: updated }
+      onFilterChange?.(newFilters)
+      return newFilters
     })
+  }
+
+  const clearFilters = () => {
+    setActiveFilters({})
+    onFilterChange?.({})
   }
 
   const activeCount = Object.values(activeFilters).reduce((acc, arr) => acc + arr.length, 0)
@@ -94,7 +92,7 @@ export function InventoryFilters({ onToggle, isOpen }: InventoryFiltersProps) {
         <div className="flex items-center gap-2">
           {activeCount > 0 && (
             <button
-              onClick={(e) => { e.stopPropagation(); setActiveFilters({}) }}
+              onClick={(e) => { e.stopPropagation(); clearFilters() }}
               className="text-[11px] text-primary font-medium hover:underline"
             >
               Limpiar
@@ -128,10 +126,16 @@ export function InventoryFilters({ onToggle, isOpen }: InventoryFiltersProps) {
                       : "bg-surface-container-low text-on-surface-variant border-white/5 hover:bg-surface-container-high hover:border-white/10"
                   )}
                 >
-                  <span className={cn("w-2 h-2 rounded-full", platform.color)} />
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: platform.color || "#666" }}
+                  />
                   {platform.name}
                 </button>
               ))}
+              {platforms.length === 0 && (
+                <span className="text-[11px] text-on-surface-variant opacity-60">Cargando plataformas...</span>
+              )}
             </div>
           </FilterSection>
 

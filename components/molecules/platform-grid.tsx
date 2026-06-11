@@ -13,6 +13,7 @@ interface PlatformGridProps {
   loading: boolean
   hasActiveFilters?: boolean
   productCounts?: Record<string, number>
+  inventoryCounts?: Record<string, number>
 }
 
 const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
@@ -109,7 +110,7 @@ function EmptyState({ hasActiveFilters }: { hasActiveFilters?: boolean }) {
   )
 }
 
-function PlatformGridInner({ activeTab, onSelectPlatform, viewMode, platforms, loading, hasActiveFilters, productCounts = {} }: PlatformGridProps) {
+function PlatformGridInner({ activeTab, onSelectPlatform, viewMode, platforms, loading, hasActiveFilters, productCounts = {}, inventoryCounts = {} }: PlatformGridProps) {
   const filteredPlatforms = useMemo(() => {
     return activeTab === "all"
       ? platforms
@@ -169,7 +170,7 @@ function PlatformGridInner({ activeTab, onSelectPlatform, viewMode, platforms, l
                   <td className="py-3 text-xs font-medium text-on-surface">{platform.name}</td>
                   <td className="py-3 text-xs text-on-surface-variant capitalize">{platform.category}</td>
                   <td className="py-3 text-xs text-on-surface">{productCounts[platform.id] ?? 0}</td>
-                  <td className="py-3 text-xs text-on-surface">{platform.inventory_available}</td>
+                  <td className="py-3 text-xs text-on-surface">{inventoryCounts[platform.name] ?? 0}</td>
                   <td className="py-3 text-xs font-semibold text-primary">${(platform.revenue_monthly ?? 0).toLocaleString()}</td>
                   <td className="py-3">
                     <StatusBadge status={statusMap[platform.status]?.label || platform.status} variant={statusMap[platform.status]?.variant || "neutral"} />
@@ -218,7 +219,7 @@ function PlatformGridInner({ activeTab, onSelectPlatform, viewMode, platforms, l
             </div>
             <div className="text-center p-2 bg-surface-container-low rounded-lg">
               <p className="text-[10px] text-on-surface-variant uppercase">Inventario</p>
-              <p className="text-sm font-bold text-on-surface">{platform.inventory_available}</p>
+              <p className="text-sm font-bold text-on-surface">{inventoryCounts[platform.name] ?? 0}</p>
             </div>
             <div className="text-center p-2 bg-surface-container-low rounded-lg">
               <p className="text-[10px] text-on-surface-variant uppercase">Ingresos</p>

@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { MetricCard } from "@/components/atoms/metric-card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { InventoryTabs } from "@/components/molecules/inventory-tabs"
 import { InventoryFilters } from "@/components/molecules/inventory-filters"
 import { InventoryTable } from "@/components/molecules/inventory-table"
@@ -11,6 +12,24 @@ import { InventoryHealth } from "@/components/molecules/inventory-health"
 import { LowStockMonitoring } from "@/components/molecules/low-stock-monitoring"
 import { RecentInventoryActivity } from "@/components/molecules/recent-inventory-activity"
 import { InventoryAssignmentCenter } from "@/components/molecules/inventory-assignment-center"
+import {
+  getInventory,
+  getInventoryStats,
+  getInventoryHealth,
+  getLowStock,
+  getInventoryActivity,
+  bulkInventoryAction,
+  clearInventoryCache,
+  type InventoryWithDetails,
+  type InventoryStats,
+  type InventoryHealth as InventoryHealthType,
+  type LowStockItem,
+  type InventoryActivity,
+  type InventoryFilters as InventoryFiltersType,
+} from "@/lib/api/inventory"
+import { getPlatforms, type Platform } from "@/lib/api/platforms"
+import { usePlatforms } from "@/hooks/use-platforms"
+import { sileo } from "sileo"
 
 export default function InventoryPage() {
   const [selectedAssets, setSelectedAssets] = useState<string[]>([])
@@ -19,6 +38,181 @@ export default function InventoryPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [selectedAsset, setSelectedAsset] = useState<string | null>(null)
   const [showAssignment, setShowAssignment] = useState(false)
+  const [search, setSearch] = useState("")
+
+  const [items, setItems] = useState<InventoryWithDetails[]>([])
+  const [stats, setStats] = useState<InventoryStats | null>(null)
+  const [health, setHealth] = useState<InventoryHealthType | null>(null)
+  const [lowStock, setLowStock] = useState<LowStockItem[]>([])
+  const [activities, setActivities] = useState<InventoryActivity[]>([])
+  const [loading, setLoading] = useState(true)
+  const [statsLoading, setStatsLoading] = useState(true)
+  const [healthLoading, setHealthLoading] = useState(true)
+  const [lowStockLoading, setLowStockLoading] = useState(true)
+  const [activityLoading, setActivityLoading] = useState(true)
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 })
+  const [tabTypeCounts, setTabTypeCounts] = useState({ accounts: 0, profiles: 0, codes: 0, packages: 0 })
+
+  const { platforms } = usePlatforms()
+
+  const activeTabRef = useRef(activeTab)
+  const searchRef = useRef(search)
+
+  const fetchItems = useCallback(async (page = 1) => {
+    setLoading(true)
+    try {
+      const filters: InventoryFiltersType = {
+        page,
+        limit: 15,
+        sort: "recent",
+      }
+      if (activeTabRef.current !== "all") {
+        const assetTypeMap: Record<string, string> = {
+          accounts: "account",
+          profiles: "profile",
+          codes: "code",
+          packages: "package",
+        }
+        filters.asset_type = assetTypeMap[activeTabRef.current] as any
+      }
+      if (searchRef.current) filters.search = searchRef.current
+
+      const result = await getInventory(filters)
+      setItems(result.data)
+      setPagination(result.pagination)
+    } catch {
+      sileo.error({ title: "Error", description: "No se pudo cargar el inventario" })
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const fetchStats = useCallback(async () => {
+    setStatsLoading(true)
+    try {
+      const data = await getInventoryStats()
+      setStats(data)
+    } catch {
+      // silent
+    } finally {
+      setStatsLoading(false)
+    }
+  }, [])
+
+  const fetchHealth = useCallback(async () => {
+    setHealthLoading(true)
+    try {
+      const data = await getInventoryHealth()
+      setHealth(data)
+    } catch {
+      // silent
+    } finally {
+      setHealthLoading(false)
+    }
+  }, [])
+
+  const fetchLowStock = useCallback(async () => {
+    setLowStockLoading(true)
+    try {
+      const data = await getLowStock()
+      setLowStock(data)
+    } catch {
+      // silent
+    } finally {
+      setLowStockLoading(false)
+    }
+  }, [])
+
+  const fetchActivity = useCallback(async () => {
+    setActivityLoading(true)
+    try {
+      const data = await getInventoryActivity(10)
+      setActivities(data)
+    } catch {
+      // silent
+    } finally {
+      setActivityLoading(false)
+    }
+  }, [])
+
+  const fetchTabTypeCounts = useCallback(async () => {
+    try {
+      const [accounts, profiles, codes, packages] = await Promise.all([
+        getInventory({ asset_type: "account", limit: 1 }),
+        getInventory({ asset_type: "profile", limit: 1 }),
+        getInventory({ asset_type: "code", limit: 1 }),
+        getInventory({ asset_type: "package", limit: 1 }),
+      ])
+      setTabTypeCounts({
+        accounts: accounts.pagination.total,
+        profiles: profiles.pagination.total,
+        codes: codes.pagination.total,
+        packages: packages.pagination.total,
+      })
+    } catch {
+      // silent
+    }
+  }, [])
+
+  const fetchAll = useCallback(() => {
+    fetchItems(1)
+    fetchStats()
+    fetchHealth()
+    fetchLowStock()
+    fetchActivity()
+    fetchTabTypeCounts()
+  }, [fetchItems, fetchStats, fetchHealth, fetchLowStock, fetchActivity, fetchTabTypeCounts])
+
+  useEffect(() => { fetchAll() }, [fetchAll])
+
+  useEffect(() => {
+    activeTabRef.current = activeTab
+    fetchItems(1)
+    setSelectedAssets([])
+  }, [activeTab, fetchItems])
+
+  useEffect(() => {
+    searchRef.current = search
+  }, [search])
+
+  const handleSearch = () => {
+    fetchItems(1)
+    setSelectedAssets([])
+  }
+
+  const handleBulkAction = async (action: "delete" | "status") => {
+    if (selectedAssets.length === 0) return
+    try {
+      if (action === "delete") {
+        await bulkInventoryAction({ ids: selectedAssets, action: "delete" })
+        sileo.success({ title: "Eliminados", description: `${selectedAssets.length} activos eliminados` })
+      } else {
+        await bulkInventoryAction({ ids: selectedAssets, action: "status", status: "suspended" })
+        sileo.success({ title: "Actualizados", description: `${selectedAssets.length} activos suspendidos` })
+      }
+      clearInventoryCache()
+      setSelectedAssets([])
+      fetchAll()
+    } catch {
+      sileo.error({ title: "Error", description: "No se pudo completar la acción" })
+    }
+  }
+
+  const handleImport = () => {
+    sileo.success({ title: "Próximamente", description: "Importación en desarrollo" })
+  }
+
+  const handleExport = () => {
+    sileo.success({ title: "Próximamente", description: "Exportación en desarrollo" })
+  }
+
+  const tabCounts: Record<string, number> = {
+    all: stats?.total_assets ?? 0,
+    accounts: tabTypeCounts.accounts,
+    profiles: tabTypeCounts.profiles,
+    codes: tabTypeCounts.codes,
+    packages: tabTypeCounts.packages,
+  }
 
   return (
     <div className="space-y-5">
@@ -38,14 +232,20 @@ export default function InventoryPage() {
             <span className="material-symbols-outlined text-sm">add</span>
             Agregar Inventario
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 glass text-on-surface text-xs font-semibold rounded-xl hover:bg-white/5 transition-colors border border-white/5">
+          {/* <button
+            onClick={handleImport}
+            className="flex items-center gap-2 px-4 py-2.5 glass text-on-surface text-xs font-semibold rounded-xl hover:bg-white/5 transition-colors border border-white/5"
+          >
             <span className="material-symbols-outlined text-sm">upload</span>
             Importar
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 glass text-on-surface text-xs font-semibold rounded-xl hover:bg-white/5 transition-colors border border-white/5">
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2.5 glass text-on-surface text-xs font-semibold rounded-xl hover:bg-white/5 transition-colors border border-white/5"
+          >
             <span className="material-symbols-outlined text-sm">download</span>
             Exportar
-          </button>
+          </button> */}
         </div>
       </section>
 
@@ -58,6 +258,9 @@ export default function InventoryPage() {
             </span>
             <input
               type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               placeholder="Buscar cuentas, perfiles, códigos de activación, emails, productos o clientes..."
               className="w-full pl-10 pr-4 py-2.5 bg-surface-container-low border border-white/5 rounded-xl text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
             />
@@ -66,16 +269,16 @@ export default function InventoryPage() {
             <div className="flex items-center gap-2 px-3 py-2 bg-surface-container-low rounded-xl border border-white/5">
               <span className="text-xs text-on-surface-variant">{selectedAssets.length} seleccionados</span>
               <div className="w-px h-4 bg-white/10" />
-              <button className="px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-semibold rounded-lg hover:bg-primary/20 transition-colors">
-                Asignar
+              <button
+                onClick={() => handleBulkAction("status")}
+                className="px-2.5 py-1 bg-amber-500/10 text-amber-500 text-[10px] font-semibold rounded-lg hover:bg-amber-500/20 transition-colors"
+              >
+                Suspender
               </button>
-              <button className="px-2.5 py-1 bg-amber-500/10 text-amber-500 text-[10px] font-semibold rounded-lg hover:bg-amber-500/20 transition-colors">
-                Cambiar Estado
-              </button>
-              <button className="px-2.5 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-white/5 transition-colors">
-                Exportar
-              </button>
-              <button className="px-2.5 py-1 bg-error/10 text-error text-[10px] font-semibold rounded-lg hover:bg-error/20 transition-colors">
+              <button
+                onClick={() => handleBulkAction("delete")}
+                className="px-2.5 py-1 bg-error/10 text-error text-[10px] font-semibold rounded-lg hover:bg-error/20 transition-colors"
+              >
                 Eliminar
               </button>
             </div>
@@ -85,85 +288,107 @@ export default function InventoryPage() {
 
       {/* KPI Overview */}
       <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <MetricCard
-          label="Total Activos"
-          description="Inventario completo"
-          value="1,245"
-          accent="border-primary"
-          icon="inventory_2"
-          iconColor="text-primary"
-        />
-        <MetricCard
-          label="Disponibles"
-          description="842 Disponibles"
-          value="842"
-          accent="border-green-500"
-          badge="Disponible"
-          badgeColor="text-green-400"
-          icon="check_circle"
-          iconColor="text-green-400"
-        />
-        <MetricCard
-          label="Reservados"
-          description="76 Reservados"
-          value="76"
-          accent="border-amber-500"
-          badge="Reservado"
-          badgeColor="text-amber-500"
-          icon="hourglass_top"
-          iconColor="text-amber-500"
-        />
-        <MetricCard
-          label="Asignados"
-          description="289 Asignados"
-          value="289"
-          accent="border-secondary"
-          badge="Asignado"
-          badgeColor="text-secondary"
-          icon="person"
-          iconColor="text-secondary"
-        />
-        <MetricCard
-          label="Expirados"
-          description="38 Expirados"
-          value="38"
-          accent="border-error"
-          badge="Expirado"
-          badgeColor="text-error"
-          icon="timer_off"
-          iconColor="text-error"
-        />
-        <MetricCard
-          label="Stock Bajo"
-          description="12 Productos"
-          value="12"
-          accent="border-amber-500"
-          badge="Alerta"
-          badgeColor="text-amber-500"
-          icon="warning"
-          iconColor="text-amber-500"
-        />
+        {statsLoading ? (
+          <>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="glass p-4 rounded-xl border-l-4 border-primary/30 flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-3 w-20 rounded" />
+                  <Skeleton variant="circle" className="h-4 w-4" />
+                </div>
+                <Skeleton className="h-7 w-16 rounded mt-1" />
+                <Skeleton className="h-2.5 w-24 rounded mt-0.5" />
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            <MetricCard
+              label="Total Activos"
+              description="Inventario completo"
+              value={stats?.total_assets?.toLocaleString() ?? "0"}
+              accent="border-primary"
+              icon="inventory_2"
+              iconColor="text-primary"
+            />
+            <MetricCard
+              label="Disponibles"
+              description={`${stats?.available ?? 0} Disponibles`}
+              value={String(stats?.available ?? 0)}
+              accent="border-green-500"
+              badge="Disponible"
+              badgeColor="text-green-400"
+              icon="check_circle"
+              iconColor="text-green-400"
+            />
+            <MetricCard
+              label="Reservados"
+              description={`${stats?.reserved ?? 0} Reservados`}
+              value={String(stats?.reserved ?? 0)}
+              accent="border-amber-500"
+              badge="Reservado"
+              badgeColor="text-amber-500"
+              icon="hourglass_top"
+              iconColor="text-amber-500"
+            />
+            <MetricCard
+              label="Asignados"
+              description={`${stats?.assigned ?? 0} Asignados`}
+              value={String(stats?.assigned ?? 0)}
+              accent="border-secondary"
+              badge="Asignado"
+              badgeColor="text-secondary"
+              icon="person"
+              iconColor="text-secondary"
+            />
+            <MetricCard
+              label="Expirados"
+              description={`${stats?.expired ?? 0} Expirados`}
+              value={String(stats?.expired ?? 0)}
+              accent="border-error"
+              badge="Expirado"
+              badgeColor="text-error"
+              icon="timer_off"
+              iconColor="text-error"
+            />
+            <MetricCard
+              label="Stock Bajo"
+              description={`${stats?.low_stock_products ?? 0} Productos`}
+              value={String(stats?.low_stock_products ?? 0)}
+              accent="border-amber-500"
+              badge="Alerta"
+              badgeColor="text-amber-500"
+              icon="warning"
+              iconColor="text-amber-500"
+            />
+          </>
+        )}
       </section>
 
       {/* Tabs */}
-      <InventoryTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      <InventoryTabs activeTab={activeTab} onTabChange={setActiveTab} counts={tabCounts} />
 
       {/* Filters */}
-      <InventoryFilters onToggle={() => setShowFilters(!showFilters)} isOpen={showFilters} />
+      <InventoryFilters
+        onToggle={() => setShowFilters(!showFilters)}
+        isOpen={showFilters}
+        platforms={platforms}
+      />
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Inventory Table */}
         <div className={showAssignment ? "lg:col-span-8" : "lg:col-span-12"}>
           <InventoryTable
+            items={items}
+            loading={loading}
+            pagination={pagination}
             selectedAssets={selectedAssets}
             onSelectAssets={setSelectedAssets}
             onViewAsset={setSelectedAsset}
-            activeTab={activeTab}
+            onPageChange={(page) => fetchItems(page)}
           />
         </div>
 
-        {/* Assignment Center */}
         {showAssignment && (
           <div className="lg:col-span-4">
             <InventoryAssignmentCenter onClose={() => setShowAssignment(false)} />
@@ -172,18 +397,20 @@ export default function InventoryPage() {
       </div>
 
       {/* Analytics */}
-      <InventoryHealth />
+      <InventoryHealth health={health} loading={healthLoading} />
 
       {/* Low Stock & Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <LowStockMonitoring />
-        <RecentInventoryActivity />
+        <LowStockMonitoring items={lowStock} loading={lowStockLoading} />
+        <RecentInventoryActivity activities={activities} loading={activityLoading} />
       </div>
 
       {/* Modals & Drawers */}
-      {showCreateModal && <CreateAssetModal onClose={() => setShowCreateModal(false)} />}
+      {showCreateModal && (
+        <CreateAssetModal onClose={() => setShowCreateModal(false)} onCreated={fetchAll} />
+      )}
       {selectedAsset && (
-        <AssetDetailDrawer assetId={selectedAsset} onClose={() => setSelectedAsset(null)} />
+        <AssetDetailDrawer assetId={selectedAsset} onClose={() => setSelectedAsset(null)} onRefresh={fetchAll} />
       )}
     </div>
   )

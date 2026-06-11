@@ -3,40 +3,44 @@
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import { StatusBadge } from "@/components/atoms/status-badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import { getInventoryItem, deleteInventoryItem, updateInventoryItem, clearInventoryCache, type InventoryWithDetails } from "@/lib/api/inventory"
+import { sileo } from "sileo"
 
 interface AssetDetailDrawerProps {
   assetId: string
   onClose: () => void
+  onRefresh?: () => void
 }
 
-const assetData = {
-  id: "INV-000452",
-  platform: "Netflix",
-  product: "Netflix Premium 4 Screens",
-  type: "Cuenta Completa",
-  status: "available",
-  email: "netflixpremium2024@gmail.com",
-  password: "N3tfl!x_S3cur3_P@ss",
-  recoveryEmail: "recovery@gmail.com",
-  notes: "Cuenta familiar premium con 4 pantallas 4K. Sin historial de problemas.",
-  expirationDate: "2025-03-15",
-  daysRemaining: 120,
-  lastUpdated: "Hace 2 horas",
-  createdAt: "2024-01-15",
+const statusMap: Record<string, { label: string; variant: "success" | "warning" | "neutral" | "error" }> = {
+  available: { label: "Disponible", variant: "success" },
+  reserved: { label: "Reservado", variant: "warning" },
+  assigned: { label: "Asignado", variant: "neutral" },
+  expired: { label: "Expirado", variant: "error" },
+  suspended: { label: "Suspendido", variant: "error" },
 }
 
-const assignmentHistory = [
-  { action: "Creado", admin: "System", timestamp: "15 Ene 2024, 10:30 AM", icon: "add_circle", color: "text-green-400" },
-  { action: "Verificado", admin: "Admin Principal", timestamp: "15 Ene 2024, 11:45 AM", icon: "check_circle", color: "text-primary" },
-  { action: "Añadido al catálogo", admin: "Admin Principal", timestamp: "15 Ene 2024, 12:00 PM", icon: "inventory_2", color: "text-secondary" },
-]
-
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(" ")
+const assetTypeLabels: Record<string, string> = {
+  account: "Cuenta Completa",
+  profile: "Perfil Compartido",
+  code: "Código de Activación",
+  package: "Paquete de Suscripción",
 }
 
-export function AssetDetailDrawer({ assetId, onClose }: AssetDetailDrawerProps) {
+function formatDate(dateStr: string | null) {
+  if (!dateStr) return "N/A"
+  try {
+    return new Date(dateStr).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })
+  } catch {
+    return "N/A"
+  }
+}
+
+export function AssetDetailDrawer({ assetId, onClose, onRefresh }: AssetDetailDrawerProps) {
   const [mounted, setMounted] = useState(false)
+  const [item, setItem] = useState<InventoryWithDetails | null>(null)
+  const [loading, setLoading] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [copied, setCopied] = useState<string | null>(null)
 
@@ -46,11 +50,46 @@ export function AssetDetailDrawer({ assetId, onClose }: AssetDetailDrawerProps) 
     return () => { document.body.style.overflow = "" }
   }, [])
 
+  useEffect(() => {
+    setLoading(true)
+    getInventoryItem(assetId)
+      .then(setItem)
+      .catch(() => sileo.error({ title: "Error", description: "No se pudo cargar el activo" }))
+      .finally(() => setLoading(false))
+  }, [assetId])
+
   const handleCopy = (text: string, field: string) => {
     navigator.clipboard.writeText(text)
     setCopied(field)
     setTimeout(() => setCopied(null), 2000)
   }
+
+  const handleDelete = async () => {
+    try {
+      await deleteInventoryItem(assetId)
+      sileo.success({ title: "Eliminado", description: "Activo eliminado correctamente" })
+      clearInventoryCache()
+      onRefresh?.()
+      onClose()
+    } catch {
+      sileo.error({ title: "Error", description: "No se pudo eliminar el activo" })
+    }
+  }
+
+  const handleSuspend = async () => {
+    if (!item) return
+    try {
+      await updateInventoryItem(assetId, { status: "suspended" })
+      sileo.success({ title: "Suspendido", description: "Activo suspendido correctamente" })
+      setItem({ ...item, status: "suspended" })
+      onRefresh?.()
+    } catch {
+      sileo.error({ title: "Error", description: "No se pudo suspender el activo" })
+    }
+  }
+
+  const meta = item?.metadata
+  const statusStyle = statusMap[item?.status || "available"]
 
   const drawerContent = (
     <div className="fixed inset-0 flex justify-end" style={{ zIndex: 9999 }}>
@@ -64,7 +103,7 @@ export function AssetDetailDrawer({ assetId, onClose }: AssetDetailDrawerProps) 
             </div>
             <div>
               <h2 className="text-base font-semibold text-on-surface">Detalle del Activo</h2>
-              <p className="text-[10px] text-on-surface-variant">{assetData.id}</p>
+              <p className="text-[10px] text-on-surface-variant">{loading ? "Cargando..." : item?.id.slice(0, 8)}</p>
             </div>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
@@ -74,155 +113,183 @@ export function AssetDetailDrawer({ assetId, onClose }: AssetDetailDrawerProps) 
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="p-5 space-y-5">
-            {/* Asset Info */}
-            <section className="glass rounded-xl p-4">
-              <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">info</span>
-                Información del Activo
-              </h4>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: "ID", value: assetData.id },
-                  { label: "Plataforma", value: assetData.platform },
-                  { label: "Producto", value: assetData.product },
-                  { label: "Tipo", value: assetData.type },
-                ].map((item) => (
-                  <div key={item.label} className="p-2.5 bg-surface-container-low rounded-lg">
-                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">{item.label}</p>
-                    <p className="text-xs font-medium text-on-surface mt-0.5">{item.value}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-3 p-2.5 bg-surface-container-low rounded-lg">
-                <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Estado</p>
-                <div className="mt-1">
-                  <StatusBadge status="Disponible" variant="success" />
+          {loading ? (
+            <div className="p-5 space-y-5">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="glass rounded-xl p-4 space-y-3">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
                 </div>
-              </div>
-            </section>
-
-            {/* Credentials */}
-            <section className="glass rounded-xl p-4">
-              <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">lock</span>
-                Credenciales
-              </h4>
-              <div className="space-y-3">
-                <div className="p-2.5 bg-surface-container-low rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Email</p>
-                    <button onClick={() => handleCopy(assetData.email, "email")} className="text-[10px] text-primary hover:underline">
-                      {copied === "email" ? "Copiado" : "Copiar"}
-                    </button>
-                  </div>
-                  <p className="text-xs font-mono text-on-surface mt-0.5">{assetData.email}</p>
-                </div>
-                <div className="p-2.5 bg-surface-container-low rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Contraseña</p>
-                    <div className="flex gap-2">
-                      <button onClick={() => setShowPassword(!showPassword)} className="text-[10px] text-primary hover:underline">
-                        {showPassword ? "Ocultar" : "Mostrar"}
-                      </button>
-                      <button onClick={() => handleCopy(assetData.password, "password")} className="text-[10px] text-primary hover:underline">
-                        {copied === "password" ? "Copiado" : "Copiar"}
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-xs font-mono text-on-surface mt-0.5">
-                    {showPassword ? assetData.password : "••••••••••••"}
-                  </p>
-                </div>
-                <div className="p-2.5 bg-surface-container-low rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Email de Recuperación</p>
-                    <button onClick={() => handleCopy(assetData.recoveryEmail, "recovery")} className="text-[10px] text-primary hover:underline">
-                      {copied === "recovery" ? "Copiado" : "Copiar"}
-                    </button>
-                  </div>
-                  <p className="text-xs font-mono text-on-surface mt-0.5">{assetData.recoveryEmail}</p>
-                </div>
-                {assetData.notes && (
-                  <div className="p-2.5 bg-surface-container-low rounded-lg">
-                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Notas</p>
-                    <p className="text-xs text-on-surface mt-0.5">{assetData.notes}</p>
-                  </div>
-                )}
-              </div>
-            </section>
-
-            {/* Assignment History */}
-            <section className="glass rounded-xl p-4">
-              <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">history</span>
-                Historial de Asignación
-              </h4>
-              <div className="relative">
-                <div className="absolute left-4 top-0 bottom-0 w-px bg-white/10" />
-                <div className="space-y-4">
-                  {assignmentHistory.map((event, i) => (
-                    <div key={i} className="flex gap-3 relative">
-                      <div className={cn("w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center z-10", event.color)}>
-                        <span className="material-symbols-outlined text-sm">{event.icon}</span>
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-xs font-semibold text-on-surface">{event.action}</p>
-                        <p className="text-[10px] text-on-surface-variant">{event.admin} • {event.timestamp}</p>
-                      </div>
+              ))}
+            </div>
+          ) : item ? (
+            <div className="p-5 space-y-5">
+              {/* Asset Info */}
+              <section className="glass rounded-xl p-4">
+                <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm text-primary">info</span>
+                  Información del Activo
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { label: "ID", value: item.id.slice(0, 8) },
+                    { label: "Plataforma", value: item.platform_name },
+                    { label: "Producto", value: item.product_name },
+                    { label: "Tipo", value: assetTypeLabels[meta?.asset_type] || meta?.asset_type || "N/A" },
+                  ].map((field) => (
+                    <div key={field.label} className="p-2.5 bg-surface-container-low rounded-lg">
+                      <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">{field.label}</p>
+                      <p className="text-xs font-medium text-on-surface mt-0.5">{field.value}</p>
                     </div>
                   ))}
                 </div>
-              </div>
-            </section>
+                <div className="mt-3 p-2.5 bg-surface-container-low rounded-lg">
+                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Estado</p>
+                  <div className="mt-1">
+                    <StatusBadge status={statusStyle?.label || item.status} variant={statusStyle?.variant || "neutral"} />
+                  </div>
+                </div>
+              </section>
 
-            {/* Usage Info */}
-            <section className="glass rounded-xl p-4">
-              <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">schedule</span>
-                Información de Uso
-              </h4>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="text-center p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-                  <p className="text-[10px] text-green-400 uppercase tracking-wider">Estado</p>
-                  <p className="text-sm font-bold text-green-400 mt-1">Activo</p>
+              {/* Credentials */}
+              {(meta?.email || meta?.activation_code || meta?.license_key || meta?.profile_name) && (
+                <section className="glass rounded-xl p-4">
+                  <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm text-primary">lock</span>
+                    Credenciales
+                  </h4>
+                  <div className="space-y-3">
+                    {meta.email && (
+                      <div className="p-2.5 bg-surface-container-low rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Email</p>
+                          <button onClick={() => handleCopy(meta.email!, "email")} className="text-[10px] text-primary hover:underline">
+                            {copied === "email" ? "Copiado" : "Copiar"}
+                          </button>
+                        </div>
+                        <p className="text-xs font-mono text-on-surface mt-0.5">{meta.email}</p>
+                      </div>
+                    )}
+                    {meta.password && (
+                      <div className="p-2.5 bg-surface-container-low rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Contraseña</p>
+                          <div className="flex gap-2">
+                            <button onClick={() => setShowPassword(!showPassword)} className="text-[10px] text-primary hover:underline">
+                              {showPassword ? "Ocultar" : "Mostrar"}
+                            </button>
+                            <button onClick={() => handleCopy(meta.password!, "password")} className="text-[10px] text-primary hover:underline">
+                              {copied === "password" ? "Copiado" : "Copiar"}
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-xs font-mono text-on-surface mt-0.5">
+                          {showPassword ? meta.password : "••••••••••••"}
+                        </p>
+                      </div>
+                    )}
+                    {meta.recovery_email && (
+                      <div className="p-2.5 bg-surface-container-low rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Email de Recuperación</p>
+                          <button onClick={() => handleCopy(meta.recovery_email!, "recovery")} className="text-[10px] text-primary hover:underline">
+                            {copied === "recovery" ? "Copiado" : "Copiar"}
+                          </button>
+                        </div>
+                        <p className="text-xs font-mono text-on-surface mt-0.5">{meta.recovery_email}</p>
+                      </div>
+                    )}
+                    {meta.profile_name && (
+                      <div className="p-2.5 bg-surface-container-low rounded-lg">
+                        <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Nombre del Perfil</p>
+                        <p className="text-xs font-mono text-on-surface mt-0.5">{meta.profile_name}</p>
+                      </div>
+                    )}
+                    {meta.activation_code && (
+                      <div className="p-2.5 bg-surface-container-low rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Código de Activación</p>
+                          <button onClick={() => handleCopy(meta.activation_code!, "code")} className="text-[10px] text-primary hover:underline">
+                            {copied === "code" ? "Copiado" : "Copiar"}
+                          </button>
+                        </div>
+                        <p className="text-xs font-mono text-on-surface mt-0.5">{meta.activation_code}</p>
+                      </div>
+                    )}
+                    {meta.license_key && (
+                      <div className="p-2.5 bg-surface-container-low rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Clave de Licencia</p>
+                          <button onClick={() => handleCopy(meta.license_key!, "license")} className="text-[10px] text-primary hover:underline">
+                            {copied === "license" ? "Copiado" : "Copiar"}
+                          </button>
+                        </div>
+                        <p className="text-xs font-mono text-on-surface mt-0.5">{meta.license_key}</p>
+                      </div>
+                    )}
+                    {meta.notes && (
+                      <div className="p-2.5 bg-surface-container-low rounded-lg">
+                        <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Notas</p>
+                        <p className="text-xs text-on-surface mt-0.5">{meta.notes}</p>
+                      </div>
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {/* Usage Info */}
+              <section className="glass rounded-xl p-4">
+                <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm text-primary">schedule</span>
+                  Información de Uso
+                </h4>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="text-center p-3 bg-surface-container-low rounded-lg">
+                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Estado</p>
+                    <p className="text-sm font-bold text-on-surface mt-1">{statusStyle?.label || item.status}</p>
+                  </div>
+                  <div className="text-center p-3 bg-surface-container-low rounded-lg">
+                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Expira</p>
+                    <p className="text-sm font-bold text-on-surface mt-1">{formatDate(item.expires_at)}</p>
+                  </div>
+                  <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
+                    <p className="text-[10px] text-primary uppercase tracking-wider">Días</p>
+                    <p className="text-sm font-bold text-primary mt-1">{item.days_remaining ?? "N/A"}</p>
+                  </div>
                 </div>
-                <div className="text-center p-3 bg-surface-container-low rounded-lg">
-                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Expira</p>
-                  <p className="text-sm font-bold text-on-surface mt-1">{assetData.expirationDate}</p>
-                </div>
-                <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
-                  <p className="text-[10px] text-primary uppercase tracking-wider">Días</p>
-                  <p className="text-sm font-bold text-primary mt-1">{assetData.daysRemaining}</p>
-                </div>
-              </div>
-            </section>
-          </div>
+              </section>
+            </div>
+          ) : (
+            <div className="p-12 text-center">
+              <span className="material-symbols-outlined text-4xl text-on-surface-variant/30">error</span>
+              <p className="text-sm text-on-surface-variant mt-2">Activo no encontrado</p>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-white/5 bg-surface-container-lowest/90 backdrop-blur-xl space-y-3">
-          <div className="flex gap-2">
-            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined text-sm">person_add</span>
-              Asignar
-            </button>
-            <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5">
-              <span className="material-symbols-outlined text-sm">edit</span>
-              Editar
-            </button>
+        {item && (
+          <div className="p-4 border-t border-white/5 bg-surface-container-lowest/90 backdrop-blur-xl space-y-3">
+            <div className="flex gap-2">
+              <button
+                onClick={handleSuspend}
+                disabled={item.status === "suspended"}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-500/10 text-amber-500 text-xs font-semibold rounded-xl hover:bg-amber-500/20 transition-colors border border-amber-500/20 disabled:opacity-40"
+              >
+                <span className="material-symbols-outlined text-sm">block</span>
+                Suspender
+              </button>
+              <button
+                onClick={handleDelete}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20"
+              >
+                <span className="material-symbols-outlined text-sm">delete</span>
+                Eliminar
+              </button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-500/10 text-amber-500 text-xs font-semibold rounded-xl hover:bg-amber-500/20 transition-colors border border-amber-500/20">
-              <span className="material-symbols-outlined text-sm">block</span>
-              Suspender
-            </button>
-            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20">
-              <span className="material-symbols-outlined text-sm">delete</span>
-              Eliminar
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )

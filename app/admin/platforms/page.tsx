@@ -24,6 +24,7 @@ import {
   type HealthAlert,
   type CreatePlatformInput,
 } from "@/lib/api/platforms"
+import { getInventoryHealth, type InventoryHealth } from "@/lib/api/inventory"
 import { sileo } from "sileo"
 
 export default function PlatformsPage() {
@@ -52,6 +53,7 @@ export default function PlatformsPage() {
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 })
   const [productCounts, setProductCounts] = useState<Record<string, number>>({})
   const [totalProductCount, setTotalProductCount] = useState(0)
+  const [inventoryCounts, setInventoryCounts] = useState<Record<string, number>>({})
 
   const [filters, setFilters] = useState<PlatformFiltersType>({})
   const [sortBy, setSortBy] = useState("name")
@@ -120,9 +122,23 @@ export default function PlatformsPage() {
     }
   }, [])
 
+  const fetchInventoryCounts = useCallback(async () => {
+    try {
+      const health: InventoryHealth = await getInventoryHealth()
+      const counts: Record<string, number> = {}
+      for (const entry of health.byPlatform) {
+        counts[entry.name] = entry.count
+      }
+      setInventoryCounts(counts)
+    } catch {
+      // Non-critical
+    }
+  }, [])
+
   useEffect(() => {
     fetchHealth()
-  }, [fetchHealth])
+    fetchInventoryCounts()
+  }, [fetchHealth, fetchInventoryCounts])
 
   useEffect(() => {
     if (platforms.length > 0) {
@@ -176,13 +192,13 @@ export default function PlatformsPage() {
       switch (sortBy) {
         case "Ingresos": return b.revenue_monthly - a.revenue_monthly
         case "Productos": return (productCounts[b.id] || 0) - (productCounts[a.id] || 0)
-        case "Inventario": return b.inventory_available - a.inventory_available
+        case "Inventario": return (inventoryCounts[b.name] || 0) - (inventoryCounts[a.name] || 0)
         case "Mas Reciente": return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         case "Nombre":
         default: return a.name.localeCompare(b.name)
       }
     })
-  }, [platforms, sortBy])
+  }, [platforms, sortBy, inventoryCounts])
 
   const counts = useMemo(() => ({
     all: platforms.length,
@@ -194,7 +210,9 @@ export default function PlatformsPage() {
   const totalProducts = useMemo(() => {
     return platforms.reduce((sum, p) => sum + (productCounts[p.id] || 0), 0)
   }, [platforms, productCounts])
-  const totalInventory = useMemo(() => platforms.reduce((sum, p) => sum + (p.inventory_available || 0), 0), [platforms])
+  const totalInventory = useMemo(() => {
+    return Object.values(inventoryCounts).reduce((sum, count) => sum + count, 0)
+  }, [inventoryCounts])
   const totalRevenue = useMemo(() => platforms.reduce((sum, p) => sum + (p.revenue_monthly || 0), 0), [platforms])
 
   return (
@@ -367,6 +385,7 @@ export default function PlatformsPage() {
         loading={loading}
         hasActiveFilters={hasActiveFilters}
         productCounts={productCounts}
+        inventoryCounts={inventoryCounts}
       />
 
       {/* Pagination */}
@@ -415,7 +434,7 @@ export default function PlatformsPage() {
         />
       )}
       {selectedPlatform && (
-        <PlatformDetailDrawer platformId={selectedPlatform} onClose={() => setSelectedPlatform(null)} onEdit={setEditingPlatform} />
+        <PlatformDetailDrawer platformId={selectedPlatform} onClose={() => setSelectedPlatform(null)} onEdit={setEditingPlatform} inventoryCounts={inventoryCounts} />
       )}
     </div>
   )

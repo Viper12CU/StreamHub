@@ -5,17 +5,19 @@ import { cn } from "@/lib/utils"
 interface InventoryTabsProps {
   activeTab: string
   onTabChange: (tab: string) => void
+  counts?: Record<string, number>
 }
 
-const tabs = [
-  { id: "all", label: "Todo el Inventario", icon: "inventory_2", count: 1245 },
-  { id: "accounts", label: "Cuentas", icon: "person", count: 542 },
-  { id: "profiles", label: "Perfiles Compartidos", icon: "group", count: 312 },
-  { id: "codes", label: "Códigos de Activación", icon: "vpn_key", count: 289 },
-  { id: "packages", label: "Paquetes de Suscripción", icon: "inventory", count: 102 },
+const defaultTabs = [
+  { id: "all", label: "Todo el Inventario", icon: "inventory_2" },
+  { id: "accounts", label: "Cuentas", icon: "person" },
+  { id: "profiles", label: "Perfiles Compartidos", icon: "group" },
+  { id: "codes", label: "Códigos de Activación", icon: "vpn_key" },
+  { id: "packages", label: "Paquetes de Suscripción", icon: "inventory" },
 ]
 
-export function InventoryTabs({ activeTab, onTabChange }: InventoryTabsProps) {
+export function InventoryTabs({ activeTab, onTabChange, counts = {} }: InventoryTabsProps) {
+  const tabs = defaultTabs.map((t) => ({ ...t, count: counts[t.id] ?? 0 }))
   return (
     <section className="glass rounded-xl border border-white/5 overflow-hidden">
       <div className="flex overflow-x-auto custom-scrollbar">

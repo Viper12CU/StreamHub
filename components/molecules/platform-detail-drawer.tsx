@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef, useCallback } from "react"
+import { useEffect, useState, useRef, useCallback, useMemo } from "react"
 import { createPortal } from "react-dom"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -12,12 +12,14 @@ import {
   type PlatformProduct,
   type PlatformAnalytics,
 } from "@/lib/api/platforms"
+import { getInventory, type InventoryWithDetails } from "@/lib/api/inventory"
 import { sileo } from "sileo"
 
 interface PlatformDetailDrawerProps {
   platformId: string
   onClose: () => void
   onEdit: (platform: PlatformWithMetrics) => void
+  inventoryCounts?: Record<string, number>
 }
 
 const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
@@ -166,7 +168,7 @@ function DrawerSkeleton() {
   )
 }
 
-export function PlatformDetailDrawer({ platformId, onClose, onEdit }: PlatformDetailDrawerProps) {
+export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCounts = {} }: PlatformDetailDrawerProps) {
   const [mounted, setMounted] = useState(false)
   const [closing, setClosing] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -174,6 +176,7 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit }: PlatformDe
   const [platform, setPlatform] = useState<PlatformWithMetrics | null>(null)
   const [products, setProducts] = useState<PlatformProduct[]>([])
   const [analytics, setAnalytics] = useState<PlatformAnalytics | null>(null)
+  const [platformInventory, setPlatformInventory] = useState<InventoryWithDetails[]>([])
   const closeRef = useRef<HTMLButtonElement>(null)
   const drawerRef = useRef<HTMLDivElement>(null)
 
@@ -223,15 +226,17 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit }: PlatformDe
       try {
         setLoading(true)
         setError(null)
-        const [platData, prodData, analyticsData] = await Promise.all([
+        const [platData, prodData, analyticsData, inventoryData] = await Promise.all([
           getPlatformById(platformId),
           getPlatformProducts(platformId),
           getPlatformAnalytics(platformId),
+          getInventory({ platform_id: platformId, limit: 1000 }),
         ])
         if (!cancelled) {
           setPlatform(platData)
           setProducts(prodData)
           setAnalytics(analyticsData)
+          setPlatformInventory(inventoryData.data)
         }
       } catch (err) {
         if (!cancelled) {
@@ -245,6 +250,15 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit }: PlatformDe
     fetchData()
     return () => { cancelled = true }
   }, [platformId])
+
+  const inventoryStats = useMemo(() => {
+    const available = platformInventory.filter((i) => i.status === "available").length
+    const assigned = platformInventory.filter((i) => i.status === "assigned").length
+    const expired = platformInventory.filter((i) => i.status === "expired").length
+    const reserved = platformInventory.filter((i) => i.status === "reserved").length
+    const suspended = platformInventory.filter((i) => i.status === "suspended").length
+    return { available, assigned, expired, reserved, suspended, total: platformInventory.length }
+  }, [platformInventory])
 
   function getLetter(name: string) {
     return name.charAt(0).toUpperCase()
@@ -425,15 +439,15 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit }: PlatformDe
                 <div className="grid grid-cols-3 gap-3">
                   <div className="text-center p-3 bg-green-500/10 rounded-lg border border-green-500/20">
                     <p className="text-[10px] text-green-400 uppercase tracking-wider">Disponibles</p>
-                    <p className="text-lg font-bold text-green-400 mt-1">{platform.inventory_available}</p>
+                    <p className="text-lg font-bold text-green-400 mt-1">{inventoryStats.available}</p>
                   </div>
                   <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
                     <p className="text-[10px] text-primary uppercase tracking-wider">Asignados</p>
-                    <p className="text-lg font-bold text-primary mt-1">{platform.inventory_assigned}</p>
+                    <p className="text-lg font-bold text-primary mt-1">{inventoryStats.assigned}</p>
                   </div>
                   <div className="text-center p-3 bg-surface-container-low rounded-lg">
-                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Expirados</p>
-                    <p className="text-lg font-bold text-on-surface mt-1">{platform.inventory_expired}</p>
+                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Total</p>
+                    <p className="text-lg font-bold text-on-surface mt-1">{inventoryStats.total}</p>
                   </div>
                 </div>
               </section>

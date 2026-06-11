@@ -1,58 +1,88 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { StatusBadge } from "@/components/atoms/status-badge"
-
-interface Asset {
-  id: string
-  platform: string
-  type: string
-  product: string
-  identifier: string
-  status: "available" | "reserved" | "assigned" | "expired" | "suspended"
-  customer: string | null
-  expirationDate: string
-  daysRemaining: number | null
-  lastUpdated: string
-}
+import { Skeleton } from "@/components/ui/skeleton"
+import type { InventoryWithDetails } from "@/lib/api/inventory"
 
 interface InventoryTableProps {
+  items: InventoryWithDetails[]
+  loading: boolean
+  pagination: { page: number; totalPages: number; total: number }
   selectedAssets: string[]
   onSelectAssets: (ids: string[]) => void
   onViewAsset: (id: string) => void
-  activeTab: string
+  onPageChange: (page: number) => void
 }
 
-const assets: Asset[] = [
-  { id: "INV-000452", platform: "Netflix", type: "Cuenta Completa", product: "Netflix Premium 4 Screens", identifier: "ne****@gmail.com", status: "available", customer: null, expirationDate: "2025-03-15", daysRemaining: 120, lastUpdated: "Hace 2h" },
-  { id: "INV-000451", platform: "Spotify", type: "Perfil Compartido", product: "Spotify Family", identifier: "Perfil: María G.", status: "assigned", customer: "Alex Murphy", expirationDate: "2025-02-28", daysRemaining: 45, lastUpdated: "Hace 4h" },
-  { id: "INV-000450", platform: "Disney+", type: "Cuenta Completa", product: "Disney+ Premium", identifier: "dis****@outlook.com", status: "reserved", customer: "Jordan Smith", expirationDate: "2025-04-10", daysRemaining: 146, lastUpdated: "Hace 6h" },
-  { id: "INV-000449", platform: "YouTube Premium", type: "Código de Activación", product: "YouTube Premium", identifier: "YT-XXXX-XXXX-XXXX", status: "expired", customer: null, expirationDate: "2024-12-01", daysRemaining: null, lastUpdated: "Hace 1d" },
-  { id: "INV-000448", platform: "HBO Max", type: "Cuenta Completa", product: "HBO Max Ultra", identifier: "hb****@yahoo.com", status: "available", customer: null, expirationDate: "2025-05-20", daysRemaining: 186, lastUpdated: "Hace 12h" },
-  { id: "INV-000447", platform: "Crunchyroll", type: "Cuenta Completa", product: "Crunchyroll Mega", identifier: "cr****@hotmail.com", status: "assigned", customer: "Elena Kas", expirationDate: "2025-01-30", daysRemaining: 15, lastUpdated: "Hace 2d" },
-  { id: "INV-000446", platform: "Netflix", type: "Perfil Compartido", product: "Netflix Standard", identifier: "Perfil: Carlos M.", status: "available", customer: null, expirationDate: "2025-06-01", daysRemaining: 198, lastUpdated: "Hace 3d" },
-  { id: "INV-000445", platform: "Spotify", type: "Cuenta Completa", product: "Spotify Individual", identifier: "sp****@gmail.com", status: "suspended", customer: "Marcus V.", expirationDate: "2025-02-15", daysRemaining: 32, lastUpdated: "Hace 3d" },
-  { id: "INV-000444", platform: "IPTV", type: "Código de Activación", product: "IPTV Premium", identifier: "IPTV-YYYY-YYYY-YYYY", status: "available", customer: null, expirationDate: "2025-07-10", daysRemaining: 237, lastUpdated: "Hace 4d" },
-  { id: "INV-000443", platform: "Disney+", type: "Cuenta Completa", product: "Disney+ + ESPN", identifier: "dis****@live.com", status: "assigned", customer: "Sarah Chen", expirationDate: "2025-01-25", daysRemaining: 10, lastUpdated: "Hace 5d" },
-]
-
-const platformColors: Record<string, string> = {
-  Netflix: "bg-primary-container",
-  Spotify: "bg-secondary",
-  "YouTube Premium": "bg-[#ff0000]",
-  "HBO Max": "bg-[#b829e3]",
-  "Disney+": "bg-tertiary",
-  Crunchyroll: "bg-[#f47521]",
-  IPTV: "bg-amber-500",
+const statusMap: Record<string, { label: string; variant: "success" | "warning" | "neutral" | "error" }> = {
+  available: { label: "Disponible", variant: "success" },
+  reserved: { label: "Reservado", variant: "warning" },
+  assigned: { label: "Asignado", variant: "neutral" },
+  expired: { label: "Expirado", variant: "error" },
+  suspended: { label: "Suspendido", variant: "error" },
 }
 
-const statusMap = {
-  available: { label: "Disponible", variant: "success" as const },
-  reserved: { label: "Reservado", variant: "warning" as const },
-  assigned: { label: "Asignado", variant: "neutral" as const },
-  expired: { label: "Expirado", variant: "error" as const },
-  suspended: { label: "Suspendido", variant: "error" as const },
+const assetTypeLabels: Record<string, string> = {
+  account: "Cuenta Completa",
+  profile: "Perfil Compartido",
+  code: "Código de Activación",
+  package: "Paquete de Suscripción",
+}
+
+function TableSkeleton() {
+  return (
+    <div className="glass rounded-xl overflow-hidden border border-white/5">
+      <div className="p-4 border-b border-white/5">
+        <Skeleton className="h-4 w-40 rounded" />
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead className="border-b border-white/5 text-[10px] font-semibold text-on-surface-variant opacity-60">
+            <tr>
+              <th className="py-3 px-4 w-10"><Skeleton className="h-4 w-4 rounded" /></th>
+              <th className="py-3 px-3"><Skeleton className="h-3 w-10 rounded" /></th>
+              <th className="py-3 px-3"><Skeleton className="h-3 w-16 rounded" /></th>
+              <th className="py-3 px-3"><Skeleton className="h-3 w-12 rounded" /></th>
+              <th className="py-3 px-3"><Skeleton className="h-3 w-20 rounded" /></th>
+              <th className="py-3 px-3"><Skeleton className="h-3 w-24 rounded" /></th>
+              <th className="py-3 px-3"><Skeleton className="h-3 w-14 rounded" /></th>
+              <th className="py-3 px-3"><Skeleton className="h-3 w-16 rounded" /></th>
+              <th className="py-3 px-3"><Skeleton className="h-3 w-16 rounded" /></th>
+              <th className="py-3 px-3"><Skeleton className="h-3 w-16 rounded" /></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <tr key={i}>
+                <td className="py-3 px-4 w-10"><Skeleton className="h-4 w-4 rounded" /></td>
+                <td className="py-3 px-3"><Skeleton className="h-4 w-16 rounded" /></td>
+                <td className="py-3 px-3"><Skeleton className="h-4 w-20 rounded" /></td>
+                <td className="py-3 px-3"><Skeleton className="h-4 w-24 rounded" /></td>
+                <td className="py-3 px-3"><Skeleton className="h-4 w-32 rounded" /></td>
+                <td className="py-3 px-3"><Skeleton className="h-4 w-28 rounded" /></td>
+                <td className="py-3 px-3"><Skeleton className="h-5 w-20 rounded-full" /></td>
+                <td className="py-3 px-3"><Skeleton className="h-4 w-20 rounded" /></td>
+                <td className="py-3 px-3"><Skeleton className="h-4 w-20 rounded" /></td>
+                <td className="py-3 px-3"><Skeleton className="h-4 w-16 rounded" /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function EmptyState() {
+  return (
+    <div className="glass rounded-xl p-12 border border-white/5 text-center">
+      <span className="material-symbols-outlined text-4xl text-on-surface-variant/30 mb-3">inventory_2</span>
+      <p className="text-sm text-on-surface-variant">No hay activos en el inventario</p>
+      <p className="text-xs text-on-surface-variant/60 mt-1">Crea tu primer activo para comenzar</p>
+    </div>
+  )
 }
 
 function getExpirationStyle(days: number | null) {
@@ -62,36 +92,37 @@ function getExpirationStyle(days: number | null) {
   return "text-on-surface-variant"
 }
 
-export function InventoryTable({ selectedAssets, onSelectAssets, onViewAsset, activeTab }: InventoryTableProps) {
+function formatDate(dateStr: string | null) {
+  if (!dateStr) return "N/A"
+  try {
+    return new Date(dateStr).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })
+  } catch {
+    return "N/A"
+  }
+}
+
+export function InventoryTable({ items, loading, pagination, selectedAssets, onSelectAssets, onViewAsset, onPageChange }: InventoryTableProps) {
   const [selectAll, setSelectAll] = useState(false)
 
-  const filteredAssets = activeTab === "all"
-    ? assets
-    : assets.filter((a) => {
-        if (activeTab === "accounts") return a.type === "Cuenta Completa"
-        if (activeTab === "profiles") return a.type === "Perfil Compartido"
-        if (activeTab === "codes") return a.type === "Código de Activación"
-        if (activeTab === "packages") return a.type === "Paquete"
-        return true
-      })
-
-  const handleSelectAll = () => {
+  const handleSelectAll = useCallback(() => {
     if (selectAll) {
       onSelectAssets([])
     } else {
-      onSelectAssets(filteredAssets.map((a) => a.id))
+      onSelectAssets(items.map((a) => a.id))
     }
     setSelectAll(!selectAll)
-  }
+  }, [selectAll, items, onSelectAssets])
 
-  const handleSelectAsset = (e: React.MouseEvent, id: string) => {
+  const handleSelectAsset = useCallback((e: React.MouseEvent, id: string) => {
     e.stopPropagation()
     const updated = selectedAssets.includes(id)
       ? selectedAssets.filter((aid) => aid !== id)
       : [...selectedAssets, id]
     onSelectAssets(updated)
-    setSelectAll(updated.length === filteredAssets.length)
-  }
+  }, [selectedAssets, onSelectAssets])
+
+  if (loading) return <TableSkeleton />
+  if (items.length === 0) return <EmptyState />
 
   return (
     <div className="glass rounded-xl overflow-hidden border border-white/5">
@@ -107,80 +138,102 @@ export function InventoryTable({ selectedAssets, onSelectAssets, onViewAsset, ac
                   type="checkbox"
                   checked={selectAll}
                   onChange={handleSelectAll}
+                  aria-label="Seleccionar todos los activos de esta página"
                   className="w-4 h-4 rounded accent-primary"
                 />
               </th>
-              <th className="py-3">ID</th>
-              <th className="py-3">Plataforma</th>
-              <th className="py-3">Tipo</th>
-              <th className="py-3">Producto</th>
-              <th className="py-3">Identificador</th>
-              <th className="py-3">Estado</th>
-              <th className="py-3">Cliente</th>
-              <th className="py-3">Expiración</th>
-              <th className="py-3">Actualizado</th>
+              <th className="py-3 px-3">ID</th>
+              <th className="py-3 px-3">Plataforma</th>
+              <th className="py-3 px-3">Tipo</th>
+              <th className="py-3 px-3">Producto</th>
+              <th className="py-3 px-3">Identificador</th>
+              <th className="py-3 px-3">Estado</th>
+              <th className="py-3 px-3">Cliente</th>
+              <th className="py-3 px-3">Expiración</th>
+              <th className="py-3 px-3">Actualizado</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {filteredAssets.map((asset) => (
+            {items.map((item) => (
               <tr
-                key={asset.id}
-                onClick={() => onViewAsset(asset.id)}
+                key={item.id}
+                onClick={() => onViewAsset(item.id)}
                 className="hover:bg-white/[0.03] transition-colors cursor-pointer group"
               >
                 <td className="py-3 px-4 w-10">
                   <input
                     type="checkbox"
-                    checked={selectedAssets.includes(asset.id)}
-                    onChange={(e) => handleSelectAsset(e, asset.id)}
+                    checked={selectedAssets.includes(item.id)}
+                    onChange={(e) => handleSelectAsset(e, item.id)}
                     onClick={(e) => e.stopPropagation()}
+                    aria-label={`Seleccionar ${item.identifier}`}
                     className="w-4 h-4 rounded accent-primary"
                   />
                 </td>
-                <td className="py-3 text-xs font-semibold text-primary">{asset.id}</td>
-                <td className="py-3">
+                <td className="py-3 px-3 text-xs font-semibold text-primary whitespace-nowrap">{item.id.slice(0, 8)}</td>
+                <td className="py-3 px-3">
                   <div className="flex items-center gap-1.5">
-                    <span className={cn("w-2 h-2 rounded-full", platformColors[asset.platform] || "bg-surface-container-highest")} />
-                    <span className="text-xs text-on-surface-variant">{asset.platform}</span>
+                    <span
+                      className="w-2 h-2 rounded-full shrink-0"
+                      style={{ backgroundColor: item.platform_color || "#666" }}
+                    />
+                    <span className="text-xs text-on-surface-variant">{item.platform_name}</span>
                   </div>
                 </td>
-                <td className="py-3 text-xs text-on-surface-variant">{asset.type}</td>
-                <td className="py-3 text-xs text-on-surface max-w-[150px] truncate">{asset.product}</td>
-                <td className="py-3 text-xs text-on-surface-variant font-mono">{asset.identifier}</td>
-                <td className="py-3">
+                <td className="py-3 px-3 text-xs text-on-surface-variant whitespace-nowrap">
+                  {assetTypeLabels[item.metadata?.asset_type] || item.metadata?.asset_type || "N/A"}
+                </td>
+                <td className="py-3 px-3 text-xs text-on-surface max-w-[150px] truncate">{item.product_name}</td>
+                <td className="py-3 px-3 text-xs text-on-surface-variant font-mono whitespace-nowrap">{item.identifier}</td>
+                <td className="py-3 px-3 whitespace-nowrap">
                   <StatusBadge
-                    status={statusMap[asset.status].label}
-                    variant={statusMap[asset.status].variant}
+                    status={statusMap[item.status]?.label || item.status}
+                    variant={statusMap[item.status]?.variant || "neutral"}
                   />
                 </td>
-                <td className="py-3 text-xs text-on-surface-variant">
-                  {asset.customer || <span className="opacity-40">Sin asignar</span>}
+                <td className="py-3 px-3 text-xs text-on-surface-variant whitespace-nowrap">
+                  {item.customer_name || <span className="opacity-40">Sin asignar</span>}
                 </td>
-                <td className="py-3">
+                <td className="py-3 px-3 whitespace-nowrap">
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-on-surface-variant">{asset.expirationDate}</span>
-                    {asset.daysRemaining !== null && (
-                      <span className={cn("text-[10px]", getExpirationStyle(asset.daysRemaining))}>
-                        {asset.daysRemaining} días
+                    <span className="text-[10px] text-on-surface-variant">{formatDate(item.expires_at)}</span>
+                    {item.days_remaining !== null && (
+                      <span className={cn("text-[10px]", getExpirationStyle(item.days_remaining))}>
+                        {item.days_remaining} días
                       </span>
                     )}
                   </div>
                 </td>
-                <td className="py-3 text-[10px] text-on-surface-variant">{asset.lastUpdated}</td>
+                <td className="py-3 px-3 text-[10px] text-on-surface-variant whitespace-nowrap">{formatDate(item.updated_at)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       <div className="p-4 border-t border-white/5 flex items-center justify-between">
-        <span className="text-xs text-on-surface-variant">Mostrando {filteredAssets.length} de 1,245 activos</span>
-        <div className="flex gap-1">
-          <button className="px-3 py-1.5 bg-primary text-white text-[10px] font-semibold rounded-lg">1</button>
-          <button className="px-3 py-1.5 bg-surface-container-low text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-surface-container-high transition-colors">2</button>
-          <button className="px-3 py-1.5 bg-surface-container-low text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-surface-container-high transition-colors">3</button>
-          <button className="px-3 py-1.5 bg-surface-container-low text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-surface-container-high transition-colors">...</button>
-          <button className="px-3 py-1.5 bg-surface-container-low text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-surface-container-high transition-colors">125</button>
-        </div>
+        <span className="text-xs text-on-surface-variant">
+          Mostrando {items.length} de {pagination.total} activos
+        </span>
+        {pagination.totalPages > 1 && (
+          <nav className="flex gap-1" aria-label="Paginación de inventario">
+            {Array.from({ length: Math.min(pagination.totalPages, 5) }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => onPageChange(i + 1)}
+                aria-label={`Ir a página ${i + 1}`}
+                aria-current={pagination.page === i + 1 ? "page" : undefined}
+                className={cn(
+                  "px-3 py-1.5 text-[10px] font-semibold rounded-lg transition-colors",
+                  pagination.page === i + 1
+                    ? "bg-primary text-white"
+                    : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high"
+                )}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </nav>
+        )}
       </div>
     </div>
   )
