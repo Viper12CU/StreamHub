@@ -28,3 +28,5 @@ Landing y flujo base para un servicio de streaming con Next.js App Router.
 - `next.config.mjs` tiene `typescript.ignoreBuildErrors = true`.
 - `next.config.mjs` tiene `images.unoptimized = true`.
 - Tailwind v4 via `postcss.config.mjs` y `@tailwindcss/postcss`.
+
+
