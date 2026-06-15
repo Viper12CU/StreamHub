@@ -1,19 +1,23 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { Skeleton } from "@/components/ui/skeleton"
+import type { CustomerCounts } from "@/lib/api/customers"
 
 interface CustomerTabsProps {
   activeTab: string
   onTabChange: (tab: string) => void
+  counts: CustomerCounts
+  loading?: boolean
 }
 
-const tabs = [
-  { id: "all", label: "Todos los Clientes", icon: "group", count: 3482 },
-  { id: "active", label: "Activos", icon: "check_circle", count: 2965 },
-  { id: "inactive", label: "Inactivos", icon: "person_off", count: 374 },
-  { id: "vip", label: "VIP", icon: "diamond", count: 118 },
-  { id: "pending", label: "Órdenes Pendientes", icon: "pending", count: 42 },
-  { id: "suspended", label: "Suspendidos", icon: "block", count: 25 },
+const tabsConfig = [
+  { id: "all", label: "Todos los Clientes", icon: "group" },
+  { id: "active", label: "Activos", icon: "check_circle" },
+  { id: "inactive", label: "Inactivos", icon: "person_off" },
+  { id: "vip", label: "VIP", icon: "diamond" },
+  { id: "pending", label: "En Riesgo", icon: "warning" },
+  { id: "suspended", label: "Suspendidos", icon: "block" },
 ]
 
 const tabColors: Record<string, string> = {
@@ -24,16 +28,32 @@ const tabColors: Record<string, string> = {
   suspended: "text-error",
 }
 
-export function CustomerTabs({ activeTab, onTabChange }: CustomerTabsProps) {
+export function CustomerTabs({ activeTab, onTabChange, counts, loading }: CustomerTabsProps) {
+  if (loading) {
+    return (
+      <section className="glass rounded-xl border border-white/5 overflow-hidden p-1">
+        <div className="flex gap-1">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-12 flex-1 rounded-lg" />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="glass rounded-xl border border-white/5 overflow-hidden">
-      <div className="flex overflow-x-auto custom-scrollbar">
-        {tabs.map((tab) => (
+      <div role="tablist" className="flex overflow-x-auto custom-scrollbar">
+        {tabsConfig.map((tab) => (
           <button
             key={tab.id}
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            aria-controls={`panel-${tab.id}`}
+            id={`tab-${tab.id}`}
             onClick={() => onTabChange(tab.id)}
             className={cn(
-              "flex items-center gap-2 px-5 py-3.5 text-xs font-semibold whitespace-nowrap transition-all border-b-2",
+              "flex items-center gap-2 px-5 py-3.5 text-xs font-semibold whitespace-nowrap transition-all border-b-2 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none",
               activeTab === tab.id
                 ? "text-primary border-primary bg-primary/[0.05]"
                 : "text-on-surface-variant border-transparent hover:text-on-surface hover:bg-white/[0.02]"
@@ -52,7 +72,7 @@ export function CustomerTabs({ activeTab, onTabChange }: CustomerTabsProps) {
                 ? "bg-primary text-white"
                 : "bg-surface-container-high text-on-surface-variant"
             )}>
-              {tab.count.toLocaleString()}
+              {(counts[tab.id as keyof CustomerCounts] ?? 0).toLocaleString()}
             </span>
           </button>
         ))}

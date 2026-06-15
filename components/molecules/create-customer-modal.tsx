@@ -3,9 +3,21 @@
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
+import type { CustomerStatus } from "@/lib/api/customers"
+
+export interface CreateCustomerFormData {
+  name: string
+  email: string
+  password: string
+  phone: string
+  country: string
+  status: CustomerStatus
+  notes: string
+}
 
 interface CreateCustomerModalProps {
   onClose: () => void
+  onCreate: (data: CreateCustomerFormData) => Promise<void>
 }
 
 const steps = [
@@ -14,15 +26,17 @@ const steps = [
   { label: "Resumen", icon: "summarize" },
 ]
 
-export function CreateCustomerModal({ onClose }: CreateCustomerModalProps) {
+export function CreateCustomerModal({ onClose, onCreate }: CreateCustomerModalProps) {
   const [mounted, setMounted] = useState(false)
   const [step, setStep] = useState(0)
-  const [formData, setFormData] = useState({
+  const [creating, setCreating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [formData, setFormData] = useState<CreateCustomerFormData>({
     name: "",
     email: "",
+    password: "",
     phone: "",
     country: "",
-    password: "",
     status: "active",
     notes: "",
   })
@@ -32,6 +46,24 @@ export function CreateCustomerModal({ onClose }: CreateCustomerModalProps) {
     document.body.style.overflow = "hidden"
     return () => { document.body.style.overflow = "" }
   }, [])
+
+  const canProceed = step === 0
+    ? formData.name.trim().length >= 2 && formData.email.includes("@")
+    : step === 1
+      ? formData.password.length >= 8
+      : true
+
+  const handleCreate = async () => {
+    try {
+      setCreating(true)
+      setError(null)
+      await onCreate(formData)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al crear cliente")
+    } finally {
+      setCreating(false)
+    }
+  }
 
   const modalContent = (
     <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 9999 }}>
@@ -78,11 +110,19 @@ export function CreateCustomerModal({ onClose }: CreateCustomerModalProps) {
           </div>
         </div>
 
+        {/* Error */}
+        {error && (
+          <div className="mx-5 mt-3 p-3 bg-error/10 border border-error/20 rounded-xl flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm text-error">error</span>
+            <p className="text-xs text-error">{error}</p>
+          </div>
+        )}
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto custom-scrollbar p-5">
           {step === 0 && (
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-on-surface">Información Básica</h3>
+              <h3 className="text-sm font-semibold text-on-surface">Información del Cliente</h3>
               <div className="space-y-3">
                 <div>
                   <label className="text-[10px] text-on-surface-variant uppercase tracking-wider">Nombre Completo *</label>
@@ -93,6 +133,9 @@ export function CreateCustomerModal({ onClose }: CreateCustomerModalProps) {
                     className="w-full mt-1 px-3 py-2.5 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
                     placeholder="Nombre del cliente"
                   />
+                  {formData.name.length > 0 && formData.name.length < 2 && (
+                    <p className="text-[10px] text-error mt-1">Mínimo 2 caracteres</p>
+                  )}
                 </div>
                 <div>
                   <label className="text-[10px] text-on-surface-variant uppercase tracking-wider">Email *</label>
@@ -132,25 +175,28 @@ export function CreateCustomerModal({ onClose }: CreateCustomerModalProps) {
 
           {step === 1 && (
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-on-surface">Configuración de Cuenta</h3>
+              <h3 className="text-sm font-semibold text-on-surface">Cuenta y Estado</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-[10px] text-on-surface-variant uppercase tracking-wider">Contraseña Temporal</label>
+                  <label className="text-[10px] text-on-surface-variant uppercase tracking-wider">Contraseña *</label>
                   <input
                     type="text"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     className="w-full mt-1 px-3 py-2.5 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
-                    placeholder="Dejar vacío para generar automáticamente"
+                    placeholder="Mínimo 8 caracteres"
                   />
+                  {formData.password.length > 0 && formData.password.length < 8 && (
+                    <p className="text-[10px] text-error mt-1">Mínimo 8 caracteres</p>
+                  )}
                 </div>
                 <div>
-                  <label className="text-[10px] text-on-surface-variant uppercase tracking-wider">Estado</label>
+                  <label className="text-[10px] text-on-surface-variant uppercase tracking-wider">Estado del Cliente</label>
                   <div className="grid grid-cols-3 gap-2 mt-2">
                     {[
-                      { value: "active", label: "Activo", color: "bg-green-500" },
-                      { value: "vip", label: "VIP", color: "bg-amber-500" },
-                      { value: "suspended", label: "Suspendido", color: "bg-error" },
+                      { value: "active" as const, label: "Activo", color: "bg-green-500" },
+                      { value: "vip" as const, label: "VIP", color: "bg-amber-500" },
+                      { value: "suspended" as const, label: "Suspendido", color: "bg-error" },
                     ].map((option) => (
                       <button
                         key={option.value}
@@ -207,7 +253,7 @@ export function CreateCustomerModal({ onClose }: CreateCustomerModalProps) {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-on-surface-variant uppercase tracking-wider">Contraseña</span>
-                  <span className="text-xs text-on-surface">{formData.password || "Auto-generada"}</span>
+                  <span className="text-xs text-on-surface">{"*".repeat(formData.password.length)}</span>
                 </div>
                 {formData.notes && (
                   <>
@@ -235,18 +281,24 @@ export function CreateCustomerModal({ onClose }: CreateCustomerModalProps) {
           {step < 2 ? (
             <button
               onClick={() => setStep(step + 1)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+              disabled={!canProceed}
+              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Siguiente
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </button>
           ) : (
             <button
-              onClick={onClose}
-              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+              onClick={handleCreate}
+              disabled={creating}
+              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50"
             >
-              <span className="material-symbols-outlined text-sm">check</span>
-              Crear Cliente
+              {creating ? (
+                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+              ) : (
+                <span className="material-symbols-outlined text-sm">check</span>
+              )}
+              {creating ? "Creando..." : "Crear Cliente"}
             </button>
           )}
         </div>

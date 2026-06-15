@@ -55,7 +55,8 @@ export async function signUp(data: {
 }) {
   try {
     const response = await apiClient.post("/auth/sign-up/email", data);
-    return response.data?.data;
+    const body = response.data?.data ?? response.data;
+    return body;
   } catch (error) {
     const axiosError = error as AxiosError;
     throw new Error(getErrorMessage(axiosError, "registrar usuario"));

@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 
 interface CustomerFiltersProps {
   onToggle: () => void
   isOpen: boolean
+  onFilterChange: (filters: Record<string, string[]>) => void
+  onSortChange: (sort: string) => void
 }
 
 function FilterChip({ label, active, onClick }: { label: string; active?: boolean; onClick: () => void }) {
@@ -42,38 +44,52 @@ function FilterSection({ title, icon, children }: FilterSectionProps) {
   )
 }
 
-const customerStatuses = ["Activo", "Inactivo", "VIP", "Suspendido"]
-
 const sortOptions = ["Más Recientes", "Mayor Valor", "Más Órdenes", "Reciente Activo", "Nombre"]
 
-export function CustomerFilters({ onToggle, isOpen }: CustomerFiltersProps) {
-  const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({})
+export function CustomerFilters({ onToggle, isOpen, onFilterChange, onSortChange }: CustomerFiltersProps) {
+  const [sortBy, setSortBy] = useState("Más Recientes")
   const [registrationRange, setRegistrationRange] = useState({ start: "", end: "" })
-  const [lastPurchaseRange, setLastPurchaseRange] = useState({ start: "", end: "" })
   const [lifetimeValue, setLifetimeValue] = useState({ min: "", max: "" })
   const [totalOrders, setTotalOrders] = useState({ min: "", max: "" })
+  const hasFiredRef = useRef(false)
 
-  const toggleFilter = (category: string, value: string) => {
-    setActiveFilters((prev) => {
-      const current = prev[category] || []
-      const updated = current.includes(value)
-        ? current.filter((v) => v !== value)
-        : [...current, value]
-      return { ...prev, [category]: updated }
-    })
-  }
+  useEffect(() => {
+    if (!hasFiredRef.current) {
+      hasFiredRef.current = true
+      return
+    }
+    const apiFilters: Record<string, string[]> = {}
+    if (registrationRange.start || registrationRange.end) {
+      apiFilters.registration = [registrationRange.start, registrationRange.end].filter(Boolean)
+    }
+    if (lifetimeValue.min || lifetimeValue.max) {
+      apiFilters.lifetime_value = [lifetimeValue.min, lifetimeValue.max].filter(Boolean)
+    }
+    if (totalOrders.min || totalOrders.max) {
+      apiFilters.total_orders = [totalOrders.min, totalOrders.max].filter(Boolean)
+    }
+    onFilterChange(apiFilters)
+  }, [registrationRange, lifetimeValue, totalOrders, onFilterChange])
 
-  const activeCount = Object.values(activeFilters).reduce((acc, arr) => acc + arr.length, 0)
-    + (registrationRange.start ? 1 : 0) + (registrationRange.end ? 1 : 0)
-    + (lastPurchaseRange.start ? 1 : 0) + (lastPurchaseRange.end ? 1 : 0)
+  useEffect(() => {
+    if (!hasFiredRef.current) return
+    onSortChange(sortBy)
+  }, [sortBy, onSortChange])
+
+  const activeCount = (registrationRange.start ? 1 : 0) + (registrationRange.end ? 1 : 0)
     + (lifetimeValue.min ? 1 : 0) + (lifetimeValue.max ? 1 : 0)
     + (totalOrders.min ? 1 : 0) + (totalOrders.max ? 1 : 0)
 
   return (
     <section className="glass rounded-xl overflow-hidden border border-white/5">
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-4 text-left hover:bg-white/[0.02] transition-colors"
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle() } }}
+        aria-expanded={isOpen}
+        aria-controls="customer-filters-panel"
+        className="w-full flex items-center justify-between p-4 text-left hover:bg-white/[0.02] transition-colors focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none cursor-pointer"
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -93,13 +109,11 @@ export function CustomerFilters({ onToggle, isOpen }: CustomerFiltersProps) {
             <button
               onClick={(e) => {
                 e.stopPropagation()
-                setActiveFilters({})
                 setRegistrationRange({ start: "", end: "" })
-                setLastPurchaseRange({ start: "", end: "" })
                 setLifetimeValue({ min: "", max: "" })
                 setTotalOrders({ min: "", max: "" })
               }}
-              className="text-[11px] text-primary font-medium hover:underline"
+              className="text-[11px] text-primary font-medium hover:underline focus-visible:ring-2 focus-visible:ring-primary/50"
             >
               Limpiar
             </button>
@@ -111,28 +125,16 @@ export function CustomerFilters({ onToggle, isOpen }: CustomerFiltersProps) {
             expand_more
           </span>
         </div>
-      </button>
+      </div>
 
-      <div className={cn(
-        "overflow-hidden transition-all duration-300",
-        isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
-      )}>
+      <div
+        id="customer-filters-panel"
+        className={cn(
+          "overflow-hidden transition-all duration-300",
+          isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
+        )}
+      >
         <div className="px-4 pb-4 space-y-5 border-t border-white/5 pt-4">
-          {/* Status */}
-          <FilterSection title="Estado del Cliente" icon="flag">
-            <div className="flex flex-wrap gap-2">
-              {customerStatuses.map((status) => (
-                <FilterChip
-                  key={status}
-                  label={status}
-                  active={activeFilters.status?.includes(status)}
-                  onClick={() => toggleFilter("status", status)}
-                />
-              ))}
-            </div>
-          </FilterSection>
-
-          {/* Date Ranges & Value Ranges */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             <FilterSection title="Fecha de Registro" icon="calendar_today">
               <div className="flex items-center gap-2">
@@ -147,24 +149,6 @@ export function CustomerFilters({ onToggle, isOpen }: CustomerFiltersProps) {
                   type="date"
                   value={registrationRange.end}
                   onChange={(e) => setRegistrationRange({ ...registrationRange, end: e.target.value })}
-                  className="flex-1 px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
-                />
-              </div>
-            </FilterSection>
-
-            <FilterSection title="Última Compra" icon="shopping_cart">
-              <div className="flex items-center gap-2">
-                <input
-                  type="date"
-                  value={lastPurchaseRange.start}
-                  onChange={(e) => setLastPurchaseRange({ ...lastPurchaseRange, start: e.target.value })}
-                  className="flex-1 px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
-                />
-                <span className="text-on-surface-variant/40 text-xs">—</span>
-                <input
-                  type="date"
-                  value={lastPurchaseRange.end}
-                  onChange={(e) => setLastPurchaseRange({ ...lastPurchaseRange, end: e.target.value })}
                   className="flex-1 px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
                 />
               </div>
@@ -212,7 +196,13 @@ export function CustomerFilters({ onToggle, isOpen }: CustomerFiltersProps) {
 
             <FilterSection title="Ordenar Por" icon="sort">
               <div className="relative">
-                <select className="w-full px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface appearance-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all cursor-pointer">
+                <label htmlFor="customer-sort" className="sr-only">Ordenar clientes por</label>
+                <select
+                  id="customer-sort"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface appearance-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all cursor-pointer"
+                >
                   {sortOptions.map((option) => (
                     <option key={option} value={option}>{option}</option>
                   ))}

@@ -1,46 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { createPortal } from "react-dom"
 import { StatusBadge } from "@/components/atoms/status-badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
+import { getCustomerById, updateCustomer, clearCustomerCache, type CustomerDetail } from "@/lib/api/customers"
+import { sileo } from "sileo"
 
 interface CustomerDetailDrawerProps {
   customerId: string
   onClose: () => void
-}
-
-const customerData = {
-  id: "CUS-2026-000421",
-  name: "Alex Murphy",
-  email: "alex.murphy@gmail.com",
-  phone: "+53 555 12345",
-  country: "Cuba",
-  registrationDate: "Ene 12, 2026",
-  status: "vip",
-  lastLogin: "Hace 2 horas",
-  totalOrders: 18,
-  lifetimeValue: 324.50,
-  subscriptions: [
-    { name: "Netflix Premium 4 Screens", platform: "Netflix", expires: "Mar 15, 2026" },
-    { name: "Spotify Family", platform: "Spotify", expires: "Feb 28, 2026" },
-    { name: "Disney+ Shared Profile", platform: "Disney+", expires: "Abr 10, 2026" },
-  ],
-  recentOrders: [
-    { number: "ORD-2026-000482", product: "Netflix Premium 4 Screens", amount: 8.99, status: "delivered", date: "Jun 5, 2026" },
-    { number: "ORD-2026-000465", product: "Spotify Family", amount: 14.99, status: "delivered", date: "May 28, 2026" },
-    { number: "ORD-2026-000451", product: "Disney+ Shared Profile", amount: 7.99, status: "delivered", date: "May 15, 2026" },
-  ],
-  payment: {
-    totalPayments: 18,
-    lastPayment: "Jun 5, 2026",
-    preferredMethod: "Zelle",
-  },
-  support: {
-    openTickets: 0,
-    lastInteraction: "May 20, 2026",
-  },
-  notes: "Cliente VIP frecuente. Siempre paga a tiempo. Preferencia: horario de entrega matutino. Contacto preferido: email.",
 }
 
 const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
@@ -54,28 +24,88 @@ const orderStatusMap: Record<string, { label: string; variant: "success" | "erro
   delivered: { label: "Entregada", variant: "success" },
   pending: { label: "Pendiente", variant: "warning" },
   cancelled: { label: "Cancelada", variant: "error" },
-}
-
-const platformColors: Record<string, string> = {
-  Netflix: "bg-primary-container",
-  Spotify: "bg-secondary",
-  "Disney+": "bg-tertiary",
-  "YouTube Premium": "bg-[#ff0000]",
-  "HBO Max": "bg-[#b829e3]",
-  Crunchyroll: "bg-[#f47521]",
-  IPTV: "bg-amber-500",
+  active: { label: "Activa", variant: "success" },
 }
 
 export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDrawerProps) {
   const [mounted, setMounted] = useState(false)
-  const [noteText, setNoteText] = useState(customerData.notes)
+  const [customer, setCustomer] = useState<CustomerDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [noteText, setNoteText] = useState("")
   const [showConfirmModal, setShowConfirmModal] = useState<string | null>(null)
+  const [savingNotes, setSavingNotes] = useState(false)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
+
+  const fetchCustomer = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const data = await getCustomerById(customerId)
+      setCustomer(data)
+      setNoteText(data.notes || "")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al cargar cliente")
+    } finally {
+      setLoading(false)
+    }
+  }, [customerId])
 
   useEffect(() => {
     setMounted(true)
     document.body.style.overflow = "hidden"
+    fetchCustomer()
     return () => { document.body.style.overflow = "" }
-  }, [])
+  }, [fetchCustomer])
+
+  const getInitials = (name: string) => name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+
+  const getRelativeDate = (dateStr: string | null) => {
+    if (!dateStr) return "Nunca"
+    const diff = Date.now() - new Date(dateStr).getTime()
+    const days = Math.floor(diff / 86400000)
+    if (days === 0) return "Hoy"
+    if (days === 1) return "Ayer"
+    if (days < 7) return `Hace ${days} días`
+    if (days < 30) return `Hace ${Math.floor(days / 7)} sem`
+    return `Hace ${Math.floor(days / 30)} meses`
+  }
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString("es-ES", { month: "short", day: "numeric", year: "numeric" })
+  }
+
+  const handleSaveNotes = async () => {
+    if (!customer) return
+    try {
+      setSavingNotes(true)
+      await updateCustomer(customer.id, { notes: noteText })
+      setCustomer({ ...customer, notes: noteText })
+      clearCustomerCache()
+      sileo.success({ title: "Notas guardadas", description: "Las notas internas se han actualizado." })
+    } catch {
+      sileo.error({ title: "Error", description: "No se pudieron guardar las notas." })
+    } finally {
+      setSavingNotes(false)
+    }
+  }
+
+  const handleStatusChange = async (newStatus: "vip" | "suspended" | "active") => {
+    if (!customer) return
+    try {
+      setUpdatingStatus(true)
+      await updateCustomer(customer.id, { status: newStatus })
+      setCustomer({ ...customer, status: newStatus })
+      clearCustomerCache()
+      const labels = { vip: "marcado como VIP", suspended: "suspendido", active: "activado" }
+      sileo.success({ title: "Estado actualizado", description: `Cliente ${labels[newStatus]} correctamente.` })
+    } catch {
+      sileo.error({ title: "Error", description: "No se pudo actualizar el estado." })
+    } finally {
+      setUpdatingStatus(false)
+      setShowConfirmModal(null)
+    }
+  }
 
   const drawerContent = (
     <div className="fixed inset-0 flex justify-end" style={{ zIndex: 9999 }}>
@@ -84,19 +114,33 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/5 bg-surface-container-lowest/90 backdrop-blur-xl">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-              AM
-            </div>
-            <div>
-              <h2 className="text-base font-semibold text-on-surface">{customerData.name}</h2>
-              <p className="text-[10px] text-on-surface-variant">{customerData.id}</p>
-            </div>
+            {loading ? (
+              <>
+                <Skeleton className="w-10 h-10 rounded-full shrink-0" />
+                <div className="space-y-1">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-2.5 w-24" />
+                </div>
+              </>
+            ) : customer ? (
+              <>
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
+                  {getInitials(customer.name)}
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-on-surface">{customer.name}</h2>
+                  <p className="text-[10px] text-on-surface-variant">{customer.email}</p>
+                </div>
+              </>
+            ) : null}
           </div>
           <div className="flex items-center gap-2">
-            <StatusBadge
-              status={statusMap[customerData.status].label}
-              variant={statusMap[customerData.status].variant}
-            />
+            {customer && (
+              <StatusBadge
+                status={statusMap[customer.status]?.label || customer.status}
+                variant={statusMap[customer.status]?.variant || "neutral"}
+              />
+            )}
             <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
               <span className="material-symbols-outlined text-sm">close</span>
             </button>
@@ -105,205 +149,231 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="p-5 space-y-5">
-            {/* Basic Info */}
-            <section className="glass rounded-xl p-4">
-              <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">person</span>
-                Información Básica
-              </h4>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: "Nombre Completo", value: customerData.name },
-                  { label: "Email", value: customerData.email },
-                  { label: "Teléfono", value: customerData.phone },
-                  { label: "País", value: customerData.country },
-                  { label: "Fecha de Registro", value: customerData.registrationDate },
-                  { label: "Último Login", value: customerData.lastLogin },
-                ].map((item) => (
-                  <div key={item.label} className="p-2.5 bg-surface-container-low rounded-lg">
-                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">{item.label}</p>
-                    <p className="text-xs font-medium text-on-surface mt-0.5">{item.value}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Account Status */}
-            <section className="glass rounded-xl p-4">
-              <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">analytics</span>
-                Estado de la Cuenta
-              </h4>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-2.5 bg-surface-container-low rounded-lg">
-                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Estado</p>
-                  <div className="mt-1">
-                    <StatusBadge
-                      status={statusMap[customerData.status].label}
-                      variant={statusMap[customerData.status].variant}
-                    />
-                  </div>
-                </div>
-                <div className="p-2.5 bg-surface-container-low rounded-lg">
-                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Último Login</p>
-                  <p className="text-xs font-medium text-on-surface mt-0.5">{customerData.lastLogin}</p>
-                </div>
-                <div className="p-2.5 bg-surface-container-low rounded-lg">
-                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Total Órdenes</p>
-                  <p className="text-xs font-bold text-on-surface mt-0.5">{customerData.totalOrders}</p>
-                </div>
-                <div className="p-2.5 bg-surface-container-low rounded-lg">
-                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Valor de Vida</p>
-                  <p className="text-xs font-bold text-primary mt-0.5">${customerData.lifetimeValue.toFixed(2)}</p>
-                </div>
-              </div>
-            </section>
-
-            {/* Active Products */}
-            <section className="glass rounded-xl p-4">
-              <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">subscriptions</span>
-                Productos Activos
-              </h4>
-              <div className="space-y-2">
-                {customerData.subscriptions.map((sub, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 bg-surface-container-low rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <span className={cn("w-2.5 h-2.5 rounded-full", platformColors[sub.platform] || "bg-surface-container-highest")} />
-                      <div>
-                        <p className="text-xs font-medium text-on-surface">{sub.name}</p>
-                        <p className="text-[10px] text-on-surface-variant">{sub.platform}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[10px] text-on-surface-variant">Expira</p>
-                      <p className="text-[10px] font-medium text-on-surface">{sub.expires}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Recent Orders */}
-            <section className="glass rounded-xl p-4">
-              <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">receipt_long</span>
-                Órdenes Recientes
-              </h4>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="border-b border-white/5 text-[10px] font-semibold text-on-surface-variant opacity-60">
-                    <tr>
-                      <th className="py-2">Orden</th>
-                      <th className="py-2">Producto</th>
-                      <th className="py-2">Monto</th>
-                      <th className="py-2">Estado</th>
-                      <th className="py-2">Fecha</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {customerData.recentOrders.map((order, i) => (
-                      <tr key={i}>
-                        <td className="py-2 text-xs font-semibold text-primary">{order.number}</td>
-                        <td className="py-2 text-xs text-on-surface">{order.product}</td>
-                        <td className="py-2 text-xs font-semibold text-on-surface">${order.amount.toFixed(2)}</td>
-                        <td className="py-2">
-                          <StatusBadge
-                            status={orderStatusMap[order.status]?.label || order.status}
-                            variant={orderStatusMap[order.status]?.variant || "neutral"}
-                          />
-                        </td>
-                        <td className="py-2 text-[10px] text-on-surface-variant">{order.date}</td>
-                      </tr>
+          {loading ? (
+            <div className="p-5 space-y-5">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="glass rounded-xl p-4 space-y-3">
+                  <Skeleton className="h-4 w-32" />
+                  <div className="grid grid-cols-2 gap-3">
+                    {Array.from({ length: 4 }).map((_, j) => (
+                      <Skeleton key={j} className="h-14 rounded-lg" />
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            <div className="p-8 text-center space-y-3">
+              <span className="material-symbols-outlined text-3xl text-error/50 block">error</span>
+              <p className="text-sm text-on-surface">{error}</p>
+              <button
+                onClick={fetchCustomer}
+                className="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors"
+              >
+                Reintentar
+              </button>
+            </div>
+          ) : customer ? (
+            <div className="p-5 space-y-5">
+              {/* Basic Info */}
+              <section className="glass rounded-xl p-4">
+                <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm text-primary">person</span>
+                  Información Básica
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { label: "Nombre Completo", value: customer.name },
+                    { label: "Email", value: customer.email },
+                    { label: "Teléfono", value: customer.phone || "—" },
+                    { label: "País", value: customer.country || "—" },
+                    { label: "WhatsApp", value: customer.whatsapp || "—" },
+                    { label: "Registro", value: formatDate(customer.created_at) },
+                  ].map((item) => (
+                    <div key={item.label} className="p-2.5 bg-surface-container-low rounded-lg">
+                      <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">{item.label}</p>
+                      <p className="text-xs font-medium text-on-surface mt-0.5">{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
 
-            {/* Payment History */}
-            <section className="glass rounded-xl p-4">
-              <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">account_balance_wallet</span>
-                Historial de Pagos
-              </h4>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="p-3 bg-surface-container-low rounded-lg text-center">
-                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Total Pagos</p>
-                  <p className="text-lg font-bold text-on-surface mt-1">{customerData.payment.totalPayments}</p>
+              {/* Account Status */}
+              <section className="glass rounded-xl p-4">
+                <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm text-primary">analytics</span>
+                  Estado de la Cuenta
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-2.5 bg-surface-container-low rounded-lg">
+                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Estado</p>
+                    <div className="mt-1">
+                      <StatusBadge
+                        status={statusMap[customer.status]?.label || customer.status}
+                        variant={statusMap[customer.status]?.variant || "neutral"}
+                      />
+                    </div>
+                  </div>
+                  <div className="p-2.5 bg-surface-container-low rounded-lg">
+                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Última Compra</p>
+                    <p className="text-xs font-medium text-on-surface mt-0.5">
+                      {customer.last_purchase ? getRelativeDate(customer.last_purchase) : "—"}
+                    </p>
+                  </div>
+                  <div className="p-2.5 bg-surface-container-low rounded-lg">
+                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Total Órdenes</p>
+                    <p className="text-xs font-bold text-on-surface mt-0.5">{customer.total_orders}</p>
+                  </div>
+                  <div className="p-2.5 bg-surface-container-low rounded-lg">
+                    <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Valor de Vida</p>
+                    <p className="text-xs font-bold text-primary mt-0.5">${Number(customer.lifetime_value ?? 0).toFixed(2)}</p>
+                  </div>
                 </div>
-                <div className="p-3 bg-surface-container-low rounded-lg text-center">
-                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Último Pago</p>
-                  <p className="text-xs font-medium text-on-surface mt-1">{customerData.payment.lastPayment}</p>
-                </div>
-                <div className="p-3 bg-surface-container-low rounded-lg text-center">
-                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Método Preferido</p>
-                  <p className="text-xs font-bold text-primary mt-1">{customerData.payment.preferredMethod}</p>
-                </div>
-              </div>
-            </section>
+              </section>
 
-            {/* Support Activity */}
-            <section className="glass rounded-xl p-4">
-              <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">support_agent</span>
-                Actividad de Soporte
-              </h4>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-surface-container-low rounded-lg text-center">
-                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Tickets Abiertos</p>
-                  <p className={cn(
-                    "text-lg font-bold mt-1",
-                    customerData.support.openTickets > 0 ? "text-amber-500" : "text-green-400"
-                  )}>
-                    {customerData.support.openTickets}
-                  </p>
-                </div>
-                <div className="p-3 bg-surface-container-low rounded-lg text-center">
-                  <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Última Interacción</p>
-                  <p className="text-xs font-medium text-on-surface mt-1">{customerData.support.lastInteraction}</p>
-                </div>
-              </div>
-            </section>
+              {/* Active Subscriptions */}
+              <section className="glass rounded-xl p-4">
+                <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm text-primary">subscriptions</span>
+                  Suscripciones Activas
+                </h4>
+                {(!customer.subscriptions || customer.subscriptions.length === 0) ? (
+                  <p className="text-xs text-on-surface-variant opacity-60 text-center py-4">No hay suscripciones activas</p>
+                ) : (
+                  <div className="space-y-2">
+                    {customer.subscriptions.map((sub, i) => (
+                      <div key={i} className="flex items-center justify-between p-3 bg-surface-container-low rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full"
+                            style={{ backgroundColor: sub.platform_color || undefined }}
+                          />
+                          <div>
+                            <p className="text-xs font-medium text-on-surface">{sub.product_name}</p>
+                            <p className="text-[10px] text-on-surface-variant">{sub.platform_name}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] text-on-surface-variant">Expira</p>
+                          <p className="text-[10px] font-medium text-on-surface">{formatDate(sub.expires_at)}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
 
-            {/* Internal Notes */}
-            <section className="glass rounded-xl p-4">
-              <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">notes</span>
-                Notas Internas
-              </h4>
-              <textarea
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}
-                className="w-full px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all resize-none min-h-[80px]"
-                placeholder="Notas privadas sobre este cliente..."
-              />
-            </section>
-          </div>
+              {/* Recent Orders */}
+              <section className="glass rounded-xl p-4">
+                <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm text-primary">receipt_long</span>
+                  Órdenes Recientes
+                </h4>
+                {(!customer.recent_orders || customer.recent_orders.length === 0) ? (
+                  <p className="text-xs text-on-surface-variant opacity-60 text-center py-4">No hay órdenes recientes</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead className="border-b border-white/5 text-[10px] font-semibold text-on-surface-variant opacity-60">
+                        <tr>
+                          <th className="py-2">Orden</th>
+                          <th className="py-2">Producto</th>
+                          <th className="py-2">Monto</th>
+                          <th className="py-2">Estado</th>
+                          <th className="py-2">Fecha</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {customer.recent_orders.slice(0, 5).map((order) => (
+                          <tr key={order.id}>
+                            <td className="py-2 text-xs font-semibold text-primary">{order.order_number}</td>
+                            <td className="py-2 text-xs text-on-surface">{order.product_name}</td>
+                            <td className="py-2 text-xs font-semibold text-on-surface">${order.amount_usd.toFixed(2)}</td>
+                            <td className="py-2">
+                              <StatusBadge
+                                status={orderStatusMap[order.status]?.label || order.status}
+                                variant={orderStatusMap[order.status]?.variant || "neutral"}
+                              />
+                            </td>
+                            <td className="py-2 text-[10px] text-on-surface-variant">{formatDate(order.created_at)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+
+              {/* Internal Notes */}
+              <section className="glass rounded-xl p-4">
+                <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm text-primary">notes</span>
+                  Notas Internas
+                </h4>
+                <textarea
+                  value={noteText}
+                  onChange={(e) => setNoteText(e.target.value)}
+                  className="w-full px-3 py-2 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all resize-none min-h-[80px]"
+                  placeholder="Notas privadas sobre este cliente..."
+                />
+                {noteText !== (customer?.notes || "") && (
+                  <div className="mt-2 flex justify-end">
+                    <button
+                      onClick={handleSaveNotes}
+                      disabled={savingNotes}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white text-[10px] font-semibold rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50"
+                    >
+                      <span className="material-symbols-outlined text-xs">{savingNotes ? "hourglass_empty" : "check"}</span>
+                      {savingNotes ? "Guardando..." : "Guardar Cambios"}
+                    </button>
+                  </div>
+                )}
+              </section>
+            </div>
+          ) : null}
         </div>
 
         {/* Footer */}
         <div className="p-4 border-t border-white/5 bg-surface-container-lowest/90 backdrop-blur-xl space-y-3">
           <div className="flex gap-2">
-            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined text-sm">edit</span>
-              Editar Cliente
-            </button>
-            <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5">
-              <span className="material-symbols-outlined text-sm">mail</span>
-              Enviar Mensaje
-            </button>
-          </div>
-          <div className="flex gap-2">
-            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-500/10 text-amber-500 text-xs font-semibold rounded-xl hover:bg-amber-500/20 transition-colors border border-amber-500/20">
-              <span className="material-symbols-outlined text-sm">diamond</span>
-              Marcar VIP
-            </button>
-            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20">
-              <span className="material-symbols-outlined text-sm">block</span>
-              Suspender
-            </button>
+            {customer?.status === "vip" ? (
+              <button
+                onClick={() => handleStatusChange("active")}
+                disabled={updatingStatus}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-sm">person_remove</span>
+                Quitar VIP
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowConfirmModal("vip")}
+                disabled={updatingStatus || customer?.status === "suspended"}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-500/10 text-amber-500 text-xs font-semibold rounded-xl hover:bg-amber-500/20 transition-colors border border-amber-500/20 disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-sm">diamond</span>
+                Marcar VIP
+              </button>
+            )}
+            {customer?.status === "suspended" ? (
+              <button
+                onClick={() => handleStatusChange("active")}
+                disabled={updatingStatus}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-green-500/10 text-green-400 text-xs font-semibold rounded-xl hover:bg-green-500/20 transition-colors border border-green-500/20 disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-sm">check_circle</span>
+                Reactivar
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowConfirmModal("suspend")}
+                disabled={updatingStatus || customer?.status === "vip"}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20 disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-sm">block</span>
+                Suspender
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -315,7 +385,9 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
           <div className="relative glass rounded-2xl p-6 w-[400px] space-y-4">
             <h3 className="text-sm font-semibold text-on-surface">Confirmar Acción</h3>
             <p className="text-xs text-on-surface-variant">
-              ¿Estás seguro de que deseas {showConfirmModal}? Esta acción no se puede deshacer.
+              {showConfirmModal === "vip"
+                ? "¿Estás seguro de que deseas marcar este cliente como VIP? Tendrá acceso prioritario."
+                : "¿Estás seguro de que deseas suspender este cliente? No podrá realizar compras."}
             </p>
             <div className="flex gap-2">
               <button
@@ -325,10 +397,15 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
                 Cancelar
               </button>
               <button
-                onClick={() => setShowConfirmModal(null)}
-                className="flex-1 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+                onClick={() => handleStatusChange(showConfirmModal === "vip" ? "vip" : "suspended")}
+                disabled={updatingStatus}
+                className={`flex-1 py-2.5 text-white text-xs font-semibold rounded-xl transition-colors shadow-lg disabled:opacity-50 ${
+                  showConfirmModal === "vip"
+                    ? "bg-amber-500 hover:bg-amber-600 shadow-amber-500/20"
+                    : "bg-error hover:bg-error/90 shadow-error/20"
+                }`}
               >
-                Confirmar
+                {updatingStatus ? "Procesando..." : "Confirmar"}
               </button>
             </div>
           </div>
