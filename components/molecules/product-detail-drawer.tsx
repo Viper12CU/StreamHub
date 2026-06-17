@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from "react"
 import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
 import { StatusBadge } from "@/components/atoms/status-badge"
+import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
 import { statusMap, productTypeMap, formatDateFull } from "@/lib/constants/products"
 import { getProductById, getProductMetrics, duplicateProduct, deleteProduct, bulkAction, clearProductCache, type ProductWithDetails, type ProductMetrics } from "@/lib/api/products"
@@ -189,7 +190,7 @@ export function ProductDetailDrawer({ productId, onClose, onEdit }: ProductDetai
               className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors focus-visible:ring-2 focus-visible:ring-primary/50"
               aria-label="Cerrar drawer"
             >
-              <span className="material-symbols-outlined text-sm">close</span>
+              <Icon name="close" className="text-sm" />
             </button>
           </div>
         </div>
@@ -200,7 +201,7 @@ export function ProductDetailDrawer({ productId, onClose, onEdit }: ProductDetai
             <DrawerSkeleton />
           ) : error ? (
             <div className="p-8 text-center space-y-3">
-              <span className="material-symbols-outlined text-3xl text-error/50 block">error</span>
+              <Icon name="alert-circle" className="text-3xl text-error/50 block" />
               <p className="text-sm text-on-surface">{error}</p>
               <button
                 onClick={() => window.location.reload()}
@@ -228,7 +229,7 @@ export function ProductDetailDrawer({ productId, onClose, onEdit }: ProductDetai
               {/* Basic Information */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">info</span>
+                  <Icon name="information" className="text-sm text-primary" />
                   Información Básica
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
@@ -248,7 +249,7 @@ export function ProductDetailDrawer({ productId, onClose, onEdit }: ProductDetai
                             className="shrink-0 p-0.5 rounded hover:bg-white/5 transition-colors focus-visible:ring-2 focus-visible:ring-primary/50"
                             aria-label="Copiar slug"
                           >
-                            <span className="material-symbols-outlined text-[10px] text-on-surface-variant">content_copy</span>
+                            <Icon name="content-copy" className="text-[10px] text-on-surface-variant" />
                           </button>
                         )}
                       </div>
@@ -266,7 +267,7 @@ export function ProductDetailDrawer({ productId, onClose, onEdit }: ProductDetai
               {/* Pricing */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">payments</span>
+                  <Icon name="credit-card-outline" className="text-sm text-primary" />
                   Precios
                 </h4>
                 <div className="grid grid-cols-3 gap-3">
@@ -288,7 +289,7 @@ export function ProductDetailDrawer({ productId, onClose, onEdit }: ProductDetai
               {/* Inventory */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">inventory_2</span>
+                  <Icon name="package-variant-closed" className="text-sm text-primary" />
                   Inventario
                 </h4>
                 <div className="grid grid-cols-3 gap-3">
@@ -310,7 +311,7 @@ export function ProductDetailDrawer({ productId, onClose, onEdit }: ProductDetai
               {/* Sales Performance */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">trending_up</span>
+                  <Icon name="trending-up" className="text-sm text-primary" />
                   Rendimiento de Ventas
                 </h4>
                 <div className="grid grid-cols-3 gap-3">
@@ -340,7 +341,7 @@ export function ProductDetailDrawer({ productId, onClose, onEdit }: ProductDetai
                 onClick={() => onEdit(product)}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary/50"
               >
-                <span className="material-symbols-outlined text-sm">edit</span>
+                <Icon name="pencil" className="text-sm" />
                 Editar Producto
               </button>
               <button
@@ -348,7 +349,7 @@ export function ProductDetailDrawer({ productId, onClose, onEdit }: ProductDetai
                 className="flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 focus-visible:ring-2 focus-visible:ring-primary/50"
                 aria-label="Duplicar producto"
               >
-                <span className="material-symbols-outlined text-sm">content_copy</span>
+                <Icon name="content-copy" className="text-sm" />
                 Duplicar
               </button>
             </div>
@@ -357,14 +358,14 @@ export function ProductDetailDrawer({ productId, onClose, onEdit }: ProductDetai
                 onClick={handleArchive}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-surface-container-high text-on-surface-variant text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 focus-visible:ring-2 focus-visible:ring-primary/50"
               >
-                <span className="material-symbols-outlined text-sm">archive</span>
+                <Icon name="archive" className="text-sm" />
                 Archivar
               </button>
               <button
                 onClick={handleDelete}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20 focus-visible:ring-2 focus-visible:ring-error/50"
               >
-                <span className="material-symbols-outlined text-sm">delete</span>
+                <Icon name="delete" className="text-sm" />
                 Eliminar
               </button>
             </div>

@@ -1,3 +1,5 @@
+import { Icon } from "@/components/atoms/icon"
+
 interface Shortcut {
   icon: string
   label: string
@@ -7,12 +9,12 @@ interface Shortcut {
 }
 
 const shortcuts: Shortcut[] = [
-  { icon: "add_box", label: "Crear Producto", color: "bg-surface-container-low", hoverColor: "hover:bg-primary-container hover:text-on-primary-container", iconBg: "bg-primary/20" },
-  { icon: "inventory_2", label: "Agregar Inventario", color: "bg-surface-container-low", hoverColor: "hover:bg-secondary-container hover:text-on-secondary-container", iconBg: "bg-secondary/20" },
-  { icon: "shopping_cart", label: "Crear Pedido", color: "bg-surface-container-low", hoverColor: "hover:bg-tertiary-container hover:text-on-tertiary-container", iconBg: "bg-tertiary/20" },
-  { icon: "verified", label: "Verificar Pagos", color: "bg-surface-container-low", hoverColor: "hover:bg-primary-container hover:text-on-primary-container", iconBg: "bg-primary/20" },
-  { icon: "group", label: "Gestionar Usuarios", color: "bg-surface-container-low", hoverColor: "hover:bg-secondary-container hover:text-on-secondary-container", iconBg: "bg-secondary/20" },
-  { icon: "analytics", label: "Ver Reportes", color: "bg-surface-container-low", hoverColor: "hover:bg-error-container hover:text-on-error-container", iconBg: "bg-error/20" },
+  { icon: "plus-box", label: "Crear Producto", color: "bg-surface-container-low", hoverColor: "hover:bg-primary-container hover:text-on-primary-container", iconBg: "bg-primary/20" },
+  { icon: "package-variant", label: "Agregar Inventario", color: "bg-surface-container-low", hoverColor: "hover:bg-secondary-container hover:text-on-secondary-container", iconBg: "bg-secondary/20" },
+  { icon: "cart-plus", label: "Crear Pedido", color: "bg-surface-container-low", hoverColor: "hover:bg-tertiary-container hover:text-on-tertiary-container", iconBg: "bg-tertiary/20" },
+  { icon: "check-decagram", label: "Verificar Pagos", color: "bg-surface-container-low", hoverColor: "hover:bg-primary-container hover:text-on-primary-container", iconBg: "bg-primary/20" },
+  { icon: "account-group", label: "Gestionar Usuarios", color: "bg-surface-container-low", hoverColor: "hover:bg-secondary-container hover:text-on-secondary-container", iconBg: "bg-secondary/20" },
+  { icon: "chart-box", label: "Ver Reportes", color: "bg-surface-container-low", hoverColor: "hover:bg-error-container hover:text-on-error-container", iconBg: "bg-error/20" },
 ]
 
 export function ShortcutsPanel() {
@@ -25,9 +27,7 @@ export function ShortcutsPanel() {
             key={shortcut.label}
             className={`flex items-center gap-3 p-3 ${shortcut.color} ${shortcut.hoverColor} rounded-lg transition-all group`}
           >
-            <span className={`material-symbols-outlined text-sm p-1 ${shortcut.iconBg} rounded group-hover:bg-white/20`}>
-              {shortcut.icon}
-            </span>
+            <Icon name={shortcut.icon} className={`text-sm p-1 ${shortcut.iconBg} rounded group-hover:bg-white/20`} />
             <span className="text-xs font-bold">{shortcut.label}</span>
           </button>
         ))}

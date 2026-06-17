@@ -1,6 +1,7 @@
 "use client"
 
 import { memo } from "react"
+import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { ProductHealth } from "@/lib/api/products"
 
@@ -38,7 +39,7 @@ function InventoryInsightsInner({ health, loading }: InventoryInsightsProps) {
   if (!hasAnyData) {
     return (
       <div className="glass rounded-xl p-8 border border-white/5 text-center">
-        <span className="material-symbols-outlined text-3xl text-green-400/30 mb-2 block">check_circle</span>
+        <Icon name="check-circle" className="text-3xl text-green-400/30 mb-2 block" />
         <p className="text-xs text-on-surface-variant">Inventario saludable</p>
       </div>
     )
@@ -47,7 +48,7 @@ function InventoryInsightsInner({ health, loading }: InventoryInsightsProps) {
   return (
     <div className="glass rounded-xl p-4 space-y-4">
       <h3 className="text-sm font-semibold text-on-surface flex items-center gap-2">
-        <span className="material-symbols-outlined text-sm text-primary">inventory_2</span>
+        <Icon name="package-variant-closed" className="text-sm text-primary" />
         Salud del Inventario
       </h3>
 

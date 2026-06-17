@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
+import { Icon } from "@/components/atoms/icon"
 import { getProducts, type ProductWithDetails } from "@/lib/api/products"
 import { createInventoryItem, clearInventoryCache, type AssetType } from "@/lib/api/inventory"
 import { sileo } from "sileo"
@@ -12,10 +13,10 @@ interface CreateAssetModalProps {
 }
 
 const assetTypes = [
-  { id: "account" as AssetType, label: "Cuenta Completa", icon: "person", description: "Acceso completo a la plataforma" },
-  { id: "profile" as AssetType, label: "Perfil Compartido", icon: "group", description: "Perfil dentro de una cuenta familiar" },
-  { id: "code" as AssetType, label: "Código de Activación", icon: "vpn_key", description: "Código de un solo uso" },
-  { id: "package" as AssetType, label: "Paquete de Suscripción", icon: "inventory", description: "Licencia o paquete prepagado" },
+  { id: "account" as AssetType, label: "Cuenta Completa", icon: "account", description: "Acceso completo a la plataforma" },
+  { id: "profile" as AssetType, label: "Perfil Compartido", icon: "account-group", description: "Perfil dentro de una cuenta familiar" },
+  { id: "code" as AssetType, label: "Código de Activación", icon: "key", description: "Código de un solo uso" },
+  { id: "package" as AssetType, label: "Paquete de Suscripción", icon: "package", description: "Licencia o paquete prepagado" },
 ]
 
 export function CreateAssetModal({ onClose, onCreated }: CreateAssetModalProps) {
@@ -98,7 +99,7 @@ export function CreateAssetModal({ onClose, onCreated }: CreateAssetModalProps) 
         <div className="flex items-center justify-between p-5 border-b border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary">add_box</span>
+              <Icon name="plus-box" className="text-primary" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-on-surface">Agregar Inventario</h2>
@@ -106,7 +107,7 @@ export function CreateAssetModal({ onClose, onCreated }: CreateAssetModalProps) 
             </div>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
-            <span className="material-symbols-outlined text-sm">close</span>
+            <Icon name="close" className="text-sm" />
           </button>
         </div>
 
@@ -119,7 +120,7 @@ export function CreateAssetModal({ onClose, onCreated }: CreateAssetModalProps) 
                 s === step ? "bg-primary text-white ring-4 ring-primary/20" :
                 "bg-surface-container-high text-on-surface-variant"
               }`}>
-                {s < step ? <span className="material-symbols-outlined text-sm">check</span> : s}
+                 {s < step ? <Icon name="check" className="text-sm" /> : s}
               </div>
               {s < 3 && <div className={`flex-1 h-0.5 rounded-full ${s < step ? "bg-primary" : "bg-surface-container-high"}`} />}
             </div>
@@ -146,9 +147,7 @@ export function CreateAssetModal({ onClose, onCreated }: CreateAssetModalProps) 
                     }`}
                   >
                     <div className="flex items-center gap-3 mb-2">
-                      <span className={`material-symbols-outlined text-sm ${selectedType === type.id ? "text-primary" : "text-on-surface-variant"}`}>
-                        {type.icon}
-                      </span>
+                      <Icon name={type.icon} className={`text-sm ${selectedType === type.id ? "text-primary" : "text-on-surface-variant"}`} />
                       <span className={`text-xs font-semibold ${selectedType === type.id ? "text-primary" : "text-on-surface"}`}>
                         {type.label}
                       </span>
@@ -169,7 +168,7 @@ export function CreateAssetModal({ onClose, onCreated }: CreateAssetModalProps) 
                     <option value="">Seleccionar producto...</option>
                     {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
-                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none">unfold_more</span>
+                  <Icon name="unfold-more" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -282,7 +281,7 @@ export function CreateAssetModal({ onClose, onCreated }: CreateAssetModalProps) 
                 </div>
               </div>
               <div className="p-4 bg-primary/[0.08] border border-primary/20 rounded-xl flex items-start gap-3">
-                <span className="material-symbols-outlined text-primary text-sm mt-0.5">info</span>
+                <Icon name="information" className="text-primary text-sm mt-0.5" />
                 <p className="text-xs text-on-surface">El activo será creado con estado &quot;Disponible&quot; y estará listo para asignación inmediata.</p>
               </div>
             </div>
@@ -292,13 +291,13 @@ export function CreateAssetModal({ onClose, onCreated }: CreateAssetModalProps) 
         {/* Footer */}
         <div className="flex items-center justify-between p-5 border-t border-white/5 bg-surface-container-lowest/50">
           <button onClick={() => step > 1 ? setStep(step - 1) : onClose()} className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors">
-            <span className="material-symbols-outlined text-sm">{step > 1 ? "arrow_back" : "close"}</span>
+            <Icon name={step > 1 ? "arrow-left" : "close"} className="text-sm" />
             {step > 1 ? "Anterior" : "Cancelar"}
           </button>
           {step < 3 ? (
             <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
               Siguiente
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              <Icon name="arrow-right" className="text-sm" />
             </button>
           ) : (
             <button
@@ -306,7 +305,7 @@ export function CreateAssetModal({ onClose, onCreated }: CreateAssetModalProps) 
               disabled={submitting}
               className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50"
             >
-              <span className="material-symbols-outlined text-sm">{submitting ? "hourglass_empty" : "check"}</span>
+              <Icon name={submitting ? "progress-clock" : "check"} className="text-sm" />
               {submitting ? "Creando..." : "Crear Activo"}
             </button>
           )}

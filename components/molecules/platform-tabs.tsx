@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Icon } from "@/components/atoms/icon"
 
 interface PlatformTabsProps {
   activeTab: string
@@ -11,9 +12,9 @@ interface PlatformTabsProps {
 }
 
 const tabsConfig = [
-  { id: "all", label: "Todas las Plataformas", icon: "smart_display" },
-  { id: "active", label: "Activas", icon: "check_circle" },
-  { id: "inactive", label: "Inactivas", icon: "pause_circle" },
+  { id: "all", label: "Todas las Plataformas", icon: "monitor" },
+  { id: "active", label: "Activas", icon: "check-circle" },
+  { id: "inactive", label: "Inactivas", icon: "pause-circle" },
   { id: "archived", label: "Archivadas", icon: "archive" },
 ]
 
@@ -54,12 +55,9 @@ export function PlatformTabs({ activeTab, onTabChange, counts, loading }: Platfo
                 : "text-on-surface-variant border-transparent hover:text-on-surface hover:bg-white/[0.02]"
             )}
           >
-            <span className={cn(
-              "material-symbols-outlined text-sm",
+            <Icon name={tab.icon} size="xl" className={cn(
               activeTab === tab.id ? "" : (tabColors[tab.id] || "")
-            )}>
-              {tab.icon}
-            </span>
+            )} />
             {tab.label}
             <span className={cn(
               "px-1.5 py-0.5 text-[10px] font-bold rounded-full",

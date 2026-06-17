@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 interface OrderTabsProps {
   activeTab: string
@@ -8,12 +9,12 @@ interface OrderTabsProps {
 }
 
 const tabs = [
-  { id: "all", label: "Todas las Órdenes", icon: "receipt_long", count: 1248 },
-  { id: "pending", label: "Pendientes", icon: "pending", count: 18 },
-  { id: "payment_review", label: "Revisión de Pago", icon: "payment", count: 7 },
-  { id: "approved", label: "Aprobadas", icon: "check_circle", count: 42 },
-  { id: "inventory_assignment", label: "Asignación de Inventario", icon: "inventory_2", count: 15 },
-  { id: "delivered", label: "Entregadas", icon: "local_shipping", count: 1117 },
+  { id: "all", label: "Todas las Órdenes", icon: "receipt", count: 1248 },
+  { id: "pending", label: "Pendientes", icon: "clock-outline", count: 18 },
+  { id: "payment_review", label: "Revisión de Pago", icon: "credit-card", count: 7 },
+  { id: "approved", label: "Aprobadas", icon: "check-circle", count: 42 },
+  { id: "inventory_assignment", label: "Asignación de Inventario", icon: "package-variant", count: 15 },
+  { id: "delivered", label: "Entregadas", icon: "truck", count: 1117 },
   { id: "cancelled", label: "Canceladas", icon: "cancel", count: 24 },
 ]
 
@@ -41,12 +42,10 @@ export function OrderTabs({ activeTab, onTabChange }: OrderTabsProps) {
                 : "text-on-surface-variant border-transparent hover:text-on-surface hover:bg-white/[0.02]"
             )}
           >
-            <span className={cn(
-              "material-symbols-outlined text-sm",
+            <Icon name={tab.icon} className={cn(
+              "text-sm",
               activeTab === tab.id ? "" : (tabColors[tab.id] || "")
-            )}>
-              {tab.icon}
-            </span>
+            )} />
             {tab.label}
             <span className={cn(
               "px-1.5 py-0.5 text-[10px] font-bold rounded-full",

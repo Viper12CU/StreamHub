@@ -6,6 +6,7 @@ import { Mail, Lock, Eye, EyeOff, User, Phone } from "lucide-react"
 import { FormField } from "@/components/molecules/form-field"
 import { PulseIndicator } from "@/components/atoms/pulse-indicator"
 import { Button } from "@/components/atoms/button"
+import { Icon } from "@/components/atoms/icon"
 import { signIn, signUp, setSessionToken } from "@/lib/api/auth"
 import { createCustomer } from "@/lib/api/customers"
 import { useSession } from "@/lib/session-context"
@@ -40,7 +41,7 @@ function StepIndicator({ currentStep, totalSteps }: { currentStep: number; total
             "bg-surface-container-high text-on-surface-variant"
           )}>
             {s < currentStep ? (
-              <span className="material-symbols-outlined text-xs">check</span>
+              <Icon name="check" className="text-xs" />
             ) : s}
           </div>
           {s < totalSteps && (
@@ -177,8 +178,8 @@ export function LoginFormCard() {
               }
             />
           </div>
-          <Button type="submit" className="w-full py-4 text-xl font-semibold" disabled={loading}>
-            {loading ? "Cargando..." : "Iniciar sesión"}
+          <Button type="submit" className="w-full py-4 text-xl font-semibold" loading={loading}>
+            Iniciar sesión
           </Button>
           <div className="text-center pt-4">
             <p className="text-base text-muted-foreground">
@@ -207,7 +208,7 @@ export function LoginFormCard() {
                 <div className="space-y-1.5">
                   <label htmlFor="reg-name" className="text-[11px] font-medium text-on-surface-variant">Nombre completo *</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">person</span>
+                    <Icon name="account" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" />
                     <input
                       id="reg-name"
                       type="text"
@@ -222,7 +223,7 @@ export function LoginFormCard() {
                 <div className="space-y-1.5">
                   <label htmlFor="reg-email" className="text-[11px] font-medium text-on-surface-variant">Correo electrónico *</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">mail</span>
+                    <Icon name="email" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" />
                     <input
                       id="reg-email"
                       type="email"
@@ -267,10 +268,10 @@ export function LoginFormCard() {
                           <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
                         ))}
                       </select>
-                      <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none">unfold_more</span>
+                        <Icon name="unfold-more" className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none" />
                     </div>
                     <div className="relative flex-1">
-                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">phone</span>
+                      <Icon name="phone" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" />
                       <input
                         type="tel"
                         value={phoneNumber}
@@ -311,10 +312,10 @@ export function LoginFormCard() {
                             <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
                           ))}
                         </select>
-                        <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none">unfold_more</span>
+                        <Icon name="unfold-more" className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none" />
                       </div>
                       <div className="relative flex-1">
-                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">chat</span>
+                        <Icon name="chat" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" />
                         <input
                           type="tel"
                           value={whatsappNumber}
@@ -350,7 +351,7 @@ export function LoginFormCard() {
                 <div className="space-y-1.5">
                   <label htmlFor="reg-password" className="text-[11px] font-medium text-on-surface-variant">Contraseña *</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">lock</span>
+                    <Icon name="lock" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" />
                     <input
                       id="reg-password"
                       type={showPassword ? "text" : "password"}
@@ -368,7 +369,7 @@ export function LoginFormCard() {
                 <div className="space-y-1.5">
                   <label htmlFor="reg-confirm" className="text-[11px] font-medium text-on-surface-variant">Confirmar Contraseña *</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">lock</span>
+                    <Icon name="lock" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" />
                     <input
                       id="reg-confirm"
                       type={showPassword ? "text" : "password"}
@@ -388,8 +389,8 @@ export function LoginFormCard() {
                 <Button type="button" variant="secondary" className="flex-1 py-3 text-sm font-semibold" onClick={() => setRegStep(2)}>
                   Atrás
                 </Button>
-                <Button type="button" className="flex-1 py-3 text-sm font-semibold" disabled={!canSubmitStep3 || loading} onClick={handleRegisterSubmit}>
-                  {loading ? "Creando..." : "Crear Cuenta"}
+                <Button type="button" className="flex-1 py-3 text-sm font-semibold" disabled={!canSubmitStep3} loading={loading} onClick={handleRegisterSubmit}>
+                  Crear Cuenta
                 </Button>
               </div>
             </div>

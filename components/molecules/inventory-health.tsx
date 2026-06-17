@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { InventoryHealth as InventoryHealthType } from "@/lib/api/inventory"
 
@@ -39,7 +40,7 @@ export function InventoryHealth({ health, loading }: InventoryHealthProps) {
   return (
     <section className="glass rounded-xl border border-white/5 p-5">
       <h3 className="text-base font-semibold text-on-surface mb-5 flex items-center gap-2">
-        <span className="material-symbols-outlined text-sm text-primary">monitor_heart</span>
+        <Icon name="monitor-dashboard" className="text-sm text-primary" />
         Salud del Inventario
       </h3>
 

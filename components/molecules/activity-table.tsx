@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { StatusBadge } from "@/components/atoms/status-badge"
+import { Icon } from "@/components/atoms/icon"
 
 interface Activity {
   id: string
@@ -75,23 +76,23 @@ export function ActivityTable() {
                 <td className="py-3 text-right relative">
                   <button
                     onClick={() => setOpenMenu(openMenu === activity.id ? null : activity.id)}
-                    className="material-symbols-outlined text-on-surface-variant hover:text-on-surface"
+                    className="text-on-surface-variant hover:text-on-surface"
                   >
-                    more_vert
+                    <Icon name="dots-vertical" />
                   </button>
                   {openMenu === activity.id && (
                     <div className="absolute right-0 top-8 z-10 w-40 bg-surface-container-low border border-white/10 rounded-lg shadow-xl py-1">
                       <button className="w-full text-left px-4 py-2 text-xs hover:bg-white/5 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-sm">visibility</span> Ver orden
+                        <Icon name="eye" className="text-sm" /> Ver orden
                       </button>
                       <button className="w-full text-left px-4 py-2 text-xs hover:bg-white/5 flex items-center gap-2 text-primary">
-                        <span className="material-symbols-outlined text-sm">check_circle</span> Aprobar
+                        <Icon name="check-circle" className="text-sm" /> Aprobar
                       </button>
                       <button className="w-full text-left px-4 py-2 text-xs hover:bg-white/5 flex items-center gap-2 text-error">
-                        <span className="material-symbols-outlined text-sm">cancel</span> Rechazar
+                        <Icon name="close-circle" className="text-sm" /> Rechazar
                       </button>
                       <button className="w-full text-left px-4 py-2 text-xs hover:bg-white/5 flex items-center gap-2 text-secondary">
-                        <span className="material-symbols-outlined text-sm">local_shipping</span> Marcar entregado
+                        <Icon name="truck-delivery" className="text-sm" /> Marcar entregado
                       </button>
                     </div>
                   )}

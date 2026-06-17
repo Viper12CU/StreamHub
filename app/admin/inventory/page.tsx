@@ -29,6 +29,7 @@ import {
 } from "@/lib/api/inventory"
 import { getPlatforms, type Platform } from "@/lib/api/platforms"
 import { usePlatforms } from "@/hooks/use-platforms"
+import { Icon } from "@/components/atoms/icon"
 import { sileo } from "sileo"
 
 export default function InventoryPage() {
@@ -229,21 +230,21 @@ export default function InventoryPage() {
             onClick={() => setShowCreateModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
           >
-            <span className="material-symbols-outlined text-sm">add</span>
+            <Icon name="plus" className="text-sm" />
             Agregar Inventario
           </button>
           {/* <button
             onClick={handleImport}
             className="flex items-center gap-2 px-4 py-2.5 glass text-on-surface text-xs font-semibold rounded-xl hover:bg-white/5 transition-colors border border-white/5"
           >
-            <span className="material-symbols-outlined text-sm">upload</span>
+            <Icon name="upload" className="text-sm" />
             Importar
           </button>
           <button
             onClick={handleExport}
             className="flex items-center gap-2 px-4 py-2.5 glass text-on-surface text-xs font-semibold rounded-xl hover:bg-white/5 transition-colors border border-white/5"
           >
-            <span className="material-symbols-outlined text-sm">download</span>
+            <Icon name="download" className="text-sm" />
             Exportar
           </button> */}
         </div>
@@ -253,9 +254,7 @@ export default function InventoryPage() {
       <section className="glass p-4 rounded-xl border border-white/5">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">
-              search
-            </span>
+            <Icon name="magnify" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" />
             <input
               type="text"
               value={search}
@@ -308,7 +307,7 @@ export default function InventoryPage() {
               description="Inventario completo"
               value={stats?.total_assets?.toLocaleString() ?? "0"}
               accent="border-primary"
-              icon="inventory_2"
+              icon="package-variant-closed"
               iconColor="text-primary"
             />
             <MetricCard
@@ -318,7 +317,7 @@ export default function InventoryPage() {
               accent="border-green-500"
               badge="Disponible"
               badgeColor="text-green-400"
-              icon="check_circle"
+              icon="check-circle"
               iconColor="text-green-400"
             />
             <MetricCard
@@ -328,7 +327,7 @@ export default function InventoryPage() {
               accent="border-amber-500"
               badge="Reservado"
               badgeColor="text-amber-500"
-              icon="hourglass_top"
+              icon="timer-sand"
               iconColor="text-amber-500"
             />
             <MetricCard
@@ -348,7 +347,7 @@ export default function InventoryPage() {
               accent="border-error"
               badge="Expirado"
               badgeColor="text-error"
-              icon="timer_off"
+              icon="timer-off"
               iconColor="text-error"
             />
             <MetricCard

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 interface AdminLogoProps {
   collapsed?: boolean
@@ -8,12 +9,7 @@ export function AdminLogo({ collapsed = false }: AdminLogoProps) {
   return (
     <div className={cn("flex items-center", collapsed ? "justify-center" : "gap-4 px-2")}>
       <div className="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center glow-red shrink-0">
-        <span
-          className="material-symbols-outlined text-on-primary-container"
-          style={{ fontVariationSettings: "'FILL' 1" }}
-        >
-          cloud_sync
-        </span>
+        <Icon name="cloud-sync" className="text-on-primary-container" />
       </div>
       {!collapsed && (
         <div>

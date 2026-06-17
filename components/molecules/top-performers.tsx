@@ -3,6 +3,7 @@
 import { memo } from "react"
 import { cn } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Icon } from "@/components/atoms/icon"
 import type { ProductAnalytics } from "@/lib/api/products"
 
 interface TopPerformersProps {
@@ -37,7 +38,7 @@ function TopPerformersInner({ topProducts, loading }: TopPerformersProps) {
   if (!topProducts || topProducts.length === 0) {
     return (
       <div className="glass rounded-xl p-8 border border-white/5 text-center">
-        <span className="material-symbols-outlined text-3xl text-on-surface-variant/30 mb-2 block">emoji_events</span>
+        <Icon name="emoticon-outline" className="text-3xl text-on-surface-variant/30 mb-2 block" />
         <p className="text-xs text-on-surface-variant">Sin datos de productos</p>
       </div>
     )
@@ -46,7 +47,7 @@ function TopPerformersInner({ topProducts, loading }: TopPerformersProps) {
   return (
     <div className="glass rounded-xl p-4 space-y-4">
       <h3 className="text-sm font-semibold text-on-surface flex items-center gap-2">
-        <span className="material-symbols-outlined text-sm text-primary">emoji_events</span>
+        <Icon name="emoticon-outline" className="text-sm text-primary" />
         Mejores Vendedores
       </h3>
       <div className="space-y-2">

@@ -2,6 +2,7 @@
 
 import { memo, useMemo } from "react"
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { ProductAnalytics as ProductAnalyticsType } from "@/lib/api/products"
 
@@ -39,7 +40,7 @@ function ProductAnalyticsInner({ analytics, loading }: ProductAnalyticsProps) {
   if (!analytics || (analytics.top_products.length === 0 && analytics.sales_by_platform.length === 0)) {
     return (
       <div className="glass rounded-xl p-8 border border-white/5 text-center">
-        <span className="material-symbols-outlined text-3xl text-on-surface-variant/30 mb-2 block">bar_chart</span>
+        <Icon name="chart-bar" className="text-3xl text-on-surface-variant/30 mb-2 block" />
         <p className="text-sm text-on-surface-variant">Sin datos de analytics disponibles</p>
       </div>
     )
@@ -72,7 +73,7 @@ function ProductAnalyticsInner({ analytics, loading }: ProductAnalyticsProps) {
         <h3 className="text-sm font-semibold text-on-surface mb-4">Ingresos por Producto</h3>
         {revenueData.length === 0 ? (
           <div className="text-center py-6">
-            <span className="material-symbols-outlined text-2xl text-on-surface-variant/30 block mb-1">bar_chart</span>
+            <Icon name="chart-bar" className="text-2xl text-on-surface-variant/30 block mb-1" />
             <p className="text-xs text-on-surface-variant">Sin ingresos registrados</p>
           </div>
         ) : (
@@ -124,7 +125,7 @@ function ProductAnalyticsInner({ analytics, loading }: ProductAnalyticsProps) {
         <h3 className="text-sm font-semibold text-on-surface mb-4">Tendencias de Crecimiento</h3>
         {analytics.growth_trends.length === 0 ? (
           <div className="text-center py-6">
-            <span className="material-symbols-outlined text-2xl text-on-surface-variant/30 block mb-1">show_chart</span>
+            <Icon name="chart-line" className="text-2xl text-on-surface-variant/30 block mb-1" />
             <p className="text-xs text-on-surface-variant">Sin tendencias disponibles</p>
           </div>
         ) : (

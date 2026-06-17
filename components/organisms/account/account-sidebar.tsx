@@ -4,18 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/atoms/button";
 import { cn } from "@/lib/utils";
+import { Icon } from "@/components/atoms/icon";
 
 const navItems = [
-  { href: "/web/account", label: "Inicio", icon: "dashboard" },
-  { href: "/web/account/purchases", label: "Mis Compras", icon: "shopping_bag" },
+  { href: "/web/account", label: "Inicio", icon: "view-dashboard" },
+  { href: "/web/account/purchases", label: "Mis Compras", icon: "shopping" },
   {
     href: "/web/account/active-services",
     label: "Servicios Activos",
-    icon: "subscriptions",
+    icon: "credit-card-outline",
   },
-  { href: "/web/account/wishlist", label: "Wishlist", icon: "favorite" },
-  { href: "/web/catalog", label: "Catálogo", icon: "storefront" },
-  { href: "/web/account/settings", label: "Configuracion", icon: "settings" },
+  { href: "/web/account/wishlist", label: "Wishlist", icon: "heart" },
+  { href: "/web/catalog", label: "Catálogo", icon: "store" },
+  { href: "/web/account/settings", label: "Configuracion", icon: "cog" },
 ];
 
 interface AccountSidebarProps {
@@ -76,12 +77,10 @@ export function AccountSidebar({ collapsed, onToggle }: AccountSidebarProps) {
                     : "text-[var(--on-surface-variant)] hover:text-primary",
                 )}
               >
-                <span
-                  className="material-symbols-outlined text-[20px] shrink-0"
-                  data-icon={item.icon}
-                >
-                  {item.icon}
-                </span>
+                <Icon
+                  name={item.icon}
+                  className="text-[20px] shrink-0"
+                />
                 {!collapsed && <span>{item.label}</span>}
               </Link>
             );
@@ -98,12 +97,10 @@ export function AccountSidebar({ collapsed, onToggle }: AccountSidebarProps) {
           )}
           title={collapsed ? "Soporte WhatsApp" : undefined}
         >
-          <span
-            className="material-symbols-outlined text-[18px]"
-            data-icon="support_agent"
-          >
-            support_agent
-          </span>
+          <Icon
+            name="headset"
+            className="text-[18px]"
+          />
           {!collapsed && <span>Soporte WhatsApp</span>}
         </Button>
       </div>
@@ -119,13 +116,11 @@ export function AccountSidebar({ collapsed, onToggle }: AccountSidebarProps) {
           collapsed ? "right-[-24px]" : "right-[-24px]",
         )}
       >
-        <span
-          className="material-symbols-outlined text-[16px] transition-transform duration-300"
-          data-icon={collapsed ? "chevron_right" : "chevron_left"}
+        <Icon
+          name={collapsed ? "chevron-right" : "chevron-left"}
+          className="text-[16px] transition-transform duration-300"
           style={{ transform: "none" }}
-        >
-          {collapsed ? "chevron_right" : "chevron_left"}
-        </span>
+        />
       </button>
     </aside>
   );

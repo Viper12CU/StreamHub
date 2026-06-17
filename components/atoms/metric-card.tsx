@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 interface MetricCardProps {
   label: string
@@ -16,7 +17,7 @@ export function MetricCard({ label, description, value, accent = "border-primary
     <div className={cn("glass p-4 rounded-xl border-l-4 flex flex-col gap-1", accent)}>
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-on-surface-variant">{label}</p>
-        {icon && <span className={cn("material-symbols-outlined text-sm", iconColor)}>{icon}</span>}
+        {icon && <Icon name={icon} size="xl" className={cn( iconColor)} />}
       </div>
       <p className="text-2xl font-semibold text-on-surface">
         {value}

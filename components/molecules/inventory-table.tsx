@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { StatusBadge } from "@/components/atoms/status-badge"
+import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { InventoryWithDetails } from "@/lib/api/inventory"
 
@@ -78,7 +79,7 @@ function TableSkeleton() {
 function EmptyState() {
   return (
     <div className="glass rounded-xl p-12 border border-white/5 text-center">
-      <span className="material-symbols-outlined text-4xl text-on-surface-variant/30 mb-3">inventory_2</span>
+      <Icon name="package-variant-closed" className="text-4xl text-on-surface-variant/30 mb-3" />
       <p className="text-sm text-on-surface-variant">No hay activos en el inventario</p>
       <p className="text-xs text-on-surface-variant/60 mt-1">Crea tu primer activo para comenzar</p>
     </div>

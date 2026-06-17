@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 interface Alert {
   icon: string
@@ -11,12 +12,12 @@ interface Alert {
 }
 
 const alerts: Alert[] = [
-  { icon: "schedule", text: "5 órdenes esperando más de 24 horas", severity: "error", timestamp: "Requiere atención", action: "Revisar" },
-  { icon: "gpp_maybe", text: "7 pagos esperando verificación", severity: "warning", timestamp: "Actualizado hace 10 min", action: "Verificar" },
-  { icon: "inventory_2", text: "3 órdenes sin inventario disponible", severity: "error", timestamp: "Actualizado hace 25 min", action: "Gestionar" },
-  { icon: "local_shipping", text: "2 intentos de entrega fallidos", severity: "warning", timestamp: "Actualizado hace 1h", action: "Ver" },
-  { icon: "dispute", text: "1 disputa de pago activa", severity: "error", timestamp: "Actualizado hace 2h", action: "Detalles" },
-  { icon: "info", text: "Mantenimiento programado 02:00 AM", severity: "info", timestamp: "Hace 3h" },
+  { icon: "clock-outline", text: "5 órdenes esperando más de 24 horas", severity: "error", timestamp: "Requiere atención", action: "Revisar" },
+  { icon: "shield-check", text: "7 pagos esperando verificación", severity: "warning", timestamp: "Actualizado hace 10 min", action: "Verificar" },
+  { icon: "package-variant", text: "3 órdenes sin inventario disponible", severity: "error", timestamp: "Actualizado hace 25 min", action: "Gestionar" },
+  { icon: "truck", text: "2 intentos de entrega fallidos", severity: "warning", timestamp: "Actualizado hace 1h", action: "Ver" },
+  { icon: "alert-circle", text: "1 disputa de pago activa", severity: "error", timestamp: "Actualizado hace 2h", action: "Detalles" },
+  { icon: "information", text: "Mantenimiento programado 02:00 AM", severity: "info", timestamp: "Hace 3h" },
 ]
 
 const variantClasses = {
@@ -37,7 +38,7 @@ export function OperationalAlerts() {
       <div className="p-4 border-b border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-error/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-error text-sm">notification_important</span>
+            <Icon name="alert" className="text-error text-sm" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-on-surface">Alertas Operacionales</h3>
@@ -48,7 +49,7 @@ export function OperationalAlerts() {
       <div className="divide-y divide-white/5">
         {alerts.map((alert, i) => (
           <div key={i} className={cn("p-4 flex gap-3", variantClasses[alert.severity])}>
-            <span className={cn("material-symbols-outlined text-sm", iconColors[alert.severity])}>{alert.icon}</span>
+            <Icon name={alert.icon} className={cn("text-sm", iconColors[alert.severity])} />
             <div className="flex-1">
               <p className="text-xs text-on-surface">{alert.text}</p>
               <p className="text-[10px] text-on-surface-variant opacity-60 mt-0.5">{alert.timestamp}</p>

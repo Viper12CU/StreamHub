@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import { StatusBadge } from "@/components/atoms/status-badge"
+import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getInventoryItem, deleteInventoryItem, updateInventoryItem, clearInventoryCache, type InventoryWithDetails } from "@/lib/api/inventory"
 import { sileo } from "sileo"
@@ -99,7 +100,7 @@ export function AssetDetailDrawer({ assetId, onClose, onRefresh }: AssetDetailDr
         <div className="flex items-center justify-between p-4 border-b border-white/5 bg-surface-container-lowest/90 backdrop-blur-xl">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary text-sm">fingerprint</span>
+              <Icon name="fingerprint" className="text-primary text-sm" />
             </div>
             <div>
               <h2 className="text-base font-semibold text-on-surface">Detalle del Activo</h2>
@@ -107,7 +108,7 @@ export function AssetDetailDrawer({ assetId, onClose, onRefresh }: AssetDetailDr
             </div>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
-            <span className="material-symbols-outlined text-sm">close</span>
+            <Icon name="close" className="text-sm" />
           </button>
         </div>
 
@@ -128,7 +129,7 @@ export function AssetDetailDrawer({ assetId, onClose, onRefresh }: AssetDetailDr
               {/* Asset Info */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">info</span>
+                  <Icon name="information" className="text-sm text-primary" />
                   Información del Activo
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
@@ -156,7 +157,7 @@ export function AssetDetailDrawer({ assetId, onClose, onRefresh }: AssetDetailDr
               {(meta?.email || meta?.activation_code || meta?.license_key || meta?.profile_name) && (
                 <section className="glass rounded-xl p-4">
                   <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm text-primary">lock</span>
+                    <Icon name="lock" className="text-sm text-primary" />
                     Credenciales
                   </h4>
                   <div className="space-y-3">
@@ -241,7 +242,7 @@ export function AssetDetailDrawer({ assetId, onClose, onRefresh }: AssetDetailDr
               {/* Usage Info */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">schedule</span>
+                  <Icon name="clock-outline" className="text-sm text-primary" />
                   Información de Uso
                 </h4>
                 <div className="grid grid-cols-3 gap-3">
@@ -262,7 +263,7 @@ export function AssetDetailDrawer({ assetId, onClose, onRefresh }: AssetDetailDr
             </div>
           ) : (
             <div className="p-12 text-center">
-              <span className="material-symbols-outlined text-4xl text-on-surface-variant/30">error</span>
+              <Icon name="alert-circle" className="text-4xl text-on-surface-variant/30" />
               <p className="text-sm text-on-surface-variant mt-2">Activo no encontrado</p>
             </div>
           )}
@@ -277,14 +278,14 @@ export function AssetDetailDrawer({ assetId, onClose, onRefresh }: AssetDetailDr
                 disabled={item.status === "suspended"}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-500/10 text-amber-500 text-xs font-semibold rounded-xl hover:bg-amber-500/20 transition-colors border border-amber-500/20 disabled:opacity-40"
               >
-                <span className="material-symbols-outlined text-sm">block</span>
+                <Icon name="block" className="text-sm" />
                 Suspender
               </button>
               <button
                 onClick={handleDelete}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20"
               >
-                <span className="material-symbols-outlined text-sm">delete</span>
+                <Icon name="delete" className="text-sm" />
                 Eliminar
               </button>
             </div>

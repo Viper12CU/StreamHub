@@ -1,5 +1,7 @@
 "use client"
 
+import { Icon } from "@/components/atoms/icon"
+
 const deliveryQueue = [
   { id: "ORD-2026-000482", customer: "Alex Murphy", product: "Netflix Premium 4 Screens", asset: "Cuenta Netflix (ne****@gmail.com)" },
   { id: "ORD-2026-000477", customer: "Elena Kas", product: "Crunchyroll Mega", asset: "Cuenta Crunchyroll (cr****@hotmail.com)" },
@@ -12,7 +14,7 @@ export function DeliveryQueue() {
       <div className="p-4 border-b border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-green-400 text-sm">local_shipping</span>
+            <Icon name="truck" className="text-green-400 text-sm" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-on-surface">Órdenes Listas para Entrega</h3>
@@ -38,11 +40,11 @@ export function DeliveryQueue() {
             </div>
             <div className="flex gap-2 mt-3">
               <button className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-green-500/10 text-green-400 text-[10px] font-semibold rounded-lg hover:bg-green-500/20 transition-colors border border-green-500/20">
-                <span className="material-symbols-outlined text-sm">send</span>
+                <Icon name="send" className="text-sm" />
                 Entregar Ahora
               </button>
               <button className="flex items-center justify-center gap-1.5 px-3 py-2 bg-surface-container-high text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-white/5 transition-colors border border-white/5">
-                <span className="material-symbols-outlined text-sm">visibility</span>
+                <Icon name="eye" className="text-sm" />
                 Detalles
               </button>
             </div>

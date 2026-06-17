@@ -1,5 +1,6 @@
 "use client"
 
+import { Icon } from "@/components/atoms/icon"
 import { cn } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { CustomerCounts } from "@/lib/api/customers"
@@ -12,9 +13,9 @@ interface CustomerTabsProps {
 }
 
 const tabsConfig = [
-  { id: "all", label: "Todos los Clientes", icon: "group" },
-  { id: "active", label: "Activos", icon: "check_circle" },
-  { id: "inactive", label: "Inactivos", icon: "person_off" },
+  { id: "all", label: "Todos los Clientes", icon: "account-group" },
+  { id: "active", label: "Activos", icon: "check-circle" },
+  { id: "inactive", label: "Inactivos", icon: "account-off" },
   { id: "vip", label: "VIP", icon: "diamond" },
   { id: "pending", label: "En Riesgo", icon: "warning" },
   { id: "suspended", label: "Suspendidos", icon: "block" },
@@ -59,12 +60,13 @@ export function CustomerTabs({ activeTab, onTabChange, counts, loading }: Custom
                 : "text-on-surface-variant border-transparent hover:text-on-surface hover:bg-white/[0.02]"
             )}
           >
-            <span className={cn(
-              "material-symbols-outlined text-sm",
-              activeTab === tab.id ? "" : (tabColors[tab.id] || "")
-            )}>
-              {tab.icon}
-            </span>
+            <Icon
+              name={tab.icon}
+              className={cn(
+                "text-sm",
+                activeTab === tab.id ? "" : (tabColors[tab.id] || "")
+              )}
+            />
             {tab.label}
             <span className={cn(
               "px-1.5 py-0.5 text-[10px] font-bold rounded-full",

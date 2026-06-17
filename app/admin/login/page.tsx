@@ -6,6 +6,7 @@ import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { FormField } from "@/components/molecules/form-field"
 import { Button } from "@/components/atoms/button"
 import { signIn, getSession, setSessionToken } from "@/lib/api/auth"
+import { Icon } from "@/components/atoms/icon"
 import { sileo } from "sileo"
 
 export default function AdminLoginPage() {
@@ -46,7 +47,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-4">
           <div className="w-16 h-16 rounded-2xl bg-primary-container flex items-center justify-center mx-auto glow-red">
-            <span className="material-symbols-outlined text-on-primary-container text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>cloud_sync</span>
+            <Icon name="cloud-sync" className="text-on-primary-container text-3xl" />
           </div>
           <div>
             <h1 className="text-3xl font-bold text-primary tracking-tight">StreamHub</h1>
@@ -100,8 +101,8 @@ export default function AdminLoginPage() {
               }
             />
 
-            <Button type="submit" className="w-full py-4 text-xl font-semibold" disabled={loading}>
-              {loading ? "Cargando..." : "Entrar"}
+            <Button type="submit" className="w-full py-4 text-xl font-semibold" loading={loading}>
+              Entrar
             </Button>
           </form>
         </div>

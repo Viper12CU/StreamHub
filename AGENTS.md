@@ -67,6 +67,7 @@ components/
 ### Admin components
 - `atoms/admin-nav-item.tsx` — Item de navegación con Material Symbols
 - `atoms/collapse-button.tsx` — Botón toggle sidebar colapsable
+- `atoms/icon.tsx` — Componente unificado de iconos (MDI + Material Symbols)
 - `atoms/metric-card.tsx` — KPI metric card con badge y descripción
 - `atoms/status-badge.tsx` — Badge de estado (success/error/warning/neutral)
 - `atoms/platform-icon.tsx` — Icono de plataforma con color
@@ -188,10 +189,46 @@ Each `useState` reads from `localStorage` on init; a `useEffect` syncs on change
   - `.glass-active` — Active glass state (border 20% white, more blur)
   - `.glow-red` — Box-shadow rojo para elementos activos
   - `.material-symbols-outlined` — Configuración de iconos Material
+  - `.mdi` — Configuración de iconos Material Design Icons
   - `.platform-accent-*` — Border left colors (netflix, spotify, disney, youtube, hbo)
   - `.custom-scrollbar` — Scrollbar personalizado
   - `.skeleton-shimmer` — Shimmer animation para skeletons (gradiente `#2a2a2a` → `#353534`)
   - `.hero-gradient`, `.animated-gradient`, `.service-card`, etc.
+
+## Icon System
+
+**Estándar: MDI (Material Design Icons)** — 7,447 iconos, Apache 2.0 license.
+
+```tsx
+import { Icon } from "@/components/atoms/icon"
+
+// MDI (por defecto) — usar para TODO
+<Icon name="netflix" />
+<Icon name="movie-open-play" size="lg" className="text-primary" />
+
+// Material Symbols — solo para iconos específicos de Google
+<Icon name="shopping_cart" library="material" />
+<Icon name="bolt" library="material" filled />
+```
+
+### Convención de nombres
+- **MDI:** kebab-case sin prefijo `mdi-` → `"movie-open-play"`, `"netflix"`
+- **Material:** snake_case → `"shopping_cart"`, `"arrow_forward"`
+
+### Iconos de plataforma (MDI)
+| Plataforma | Icono |
+|---|---|
+| Netflix | `netflix` |
+| Spotify | `spotify` |
+| Disney+ | `disney-plus` |
+| YouTube | `youtube` |
+| HBO Max | `hbo` |
+
+### Reglas
+1. **Siempre usar `<Icon />`** en lugar de `<span className="material-symbols-outlined">`
+2. **MDI es el estándar** — usar `library="mdi"` (por defecto)
+3. **Material Symbols** — solo si el icono no existe en MDI
+4. Ver `DESIGN.md` para lista completa de iconos y tamaños
 - Design tokens in `DESIGN.md` (colores, tipografía, spacing, elevación).
 - Surface tokens: `--surface`, `--surface-container`, `--on-surface`, etc.
 - shadcn/ui components in `components/ui/` (glass-card, button, input, etc.)

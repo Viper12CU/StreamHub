@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
+import { Icon } from "@/components/atoms/icon"
 import { cn } from "@/lib/utils"
+import { ButtonSpinner } from "@/components/atoms/button-spinner"
 import type { CustomerStatus } from "@/lib/api/customers"
 
 export interface CreateCustomerFormData {
@@ -21,9 +23,9 @@ interface CreateCustomerModalProps {
 }
 
 const steps = [
-  { label: "Información", icon: "person" },
-  { label: "Cuenta", icon: "settings" },
-  { label: "Resumen", icon: "summarize" },
+  { label: "Información", icon: "account" },
+  { label: "Cuenta", icon: "cog" },
+  { label: "Resumen", icon: "text-box" },
 ]
 
 export function CreateCustomerModal({ onClose, onCreate }: CreateCustomerModalProps) {
@@ -76,7 +78,7 @@ export function CreateCustomerModal({ onClose, onCreate }: CreateCustomerModalPr
             <p className="text-[10px] text-on-surface-variant mt-0.5">Paso {step + 1} de {steps.length}</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
-            <span className="material-symbols-outlined text-sm">close</span>
+            <Icon name="close" className="text-sm" />
           </button>
         </div>
 
@@ -91,7 +93,7 @@ export function CreateCustomerModal({ onClose, onCreate }: CreateCustomerModalPr
                     ? "bg-primary text-white shadow-lg shadow-primary/20"
                     : "bg-surface-container-high text-on-surface-variant"
                 )}>
-                  <span className="material-symbols-outlined text-sm">{s.icon}</span>
+                  <Icon name={s.icon} className="text-sm" />
                 </div>
                 <span className={cn(
                   "text-[10px] font-semibold hidden sm:block",
@@ -113,7 +115,7 @@ export function CreateCustomerModal({ onClose, onCreate }: CreateCustomerModalPr
         {/* Error */}
         {error && (
           <div className="mx-5 mt-3 p-3 bg-error/10 border border-error/20 rounded-xl flex items-center gap-2">
-            <span className="material-symbols-outlined text-sm text-error">error</span>
+            <Icon name="alert-circle" className="text-sm text-error" />
             <p className="text-xs text-error">{error}</p>
           </div>
         )}
@@ -275,7 +277,7 @@ export function CreateCustomerModal({ onClose, onCreate }: CreateCustomerModalPr
             onClick={() => step > 0 ? setStep(step - 1) : onClose()}
             className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5"
           >
-            <span className="material-symbols-outlined text-sm">{step > 0 ? "arrow_back" : "close"}</span>
+            {step > 0 ? <Icon name="arrow-left" className="text-sm" /> : <Icon name="close" className="text-sm" />}
             {step > 0 ? "Anterior" : "Cancelar"}
           </button>
           {step < 2 ? (
@@ -285,7 +287,7 @@ export function CreateCustomerModal({ onClose, onCreate }: CreateCustomerModalPr
               className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Siguiente
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              <Icon name="arrow-right" className="text-sm" />
             </button>
           ) : (
             <button
@@ -293,11 +295,7 @@ export function CreateCustomerModal({ onClose, onCreate }: CreateCustomerModalPr
               disabled={creating}
               className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50"
             >
-              {creating ? (
-                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-              ) : (
-                <span className="material-symbols-outlined text-sm">check</span>
-              )}
+              {creating ? <ButtonSpinner /> : <Icon name="check" className="text-sm" />}
               {creating ? "Creando..." : "Crear Cliente"}
             </button>
           )}

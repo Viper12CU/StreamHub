@@ -26,6 +26,7 @@ import {
   type CustomerStatus,
 } from "@/lib/api/customers"
 import { signUp } from "@/lib/api/auth"
+import { Icon } from "@/components/atoms/icon"
 import { sileo } from "sileo"
 
 const sortMap: Record<string, string> = {
@@ -184,9 +185,7 @@ export default function CustomersPage() {
       <section className="glass p-4 rounded-xl border border-white/5">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">
-              search
-            </span>
+            <Icon name="magnify" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" />
             <label htmlFor="customer-search" className="sr-only">Buscar clientes</label>
             <input
               id="customer-search"
@@ -205,7 +204,7 @@ export default function CustomersPage() {
                 viewMode === "grid" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
-              <span className="material-symbols-outlined text-sm">grid_view</span>
+              <Icon name="view-grid" className="text-sm" />
               Grid
             </button>
             <button
@@ -215,7 +214,7 @@ export default function CustomersPage() {
                 viewMode === "table" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
-              <span className="material-symbols-outlined text-sm">table_rows</span>
+              <Icon name="table" className="text-sm" />
               Tabla
             </button>
           </div>
@@ -254,7 +253,7 @@ export default function CustomersPage() {
               accent="border-green-500"
               badge="Éxito"
               badgeColor="text-green-400"
-              icon="check_circle"
+              icon="check-circle"
               iconColor="text-green-400"
             />
             <MetricCard
@@ -264,7 +263,7 @@ export default function CustomersPage() {
               accent="border-amber-500"
               badge="Pendiente"
               badgeColor="text-amber-500"
-              icon="person_off"
+              icon="account-off"
               iconColor="text-amber-500"
             />
             <MetricCard
@@ -304,7 +303,7 @@ export default function CustomersPage() {
       {/* Error State */}
       {fetchError && !loading && (
         <div className="glass rounded-xl p-8 border border-error/20 text-center space-y-3">
-          <span className="material-symbols-outlined text-3xl text-error/50 block">error</span>
+          <Icon name="alert-circle" className="text-3xl text-error/50 block" />
           <p className="text-sm text-on-surface">{fetchError}</p>
           <button
             onClick={() => fetchCustomers()}

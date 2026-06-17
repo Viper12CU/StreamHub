@@ -5,6 +5,13 @@
       "type": "remote",
       "url": "https://swiperjs.com/mcp",
       "enabled": true
+    },
+    "icons0": {
+      "type": "remote",
+      "url": "https://icons0.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer i0_361888665de4_bWVUJukHkYFC3Qzb2A1tv-f93fUCFm9r"
+      }
     }
   }
 }

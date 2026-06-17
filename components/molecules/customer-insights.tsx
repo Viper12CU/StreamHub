@@ -1,5 +1,6 @@
 "use client"
 
+import { Icon } from "@/components/atoms/icon"
 import { cn } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { CustomerInsightItem } from "@/lib/api/customers"
@@ -11,7 +12,7 @@ interface CustomerInsightsProps {
 
 const typeConfig: Record<string, { icon: string; color: string; iconBg: string }> = {
   high_value: { icon: "diamond", color: "text-amber-500", iconBg: "bg-amber-500/10" },
-  inactive: { icon: "person_off", color: "text-error", iconBg: "bg-error/10" },
+  inactive: { icon: "account-off", color: "text-error", iconBg: "bg-error/10" },
   expiring: { icon: "timer", color: "text-orange-400", iconBg: "bg-orange-400/10" },
   repeat_buyer: { icon: "repeat", color: "text-green-400", iconBg: "bg-green-400/10" },
 }
@@ -62,7 +63,7 @@ export function CustomerInsights({ insights, loading }: CustomerInsightsProps) {
           <div key={type} className="glass rounded-xl p-4 border border-white/5 hover:bg-white/[0.02] transition-colors cursor-pointer">
             <div className="flex items-center gap-2 mb-2">
               <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", config.iconBg)}>
-                <span className={cn("material-symbols-outlined text-sm", config.color)}>{config.icon}</span>
+                <Icon name={config.icon} className={cn("text-sm", config.color)} />
               </div>
               <span className={cn("text-lg font-bold", config.color)}>{count}</span>
             </div>
@@ -76,7 +77,7 @@ export function CustomerInsights({ insights, loading }: CustomerInsightsProps) {
         <div className="glass rounded-xl overflow-hidden border border-white/5">
           <div className="p-4 border-b border-white/5 flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-              <span className="material-symbols-outlined text-amber-500 text-sm">diamond</span>
+              <Icon name="diamond" className="text-amber-500 text-sm" />
             </div>
             <h3 className="text-sm font-semibold text-on-surface">Clientes de Mayor Valor</h3>
           </div>
@@ -105,7 +106,7 @@ export function CustomerInsights({ insights, loading }: CustomerInsightsProps) {
             return (
               <div key={`${item.type}-${item.id}-${idx}`} className="p-3 px-4 flex items-center gap-3 hover:bg-white/[0.02] transition-colors">
                 <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", config.iconBg)}>
-                  <span className={cn("material-symbols-outlined text-sm", config.color)}>{config.icon}</span>
+                  <Icon name={config.icon} className={cn("text-sm", config.color)} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-on-surface">{item.title}</p>

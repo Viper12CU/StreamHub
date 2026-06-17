@@ -3,6 +3,8 @@
 import { useEffect, useState, useRef, useCallback } from "react"
 import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
+import { ButtonSpinner } from "@/components/atoms/button-spinner"
+import { Icon } from "@/components/atoms/icon"
 import type { CreatePlatformInput } from "@/lib/api/platforms"
 
 interface CreatePlatformModalProps {
@@ -11,11 +13,11 @@ interface CreatePlatformModalProps {
 }
 
 const steps = [
-  { label: "Información", icon: "info" },
-  { label: "Descripción", icon: "description" },
+  { label: "Información", icon: "information" },
+  { label: "Descripción", icon: "file-document-outline" },
   { label: "Branding", icon: "palette" },
-  { label: "Display", icon: "visibility" },
-  { label: "Resumen", icon: "summarize" },
+  { label: "Display", icon: "eye" },
+  { label: "Resumen", icon: "file-document" },
 ]
 
 const categories: { value: CreatePlatformInput["category"]; label: string }[] = [
@@ -157,7 +159,7 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
             className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors focus-visible:ring-2 focus-visible:ring-primary/50"
             aria-label="Cerrar modal"
           >
-            <span className="material-symbols-outlined text-sm">close</span>
+            <Icon name="close" className="text-sm" />
           </button>
         </div>
 
@@ -172,7 +174,7 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
                     ? "bg-primary text-white shadow-lg shadow-primary/20"
                     : "bg-surface-container-high text-on-surface-variant"
                 )}>
-                  <span className="material-symbols-outlined text-sm">{s.icon}</span>
+                  <Icon name={s.icon} className="text-sm" />
                 </div>
                 <span className={cn(
                   "text-[10px] font-semibold hidden sm:block",
@@ -383,7 +385,7 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
             onClick={() => step > 0 ? setStep(step - 1) : handleClose()}
             className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 focus-visible:ring-2 focus-visible:ring-primary/50"
           >
-            <span className="material-symbols-outlined text-sm">{step > 0 ? "arrow_back" : "close"}</span>
+            <Icon name={step > 0 ? "arrow-left" : "close"} className="text-sm" />
             {step > 0 ? "Anterior" : "Cancelar"}
           </button>
           {step < 4 ? (
@@ -398,7 +400,7 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
               )}
             >
               Siguiente
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              <Icon name="arrow-right" className="text-sm" />
             </button>
           ) : (
             <button
@@ -412,9 +414,9 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
               )}
             >
               {submitting ? (
-                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                <ButtonSpinner />
               ) : (
-                <span className="material-symbols-outlined text-sm">check</span>
+                <Icon name="check" className="text-sm" />
               )}
               {submitting ? "Creando..." : "Crear Plataforma"}
             </button>

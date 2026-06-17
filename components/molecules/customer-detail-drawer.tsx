@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { createPortal } from "react-dom"
+import { Icon } from "@/components/atoms/icon"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
@@ -142,7 +143,7 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
               />
             )}
             <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
-              <span className="material-symbols-outlined text-sm">close</span>
+              <Icon name="close" className="text-sm" />
             </button>
           </div>
         </div>
@@ -164,7 +165,7 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
             </div>
           ) : error ? (
             <div className="p-8 text-center space-y-3">
-              <span className="material-symbols-outlined text-3xl text-error/50 block">error</span>
+              <Icon name="alert-circle" className="text-3xl text-error/50 block" />
               <p className="text-sm text-on-surface">{error}</p>
               <button
                 onClick={fetchCustomer}
@@ -178,7 +179,7 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
               {/* Basic Info */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">person</span>
+                  <Icon name="account" className="text-sm text-primary" />
                   Información Básica
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
@@ -201,7 +202,7 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
               {/* Account Status */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">analytics</span>
+                  <Icon name="chart-areaspline" className="text-sm text-primary" />
                   Estado de la Cuenta
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
@@ -234,7 +235,7 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
               {/* Active Subscriptions */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">subscriptions</span>
+                  <Icon name="account-reactivate" className="text-sm text-primary" />
                   Suscripciones Activas
                 </h4>
                 {(!customer.subscriptions || customer.subscriptions.length === 0) ? (
@@ -266,7 +267,7 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
               {/* Recent Orders */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">receipt_long</span>
+                  <Icon name="receipt" className="text-sm text-primary" />
                   Órdenes Recientes
                 </h4>
                 {(!customer.recent_orders || customer.recent_orders.length === 0) ? (
@@ -307,7 +308,7 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
               {/* Internal Notes */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">notes</span>
+                  <Icon name="note-text" className="text-sm text-primary" />
                   Notas Internas
                 </h4>
                 <textarea
@@ -323,7 +324,7 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
                       disabled={savingNotes}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white text-[10px] font-semibold rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50"
                     >
-                      <span className="material-symbols-outlined text-xs">{savingNotes ? "hourglass_empty" : "check"}</span>
+                      {savingNotes ? <Icon name="progress-clock" className="text-xs" /> : <Icon name="check" className="text-xs" />}
                       {savingNotes ? "Guardando..." : "Guardar Cambios"}
                     </button>
                   </div>
@@ -342,7 +343,7 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
                 disabled={updatingStatus}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 disabled:opacity-50"
               >
-                <span className="material-symbols-outlined text-sm">person_remove</span>
+                <Icon name="account-remove" className="text-sm" />
                 Quitar VIP
               </button>
             ) : (
@@ -351,7 +352,7 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
                 disabled={updatingStatus || customer?.status === "suspended"}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-500/10 text-amber-500 text-xs font-semibold rounded-xl hover:bg-amber-500/20 transition-colors border border-amber-500/20 disabled:opacity-50"
               >
-                <span className="material-symbols-outlined text-sm">diamond</span>
+                <Icon name="diamond" className="text-sm" />
                 Marcar VIP
               </button>
             )}
@@ -361,7 +362,7 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
                 disabled={updatingStatus}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-green-500/10 text-green-400 text-xs font-semibold rounded-xl hover:bg-green-500/20 transition-colors border border-green-500/20 disabled:opacity-50"
               >
-                <span className="material-symbols-outlined text-sm">check_circle</span>
+                <Icon name="check-circle" className="text-sm" />
                 Reactivar
               </button>
             ) : (
@@ -370,7 +371,7 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
                 disabled={updatingStatus || customer?.status === "vip"}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20 disabled:opacity-50"
               >
-                <span className="material-symbols-outlined text-sm">block</span>
+                <Icon name="block" className="text-sm" />
                 Suspender
               </button>
             )}

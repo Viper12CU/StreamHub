@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 interface PlatformFiltersProps {
   onToggle: () => void
@@ -36,7 +37,7 @@ function FilterSection({ title, icon, children }: FilterSectionProps) {
   return (
     <div className="space-y-2.5">
       <div className="flex items-center gap-2">
-        <span className="material-symbols-outlined text-xs text-on-surface-variant opacity-60">{icon}</span>
+        <Icon name={icon} size={"md"} className=" text-on-surface-variant opacity-60" />
         <p className="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">{title}</p>
       </div>
       {children}
@@ -116,7 +117,7 @@ export function PlatformFilters({ onToggle, isOpen, onFilterChange, onSortChange
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-sm">filter_alt</span>
+            <Icon name="filter-variant" size="lg" className="text-primary" />
           </div>
           <div>
             <span className="text-sm font-semibold text-on-surface">Filtros</span>
@@ -136,12 +137,10 @@ export function PlatformFilters({ onToggle, isOpen, onFilterChange, onSortChange
               Limpiar
             </button>
           )}
-          <span className={cn(
-            "material-symbols-outlined text-on-surface-variant text-sm transition-transform duration-200",
+          <Icon name="chevron-down" className={cn(
+            "text-on-surface-variant transition-transform duration-200",
             isOpen && "rotate-180"
-          )}>
-            expand_more
-          </span>
+          )} />
         </div>
       </div>
 
@@ -182,9 +181,7 @@ export function PlatformFilters({ onToggle, isOpen, onFilterChange, onSortChange
                   <option key={o} value={o}>{o}</option>
                 ))}
               </select>
-              <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none">
-                unfold_more
-              </span>
+              <Icon name="unfold-more" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none" />
             </div>
           </FilterSection>
         </div>

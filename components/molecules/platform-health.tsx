@@ -3,6 +3,7 @@
 import { memo, useMemo } from "react"
 import { cn } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Icon } from "@/components/atoms/icon"
 import type { HealthAlert } from "@/lib/api/platforms"
 import { sileo } from "sileo"
 
@@ -49,7 +50,7 @@ function mapAlertToHealthItem(alert: HealthAlert): {
 
   if (alertText.includes("inactiva")) {
     return {
-      icon: "pause_circle",
+      icon: "pause-circle",
       title: "Plataforma Inactiva",
       count: 1,
       description: `${alert.name} está deshabilitada`,
@@ -69,7 +70,7 @@ function mapAlertToHealthItem(alert: HealthAlert): {
   }
   if (alertText.includes("sin ventas")) {
     return {
-      icon: "trending_down",
+      icon: "trending-down",
       title: "Sin Ventas este Mes",
       count: 1,
       description: `${alert.name} no tiene ventas en el mes actual`,
@@ -79,7 +80,7 @@ function mapAlertToHealthItem(alert: HealthAlert): {
   }
 
   return {
-    icon: "info",
+    icon: "information",
     title: alert.name,
     count: 1,
     description: alert.alert,
@@ -110,12 +111,12 @@ function PlatformHealthInner({ alerts, loading }: PlatformHealthProps) {
       <div className="glass rounded-xl overflow-hidden border border-white/5">
         <div className="p-4 border-b border-white/5 flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-green-400 text-sm">monitor_heart</span>
+            <Icon name="heart-pulse" className="text-green-400 text-sm" />
           </div>
           <h3 className="text-sm font-semibold text-on-surface">Salud de Plataformas</h3>
         </div>
         <div className="p-8 text-center">
-          <span className="material-symbols-outlined text-3xl text-green-400/30 mb-2 block">check_circle</span>
+          <Icon name="check-circle" className="text-3xl text-green-400/30 mb-2 block" />
           <p className="text-sm text-on-surface-variant">Todo está funcionando correctamente</p>
         </div>
       </div>
@@ -126,14 +127,14 @@ function PlatformHealthInner({ alerts, loading }: PlatformHealthProps) {
     <div className="glass rounded-xl overflow-hidden border border-white/5">
       <div className="p-4 border-b border-white/5 flex items-center gap-2">
         <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-          <span className="material-symbols-outlined text-green-400 text-sm">monitor_heart</span>
+          <Icon name="heart-pulse" className="text-green-400 text-sm" />
         </div>
         <h3 className="text-sm font-semibold text-on-surface">Salud de Plataformas</h3>
       </div>
       <div className="p-4 space-y-3">
         {healthItems.map((item, i) => (
           <div key={i} className={cn("p-3 rounded-xl flex items-center gap-3", severityClasses[item.severity])}>
-            <span className={cn("material-symbols-outlined text-sm", severityIconColors[item.severity])}>{item.icon}</span>
+            <Icon name={item.icon} className={cn("text-sm", severityIconColors[item.severity])} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <p className="text-xs font-semibold text-on-surface">{item.title}</p>

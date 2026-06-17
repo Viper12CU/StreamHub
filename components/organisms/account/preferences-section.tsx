@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/atoms/button'
 import { GlassCard } from '@/components/ui/glass-card'
+import { Icon } from '@/components/atoms/icon'
 import { useSession } from '@/lib/session-context'
 import { signOut } from '@/lib/api/auth'
 import { sileo } from 'sileo'
@@ -33,9 +34,7 @@ export function PreferencesSection() {
   return (
     <section className="space-y-4" id="configuracion">
       <h2 className="text-xl font-semibold flex items-center gap-2">
-        <span className="material-symbols-outlined text-[var(--outline)]" data-icon="manage_accounts">
-          manage_accounts
-        </span>
+        <Icon name="account-cog" className="text-[var(--outline)]" />
         Detalles de la cuenta
       </h2>
       <GlassCard className="p-6">

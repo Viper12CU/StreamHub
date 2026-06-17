@@ -6,15 +6,16 @@ import { cn } from "@/lib/utils"
 import { AdminLogo } from "@/components/molecules/admin-logo"
 import { AdminNavItem } from "@/components/atoms/admin-nav-item"
 import { CollapseButton } from "@/components/atoms/collapse-button"
+import { Icon } from "@/components/atoms/icon"
 import { signOut } from "@/lib/api/auth"
 
 const navItems = [
-  { label: "Dashboard", icon: "dashboard", href: "/admin" },
-  { label: "Plataformas", icon: "smart_display", href: "/admin/platforms" },
-  { label: "Productos", icon: "category", href: "/admin/products" },
-  { label: "Inventario", icon: "inventory_2", href: "/admin/inventory" },
-  { label: "Pedidos", icon: "shopping_cart", href: "/admin/orders" },
-  { label: "Clientes", icon: "group", href: "/admin/customers" },
+  { label: "Dashboard", icon: "view-dashboard", href: "/admin" },
+  { label: "Plataformas", icon: "television", href: "/admin/platforms" },
+  { label: "Productos", icon: "shape", href: "/admin/products" },
+  { label: "Inventario", icon: "package-variant", href: "/admin/inventory" },
+  // { label: "Pedidos", icon: "cart", href: "/admin/orders" },
+  { label: "Clientes", icon: "account-group", href: "/admin/customers" },
 ]
 
 interface AdminSidebarProps {
@@ -72,7 +73,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
             "cursor-pointer",
           )}
         >
-          <span className="material-symbols-outlined">logout</span>
+          <Icon name="logout" size="2xl" />
           {!collapsed && <span className="text-xs font-semibold">Logout</span>}
         </button>
       </div>

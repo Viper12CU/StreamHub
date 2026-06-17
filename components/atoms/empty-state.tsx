@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 interface EmptyStateProps {
   icon: string
@@ -30,7 +31,7 @@ const iconColors = {
 export function EmptyState({ icon, title, description, action, variant = "default" }: EmptyStateProps) {
   return (
     <div className={cn("flex flex-col items-center justify-center py-12 px-6 rounded-xl border border-dashed", variantClasses[variant])}>
-      <span className={cn("material-symbols-outlined text-4xl mb-3", iconColors[variant])}>{icon}</span>
+      <Icon name={icon} className={cn("text-4xl mb-3", iconColors[variant])} />
       <h4 className="text-sm font-semibold text-on-surface mb-1">{title}</h4>
       <p className="text-xs text-on-surface-variant text-center max-w-[200px]">{description}</p>
       {action && (

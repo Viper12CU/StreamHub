@@ -4,16 +4,17 @@ import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
 import { StatusBadge } from "@/components/atoms/status-badge"
+import { Icon } from "@/components/atoms/icon"
 
 interface CreateOrderModalProps {
   onClose: () => void
 }
 
 const steps = [
-  { label: "Cliente", icon: "person" },
-  { label: "Producto", icon: "shopping_cart" },
-  { label: "Pago", icon: "payment" },
-  { label: "Resumen", icon: "summarize" },
+  { label: "Cliente", icon: "account" },
+  { label: "Producto", icon: "cart" },
+  { label: "Pago", icon: "credit-card" },
+  { label: "Resumen", icon: "text-box" },
 ]
 
 const platforms = [
@@ -73,7 +74,7 @@ export function CreateOrderModal({ onClose }: CreateOrderModalProps) {
             <p className="text-[10px] text-on-surface-variant mt-0.5">Paso {step + 1} de {steps.length}</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
-            <span className="material-symbols-outlined text-sm">close</span>
+            <Icon name="close" className="text-sm" />
           </button>
         </div>
 
@@ -88,7 +89,7 @@ export function CreateOrderModal({ onClose }: CreateOrderModalProps) {
                     ? "bg-primary text-white shadow-lg shadow-primary/20"
                     : "bg-surface-container-high text-on-surface-variant"
                 )}>
-                  <span className="material-symbols-outlined text-sm">{s.icon}</span>
+                  <Icon name={s.icon} className="text-sm" />
                 </div>
                 <span className={cn(
                   "text-[10px] font-semibold hidden sm:block",
@@ -201,14 +202,14 @@ export function CreateOrderModal({ onClose }: CreateOrderModalProps) {
                         onClick={() => setFormData({ ...formData, quantity: Math.max(1, formData.quantity - 1) })}
                         className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
                       >
-                        <span className="material-symbols-outlined text-sm">remove</span>
+                        <Icon name="minus" className="text-sm" />
                       </button>
                       <span className="text-sm font-semibold text-on-surface w-8 text-center">{formData.quantity}</span>
                       <button
                         onClick={() => setFormData({ ...formData, quantity: formData.quantity + 1 })}
                         className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
                       >
-                        <span className="material-symbols-outlined text-sm">add</span>
+                        <Icon name="plus" className="text-sm" />
                       </button>
                     </div>
                   </div>
@@ -305,7 +306,7 @@ export function CreateOrderModal({ onClose }: CreateOrderModalProps) {
               </div>
               <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">info</span>
+                  <Icon name="information" className="text-sm text-primary" />
                   <p className="text-[11px] text-primary">La orden se creará con estado "Pendiente" y pasará al flujo de verificación de pago.</p>
                 </div>
               </div>
@@ -319,7 +320,7 @@ export function CreateOrderModal({ onClose }: CreateOrderModalProps) {
             onClick={() => step > 0 ? setStep(step - 1) : onClose()}
             className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5"
           >
-            <span className="material-symbols-outlined text-sm">{step > 0 ? "arrow_back" : "close"}</span>
+            <Icon name={step > 0 ? "arrow-left" : "close"} className="text-sm" />
             {step > 0 ? "Anterior" : "Cancelar"}
           </button>
           {step < 3 ? (
@@ -328,14 +329,14 @@ export function CreateOrderModal({ onClose }: CreateOrderModalProps) {
               className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
             >
               Siguiente
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              <Icon name="arrow-right" className="text-sm" />
             </button>
           ) : (
             <button
               onClick={onClose}
               className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
             >
-              <span className="material-symbols-outlined text-sm">check</span>
+              <Icon name="check" className="text-sm" />
               Crear Orden
             </button>
           )}

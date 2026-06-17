@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 interface OrderDetailDrawerProps {
   orderId: string
@@ -49,12 +50,12 @@ const orderData = {
 }
 
 const workflowSteps = [
-  { label: "Orden Creada", icon: "receipt_long" },
-  { label: "Pago Enviado", icon: "payment" },
-  { label: "Pago Verificado", icon: "verified" },
-  { label: "Inventario Asignado", icon: "inventory_2" },
-  { label: "Entregada", icon: "local_shipping" },
-  { label: "Completada", icon: "check_circle" },
+  { label: "Orden Creada", icon: "receipt" },
+  { label: "Pago Enviado", icon: "credit-card" },
+  { label: "Pago Verificado", icon: "check-decagram" },
+  { label: "Inventario Asignado", icon: "package-variant" },
+  { label: "Entregada", icon: "truck" },
+  { label: "Completada", icon: "check-circle" },
 ]
 
 const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
@@ -88,7 +89,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
         <div className="flex items-center justify-between p-4 border-b border-white/5 bg-surface-container-lowest/90 backdrop-blur-xl">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary text-sm">receipt_long</span>
+              <Icon name="receipt" className="text-primary text-sm" />
             </div>
             <div>
               <h2 className="text-base font-semibold text-on-surface">{orderData.id}</h2>
@@ -101,7 +102,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
               variant={statusMap[orderData.status].variant}
             />
             <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
-              <span className="material-symbols-outlined text-sm">close</span>
+              <Icon name="close" className="text-sm" />
             </button>
           </div>
         </div>
@@ -112,7 +113,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
             {/* Workflow Progress */}
             <section className="glass rounded-xl p-4">
               <h4 className="text-xs font-semibold text-on-surface mb-4 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">progress</span>
+                <Icon name="progress-wrench" className="text-sm text-primary" />
                 Flujo de Procesamiento
               </h4>
               <div className="flex items-center justify-between relative">
@@ -132,7 +133,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
                         ? "bg-primary text-white ring-4 ring-primary/20"
                         : "bg-surface-container-high text-on-surface-variant"
                     )}>
-                      <span className="material-symbols-outlined text-sm">{step.icon}</span>
+                      <Icon name={step.icon} className="text-sm" />
                     </div>
                     <span className={cn(
                       "text-[9px] mt-1.5 text-center max-w-[60px] leading-tight",
@@ -148,7 +149,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
             {/* Order Info */}
             <section className="glass rounded-xl p-4">
               <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">info</span>
+                <Icon name="information" className="text-sm text-primary" />
                 Información de Orden
               </h4>
               <div className="grid grid-cols-2 gap-3">
@@ -178,7 +179,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
             {/* Customer Info */}
             <section className="glass rounded-xl p-4">
               <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">person</span>
+                <Icon name="account" className="text-sm text-primary" />
                 Información del Cliente
               </h4>
               <div className="grid grid-cols-2 gap-3">
@@ -203,7 +204,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
             {/* Purchased Products */}
             <section className="glass rounded-xl p-4">
               <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">shopping_cart</span>
+                <Icon name="cart" className="text-sm text-primary" />
                 Productos Comprados
               </h4>
               <div className="overflow-x-auto">
@@ -235,7 +236,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
             {/* Payment Info */}
             <section className="glass rounded-xl p-4">
               <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">payment</span>
+                <Icon name="credit-card" className="text-sm text-primary" />
                 Información de Pago
               </h4>
               <div className="grid grid-cols-2 gap-3">
@@ -266,7 +267,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
             {/* Assigned Inventory */}
             <section className="glass rounded-xl p-4">
               <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">inventory_2</span>
+                <Icon name="package-variant" className="text-sm text-primary" />
                 Inventario Asignado
               </h4>
               <div className="grid grid-cols-2 gap-3">
@@ -287,7 +288,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
             {/* Delivery Info */}
             <section className="glass rounded-xl p-4">
               <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">local_shipping</span>
+                <Icon name="truck" className="text-sm text-primary" />
                 Información de Entrega
               </h4>
               <div className="grid grid-cols-2 gap-3">
@@ -311,7 +312,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
             {/* Internal Notes */}
             <section className="glass rounded-xl p-4">
               <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-primary">notes</span>
+                <Icon name="note-text" className="text-sm text-primary" />
                 Notas Internas
               </h4>
               <textarea
@@ -328,21 +329,21 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
         <div className="p-4 border-t border-white/5 bg-surface-container-lowest/90 backdrop-blur-xl space-y-3">
           <div className="flex gap-2">
             <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined text-sm">local_shipping</span>
+              <Icon name="truck" className="text-sm" />
               Entregar Orden
             </button>
             <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5">
-              <span className="material-symbols-outlined text-sm">edit</span>
+              <Icon name="pencil" className="text-sm" />
               Editar
             </button>
           </div>
           <div className="flex gap-2">
             <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-500/10 text-amber-500 text-xs font-semibold rounded-xl hover:bg-amber-500/20 transition-colors border border-amber-500/20">
-              <span className="material-symbols-outlined text-sm">undo</span>
+              <Icon name="undo" className="text-sm" />
               Reembolsar
             </button>
             <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20">
-              <span className="material-symbols-outlined text-sm">cancel</span>
+              <Icon name="cancel" className="text-sm" />
               Cancelar Orden
             </button>
           </div>

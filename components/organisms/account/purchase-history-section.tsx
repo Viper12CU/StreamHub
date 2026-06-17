@@ -1,15 +1,14 @@
 'use client'
 
 import { GlassCard } from '@/components/ui/glass-card'
+import { Icon } from '@/components/atoms/icon'
 import { purchases } from '@/components/data/account'
 
 export function PurchaseHistorySection() {
   return (
     <section className="space-y-4">
       <h2 className="text-xl font-semibold flex items-center gap-2">
-        <span className="material-symbols-outlined text-secondary" data-icon="history">
-          history
-        </span>
+        <Icon name="history" className="text-secondary" />
         Historial de compras
       </h2>
       <GlassCard className="overflow-x-auto">
@@ -40,9 +39,7 @@ export function PurchaseHistorySection() {
                 <td className="px-5 py-4 text-[var(--on-surface-variant)]">{row.method}</td>
                 <td className="px-5 py-4">
                   <span className={`flex items-center gap-1 text-sm font-medium ${row.statusTone}`}>
-                    <span className="material-symbols-outlined text-[18px]" data-icon={row.statusIcon}>
-                      {row.statusIcon}
-                    </span>
+                    <Icon name={row.statusIcon} className="text-[18px]" />
                     {row.status}
                   </span>
                 </td>

@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton"
+import { Icon } from "@/components/atoms/icon"
 import type { InventoryActivity } from "@/lib/api/inventory"
 
 interface RecentInventoryActivityProps {
@@ -7,12 +8,12 @@ interface RecentInventoryActivityProps {
 }
 
 const actionIcons: Record<string, { icon: string; color: string; bg: string }> = {
-  "Activo creado": { icon: "add_circle", color: "text-green-400", bg: "bg-green-400/20" },
-  "Activo asignado": { icon: "person_add", color: "text-secondary", bg: "bg-secondary/20" },
-  "Activo reasignado": { icon: "swap_horiz", color: "text-tertiary", bg: "bg-tertiary/20" },
-  "Activo renovado": { icon: "sync", color: "text-primary", bg: "bg-primary/20" },
-  "Activo expirado": { icon: "timer_off", color: "text-error", bg: "bg-error/20" },
-  "Activo suspendido": { icon: "block", color: "text-amber-500", bg: "bg-amber-500/20" },
+  "Activo creado": { icon: "plus-circle", color: "text-green-400", bg: "bg-green-400/20" },
+  "Activo asignado": { icon: "account-plus", color: "text-secondary", bg: "bg-secondary/20" },
+  "Activo reasignado": { icon: "swap-horizontal", color: "text-tertiary", bg: "bg-tertiary/20" },
+  "Activo renovado": { icon: "autorenew", color: "text-primary", bg: "bg-primary/20" },
+  "Activo expirado": { icon: "timer-off", color: "text-error", bg: "bg-error/20" },
+  "Activo suspendido": { icon: "block-helper", color: "text-amber-500", bg: "bg-amber-500/20" },
 }
 
 function getDefaultIcon(action: string) {
@@ -22,7 +23,7 @@ function getDefaultIcon(action: string) {
   if (action.toLowerCase().includes("renov")) return actionIcons["Activo renovado"]
   if (action.toLowerCase().includes("expir")) return actionIcons["Activo expirado"]
   if (action.toLowerCase().includes("suspend")) return actionIcons["Activo suspendido"]
-  return { icon: "info", color: "text-on-surface-variant", bg: "bg-surface-container-high" }
+  return { icon: "information", color: "text-on-surface-variant", bg: "bg-surface-container-high" }
 }
 
 function formatTimestamp(ts: string) {
@@ -45,7 +46,7 @@ export function RecentInventoryActivity({ activities, loading }: RecentInventory
     <div className="glass rounded-xl border border-white/5 p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-on-surface flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-primary">history</span>
+          <Icon name="history" className="text-sm text-primary" />
           Actividad Reciente del Inventario
         </h3>
       </div>
@@ -65,7 +66,7 @@ export function RecentInventoryActivity({ activities, loading }: RecentInventory
               return (
                 <div key={activity.id} className="flex gap-3 items-start relative">
                   <div className={`w-8 h-8 rounded-full ${iconStyle.bg} flex items-center justify-center z-10`}>
-                    <span className={`material-symbols-outlined text-sm ${iconStyle.color}`}>{iconStyle.icon}</span>
+                    <Icon name={iconStyle.icon} className={`text-sm ${iconStyle.color}`} />
                   </div>
                   <div className="flex-1 flex items-start justify-between">
                     <div>

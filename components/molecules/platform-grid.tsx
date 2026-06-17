@@ -3,6 +3,7 @@
 import { memo, useMemo, useCallback } from "react"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Icon } from "@/components/atoms/icon"
 import type { PlatformWithMetrics } from "@/lib/api/platforms"
 
 interface PlatformGridProps {
@@ -97,9 +98,7 @@ function TableSkeleton() {
 function EmptyState({ hasActiveFilters }: { hasActiveFilters?: boolean }) {
   return (
     <div className="glass rounded-xl p-12 border border-white/5 text-center">
-      <span className="material-symbols-outlined text-4xl text-on-surface-variant/30 mb-3 block">
-        {hasActiveFilters ? "filter_list_off" : "smart_display"}
-      </span>
+      <Icon name={hasActiveFilters ? "filter-off" : "monitor"} className="text-4xl text-on-surface-variant/30 mb-3 block" />
       <p className="text-sm text-on-surface-variant">
         {hasActiveFilters ? "No se encontraron plataformas con estos filtros" : "No hay plataformas registradas"}
       </p>

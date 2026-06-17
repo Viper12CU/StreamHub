@@ -2,6 +2,7 @@
 
 import { memo, useMemo } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Icon } from "@/components/atoms/icon"
 import type { PlatformWithMetrics } from "@/lib/api/platforms"
 
 interface PlatformAnalyticsProps {
@@ -38,7 +39,7 @@ function PlatformAnalyticsInner({ platforms, loading }: PlatformAnalyticsProps) 
   if (platforms.length === 0) {
     return (
       <div className="glass rounded-xl p-8 border border-white/5 text-center">
-        <span className="material-symbols-outlined text-3xl text-on-surface-variant/30 mb-2 block">bar_chart</span>
+        <Icon name="chart-bar" className="text-3xl text-on-surface-variant/30 mb-2 block" />
         <p className="text-sm text-on-surface-variant">Sin datos de analytics</p>
       </div>
     )
@@ -99,12 +100,12 @@ function PlatformAnalyticsInner({ platforms, loading }: PlatformAnalyticsProps) 
       {/* Revenue by Platform */}
       <div className="glass p-5 rounded-xl border border-white/5">
         <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-primary">bar_chart</span>
+          <Icon name="chart-bar" className="text-sm text-primary" />
           Ingresos por Plataforma
         </h3>
         {revenueData.length === 0 ? (
           <div className="text-center py-6">
-            <span className="material-symbols-outlined text-2xl text-on-surface-variant/30 block mb-1">bar_chart</span>
+            <Icon name="chart-bar" className="text-2xl text-on-surface-variant/30 block mb-1" />
             <p className="text-xs text-on-surface-variant">Sin ingresos registrados</p>
           </div>
         ) : (
@@ -133,12 +134,12 @@ function PlatformAnalyticsInner({ platforms, loading }: PlatformAnalyticsProps) 
       {/* Orders by Platform */}
       <div className="glass p-5 rounded-xl border border-white/5">
         <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-primary">receipt_long</span>
+          <Icon name="receipt" className="text-sm text-primary" />
           Órdenes por Plataforma
         </h3>
         {ordersData.length === 0 ? (
           <div className="text-center py-6">
-            <span className="material-symbols-outlined text-2xl text-on-surface-variant/30 block mb-1">receipt_long</span>
+            <Icon name="receipt" className="text-2xl text-on-surface-variant/30 block mb-1" />
             <p className="text-xs text-on-surface-variant">Sin órdenes registradas</p>
           </div>
         ) : (
@@ -163,12 +164,12 @@ function PlatformAnalyticsInner({ platforms, loading }: PlatformAnalyticsProps) 
       {/* Inventory Distribution */}
       <div className="glass p-5 rounded-xl border border-white/5">
         <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-primary">inventory_2</span>
+          <Icon name="package-variant" className="text-sm text-primary" />
           Distribución de Inventario
         </h3>
         {inventoryData.length === 0 ? (
           <div className="text-center py-6">
-            <span className="material-symbols-outlined text-2xl text-on-surface-variant/30 block mb-1">inventory_2</span>
+            <Icon name="package-variant" className="text-2xl text-on-surface-variant/30 block mb-1" />
             <p className="text-xs text-on-surface-variant">Sin inventario registrado</p>
           </div>
         ) : (
@@ -205,12 +206,12 @@ function PlatformAnalyticsInner({ platforms, loading }: PlatformAnalyticsProps) 
       {/* Customer Distribution */}
       <div className="glass p-5 rounded-xl border border-white/5">
         <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-primary">group</span>
+          <Icon name="account-group" className="text-sm text-primary" />
           Distribución de Clientes
         </h3>
         {customerData.length === 0 ? (
           <div className="text-center py-6">
-            <span className="material-symbols-outlined text-2xl text-on-surface-variant/30 block mb-1">group</span>
+            <Icon name="account-group" className="text-2xl text-on-surface-variant/30 block mb-1" />
             <p className="text-xs text-on-surface-variant">Sin clientes registrados</p>
           </div>
         ) : (

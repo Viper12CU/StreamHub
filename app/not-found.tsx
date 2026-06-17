@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { Icon } from "@/components/atoms/icon"
 
 export default function NotFound() {
   return (
@@ -41,7 +42,7 @@ export default function NotFound() {
           >
             <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
             <span className="relative text-xs font-semibold text-white flex items-center gap-2">
-              <span className="material-symbols-outlined text-[20px]">home</span>
+              <Icon name="home" className="text-[20px]" />
               Volver al Inicio
             </span>
           </Link>
@@ -49,7 +50,7 @@ export default function NotFound() {
             href="#"
             className="px-16 py-6 glass rounded-xl text-on-surface hover:bg-white/5 transition-all duration-300 text-xs font-semibold border border-white/10 flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-[20px]">support_agent</span>
+            <Icon name="headset" className="text-[20px]" />
             Contactar Soporte
           </Link>
         </div>

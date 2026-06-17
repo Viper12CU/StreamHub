@@ -1,15 +1,19 @@
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils"
 
-function Spinner({ className, ...props }: React.ComponentProps<'svg'>) {
+interface ButtonSpinnerProps extends React.SVGProps<SVGSVGElement> {
+  size?: number
+}
+
+function ButtonSpinner({ className, size = 16, ...props }: ButtonSpinnerProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
+      className={cn("shrink-0", className)}
       role="status"
       aria-label="Loading"
-      className={cn('size-4', className)}
       {...props}
     >
       <circle cx="4" cy="12" r="3" fill="currentColor">
@@ -40,4 +44,4 @@ function Spinner({ className, ...props }: React.ComponentProps<'svg'>) {
   )
 }
 
-export { Spinner }
+export { ButtonSpinner }

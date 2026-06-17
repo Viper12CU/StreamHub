@@ -3,14 +3,15 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 const navItems = [
-  { label: "Dashboard", icon: "dashboard", href: "/admin" },
-  { label: "Plataformas", icon: "smart_display", href: "/admin/platforms" },
-  { label: "Productos", icon: "category", href: "/admin/products" },
-  { label: "Inventario", icon: "inventory_2", href: "/admin/inventory" },
-  { label: "Pedidos", icon: "shopping_cart", href: "/admin/orders" },
-  { label: "Clientes", icon: "group", href: "/admin/customers" },
+  { label: "Dashboard", icon: "view-dashboard", href: "/admin" },
+  { label: "Plataformas", icon: "television", href: "/admin/platforms" },
+  { label: "Productos", icon: "shape", href: "/admin/products" },
+  { label: "Inventario", icon: "package-variant", href: "/admin/inventory" },
+  { label: "Pedidos", icon: "cart", href: "/admin/orders" },
+  { label: "Clientes", icon: "account-group", href: "/admin/customers" },
 ]
 
 export function AdminBottomBar() {
@@ -36,15 +37,13 @@ export function AdminBottomBar() {
                   : "text-on-surface-variant hover:text-on-surface"
               )}
             >
-              <span
+              <Icon
+                name={item.icon}
                 className={cn(
-                  "material-symbols-outlined text-[22px] leading-none transition-all duration-200",
+                  "text-[22px] leading-none transition-all duration-200",
                   isActive && "scale-110"
                 )}
-                style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
-              >
-                {item.icon}
-              </span>
+              />
               <span className="text-[10px] font-medium leading-tight truncate">
                 {item.label}
               </span>

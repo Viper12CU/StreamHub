@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback, useMemo } from "react"
 import { createPortal } from "react-dom"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Icon } from "@/components/atoms/icon"
 import {
   getPlatformById,
   getPlatformProducts,
@@ -296,7 +297,7 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
               <Skeleton className="w-10 h-10 rounded-xl" />
             ) : error ? (
               <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-error/10">
-                <span className="material-symbols-outlined text-error text-sm">error</span>
+                <Icon name="alert-circle" className="text-error text-sm" />
               </div>
             ) : (
               <div
@@ -332,7 +333,7 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
               className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors focus-visible:ring-2 focus-visible:ring-primary/50"
               aria-label="Cerrar drawer"
             >
-              <span className="material-symbols-outlined text-sm">close</span>
+              <Icon name="close" className="text-sm" />
             </button>
           </div>
         </div>
@@ -343,7 +344,7 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
             <DrawerSkeleton />
           ) : error ? (
             <div className="p-8 text-center space-y-3">
-              <span className="material-symbols-outlined text-3xl text-error/50 block">error</span>
+              <Icon name="alert-circle" className="text-3xl text-error/50 block" />
               <p className="text-sm text-on-surface">{error}</p>
               <button
                 onClick={() => window.location.reload()}
@@ -357,7 +358,7 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
               {/* Platform Info */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">info</span>
+                  <Icon name="information" className="text-sm text-primary" />
                   Información de la Plataforma
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
@@ -384,7 +385,7 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
               {/* Branding */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">palette</span>
+                  <Icon name="palette" className="text-sm text-primary" />
                   Branding
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
@@ -410,7 +411,7 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
               {analytics && (
                 <section className="glass rounded-xl p-4">
                   <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm text-primary">shopping_cart</span>
+                    <Icon name="cart" className="text-sm text-primary" />
                     Resumen de Productos
                   </h4>
                   <div className="grid grid-cols-3 gap-3">
@@ -433,7 +434,7 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
               {/* Inventory Overview */}
               <section className="glass rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm text-primary">inventory_2</span>
+                  <Icon name="package-variant" className="text-sm text-primary" />
                   Resumen de Inventario
                 </h4>
                 <div className="grid grid-cols-3 gap-3">
@@ -456,7 +457,7 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
               {analytics && (
                 <section className="glass rounded-xl p-4">
                   <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm text-primary">trending_up</span>
+                    <Icon name="trending-up" className="text-sm text-primary" />
                     Métricas de Ingresos
                   </h4>
                   <div className="grid grid-cols-3 gap-3">
@@ -480,7 +481,7 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
               {analytics && (
                 <section className="glass rounded-xl p-4">
                   <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm text-primary">speed</span>
+                    <Icon name="speedometer" className="text-sm text-primary" />
                     Rendimiento
                   </h4>
                   <div className="grid grid-cols-3 gap-3">
@@ -504,7 +505,7 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
               {products.length > 0 ? (
                 <section className="glass rounded-xl p-4">
                   <h4 className="text-xs font-semibold text-on-surface mb-3 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm text-primary">emoji_events</span>
+                    <Icon name="trophy" className="text-sm text-primary" />
                     Top Productos
                   </h4>
                   <div className="overflow-x-auto">
@@ -537,7 +538,7 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
                 </section>
               ) : (
                 <div className="glass rounded-xl p-8 border border-white/5 text-center">
-                  <span className="material-symbols-outlined text-3xl text-on-surface-variant/30 mb-2 block">inventory_2</span>
+                  <Icon name="package-variant" className="text-3xl text-on-surface-variant/30 mb-2 block" />
                   <p className="text-sm text-on-surface-variant">Sin productos registrados</p>
                 </div>
               )}
@@ -553,14 +554,14 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary/50"
                 onClick={() => platform && onEdit(platform)}
               >
-                <span className="material-symbols-outlined text-sm">edit</span>
+                <Icon name="pencil" className="text-sm" />
                 Editar Plataforma
               </button>
               <button
                 className="flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 focus-visible:ring-2 focus-visible:ring-primary/50"
                 onClick={() => sileo.success({ title: "Próximamente", description: "Analytics detallado en desarrollo" })}
               >
-                <span className="material-symbols-outlined text-sm">analytics</span>
+                <Icon name="chart-areaspline" className="text-sm" />
                 Analytics
               </button>
             </div>
@@ -569,14 +570,14 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-500/10 text-amber-500 text-xs font-semibold rounded-xl hover:bg-amber-500/20 transition-colors border border-amber-500/20 focus-visible:ring-2 focus-visible:ring-amber-500/50"
                 onClick={() => sileo.success({ title: "Próximamente", description: "Archivado de plataforma en desarrollo" })}
               >
-                <span className="material-symbols-outlined text-sm">archive</span>
+                <Icon name="archive" className="text-sm" />
                 Archivar
               </button>
               <button
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20 focus-visible:ring-2 focus-visible:ring-error/50"
                 onClick={() => sileo.success({ title: "Próximamente", description: "Eliminación de plataforma en desarrollo" })}
               >
-                <span className="material-symbols-outlined text-sm">delete</span>
+                <Icon name="delete" className="text-sm" />
                 Eliminar
               </button>
             </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { memo, useCallback } from "react"
+import { Icon } from "@/components/atoms/icon"
 import { cn } from "@/lib/utils"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -129,9 +130,7 @@ function TableSkeleton() {
 function EmptyState({ hasActiveFilters }: { hasActiveFilters?: boolean }) {
   return (
     <div className="glass rounded-xl p-12 border border-white/5 text-center">
-      <span className="material-symbols-outlined text-4xl text-on-surface-variant/30 mb-3 block">
-        {hasActiveFilters ? "filter_list_off" : "group"}
-      </span>
+      <Icon name={hasActiveFilters ? "filter-off" : "account-group"} className="text-4xl text-on-surface-variant/30 mb-3 block" />
       <p className="text-sm text-on-surface-variant">
         {hasActiveFilters ? "No se encontraron clientes con estos filtros" : "No hay clientes registrados"}
       </p>

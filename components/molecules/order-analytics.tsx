@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 const statusData = [
   { label: "Entregadas", count: 1117, percentage: 89.5, color: "bg-green-400" },
@@ -43,7 +44,7 @@ export function OrderAnalytics() {
       {/* Orders by Status */}
       <div className="glass p-5 rounded-xl border border-white/5">
         <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-primary">donut_large</span>
+          <Icon name="chart-donut" className="text-sm text-primary" />
           Órdenes por Estado
         </h3>
         <div className="flex items-center gap-6">
@@ -99,7 +100,7 @@ export function OrderAnalytics() {
       {/* Orders by Payment Method */}
       <div className="glass p-5 rounded-xl border border-white/5">
         <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-primary">account_balance_wallet</span>
+          <Icon name="wallet" className="text-sm text-primary" />
           Órdenes por Método de Pago
         </h3>
         <div className="space-y-4">
@@ -129,7 +130,7 @@ export function OrderAnalytics() {
       {/* Revenue by Orders */}
       <div className="glass p-5 rounded-xl border border-white/5">
         <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-primary">trending_up</span>
+          <Icon name="trending-up" className="text-sm text-primary" />
           Ingresos por Órdenes
         </h3>
         <div className="grid grid-cols-2 gap-3">
@@ -153,7 +154,7 @@ export function OrderAnalytics() {
       {/* Order Volume Trend */}
       <div className="glass p-5 rounded-xl border border-white/5">
         <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-primary">show_chart</span>
+          <Icon name="chart-line" className="text-sm text-primary" />
           Volumen de Órdenes
         </h3>
         <div className="flex items-end gap-2 h-32">

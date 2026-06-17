@@ -24,6 +24,7 @@ import {
   type ProductHealth,
   type CreateProductInput,
 } from "@/lib/api/products"
+import { Icon } from "@/components/atoms/icon"
 import { sileo } from "sileo"
 
 export default function ProductsPage() {
@@ -212,7 +213,7 @@ export default function ProductsPage() {
             onClick={() => setShowCreateModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary/50"
           >
-            <span className="material-symbols-outlined text-sm">add</span>
+            <Icon name="plus" className="text-sm" />
             Crear Producto
           </button>
           {/* <button
@@ -220,7 +221,7 @@ export default function ProductsPage() {
             onClick={() => sileo.success({ title: "Próximamente", description: "Exportación en desarrollo" })}
             aria-label="Exportar productos"
           >
-            <span className="material-symbols-outlined text-sm">download</span>
+            <Icon name="download" className="text-sm" />
             Exportar
           </button>
           <button
@@ -228,7 +229,7 @@ export default function ProductsPage() {
             onClick={() => sileo.success({ title: "Próximamente", description: "Importación en desarrollo" })}
             aria-label="Importar productos"
           >
-            <span className="material-symbols-outlined text-sm">upload</span>
+            <Icon name="upload" className="text-sm" />
             Importar
           </button> */}
         </div>
@@ -238,7 +239,7 @@ export default function ProductsPage() {
       <section className="glass p-4 rounded-xl border border-white/5">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+            <Icon name="magnify" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" />
             <label htmlFor="product-search" className="sr-only">Buscar productos</label>
             <input
               id="product-search"
@@ -257,7 +258,7 @@ export default function ProductsPage() {
                 viewMode === "grid" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
-              <span className="material-symbols-outlined text-sm">grid_view</span>
+              <Icon name="view-grid" className="text-sm" />
               Grid
             </button>
             <button
@@ -267,7 +268,7 @@ export default function ProductsPage() {
                 viewMode === "table" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
-              <span className="material-symbols-outlined text-sm">table_rows</span>
+              <Icon name="table" className="text-sm" />
               Tabla
             </button>
           </div>
@@ -340,7 +341,7 @@ export default function ProductsPage() {
               accent="border-green-500"
               badge="Activo"
               badgeColor="text-green-400"
-              icon="check_circle"
+              icon="check-circle"
               iconColor="text-green-400"
             />
             <MetricCard
@@ -350,7 +351,7 @@ export default function ProductsPage() {
               accent="border-on-surface-variant"
               badge="Borrador"
               badgeColor="text-on-surface-variant"
-              icon="edit_note"
+              icon="note-edit"
               iconColor="text-on-surface-variant"
             />
             <MetricCard
@@ -368,7 +369,7 @@ export default function ProductsPage() {
               description="Suma de la página actual"
               value={`$${totalRevenue.toLocaleString()}`}
               accent="border-secondary"
-              icon="attach_money"
+              icon="currency-usd"
               iconColor="text-secondary"
             />
           </>

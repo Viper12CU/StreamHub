@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { Icon } from '@/components/atoms/icon'
 import { products } from '@/components/data/products'
 
 export function PurchaseSuggestions() {
@@ -14,9 +15,7 @@ export function PurchaseSuggestions() {
     <section className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary" data-icon="local_offer">
-            local_offer
-          </span>
+          <Icon name="tag" className="text-primary" />
           Sugerencias para ti
         </h2>
         <Link

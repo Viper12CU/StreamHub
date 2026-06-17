@@ -178,3 +178,59 @@ Small, semi-transparent chips with a "Verified" icon. Use a subtle metallic grad
 
 ### Status Indicators
 Small glowing dots (CSS pulse animation) next to service names to indicate "Instant Delivery" or "In Stock" status.
+
+## Icon System
+
+StreamHub uses **Material Design Icons (MDI)** as the primary icon library, with **Material Symbols** as a secondary option for Google-specific icons.
+
+### Primary: MDI (Material Design Icons)
+- **Library:** `mdi` — 7,447 icons, Apache 2.0 license
+- **CDN:** `https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css`
+- **Usage:** `<Icon name="netflix" library="mdi" />` renders `<span class="mdi mdi-netflix">`
+- **Categories:** Streaming/movie icons (`movie-open-play`, `play-box-lock`), brand icons (`netflix`, `spotify`, `disney-plus`), general UI
+
+### Secondary: Material Symbols
+- **Library:** `material` — Google's variable icon font
+- **CDN:** Google Fonts API
+- **Usage:** `<Icon name="shopping_cart" library="material" />` renders `<span class="material-symbols-outlined">shopping_cart</span>`
+- **Use case:** Google-specific icons not available in MDI
+
+### Icon Component
+```tsx
+import { Icon } from "@/components/atoms/icon"
+
+// MDI (default)
+<Icon name="netflix" />
+<Icon name="movie-open-play" size="lg" className="text-primary" />
+
+// Material Symbols
+<Icon name="shopping_cart" library="material" />
+<Icon name="bolt" library="material" filled />
+```
+
+### Naming Convention
+- **MDI:** Use kebab-case without `mdi-` prefix (e.g., `"movie-open-play"`, `"netflix"`)
+- **Material:** Use snake_case (e.g., `"shopping_cart"`, `"arrow_forward"`)
+
+### Size Classes
+| Token | Class |
+|---|---|
+| `xs` | `text-xs` (12px) |
+| `sm` | `text-sm` (14px) |
+| `md` | `text-base` (16px) |
+| `lg` | `text-lg` (18px) |
+| `xl` | `text-xl` (20px) |
+| `2xl` | `text-2xl` (24px) |
+| `3xl` | `text-3xl` (30px) |
+| `4xl` | `text-4xl` (36px) |
+
+### Streaming Platform Icons (MDI)
+| Platform | Icon Name |
+|---|---|
+| Netflix | `netflix` |
+| Spotify | `spotify` |
+| Disney+ | `disney-plus` |
+| YouTube | `youtube` |
+| HBO Max | `hbo` |
+| Amazon Prime | `amazon` |
+| Apple TV+ | `apple` |

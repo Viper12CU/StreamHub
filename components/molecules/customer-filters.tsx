@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect, useRef } from "react"
+import { Icon } from "@/components/atoms/icon"
 import { cn } from "@/lib/utils"
 
 interface CustomerFiltersProps {
@@ -36,7 +37,7 @@ function FilterSection({ title, icon, children }: FilterSectionProps) {
   return (
     <div className="space-y-2.5">
       <div className="flex items-center gap-2">
-        <span className="material-symbols-outlined text-xs text-on-surface-variant opacity-60">{icon}</span>
+        <Icon name={icon} className="text-xs text-on-surface-variant opacity-60" />
         <p className="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">{title}</p>
       </div>
       {children}
@@ -93,7 +94,7 @@ export function CustomerFilters({ onToggle, isOpen, onFilterChange, onSortChange
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-sm">filter_alt</span>
+            <Icon name="filter-variant" className="text-primary text-sm" />
           </div>
           <div>
             <span className="text-sm font-semibold text-on-surface">Filtros</span>
@@ -118,12 +119,13 @@ export function CustomerFilters({ onToggle, isOpen, onFilterChange, onSortChange
               Limpiar
             </button>
           )}
-          <span className={cn(
-            "material-symbols-outlined text-on-surface-variant text-sm transition-transform duration-200",
-            isOpen && "rotate-180"
-          )}>
-            expand_more
-          </span>
+          <Icon
+            name="unfold-more"
+            className={cn(
+              "text-on-surface-variant text-sm transition-transform duration-200",
+              isOpen && "rotate-180"
+            )}
+          />
         </div>
       </div>
 
@@ -136,7 +138,7 @@ export function CustomerFilters({ onToggle, isOpen, onFilterChange, onSortChange
       >
         <div className="px-4 pb-4 space-y-5 border-t border-white/5 pt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            <FilterSection title="Fecha de Registro" icon="calendar_today">
+            <FilterSection title="Fecha de Registro" icon="calendar-today">
               <div className="flex items-center gap-2">
                 <input
                   type="date"
@@ -154,7 +156,7 @@ export function CustomerFilters({ onToggle, isOpen, onFilterChange, onSortChange
               </div>
             </FilterSection>
 
-            <FilterSection title="Valor de Vida" icon="attach_money">
+            <FilterSection title="Valor de Vida" icon="currency-usd">
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -174,7 +176,7 @@ export function CustomerFilters({ onToggle, isOpen, onFilterChange, onSortChange
               </div>
             </FilterSection>
 
-            <FilterSection title="Total Órdenes" icon="receipt_long">
+            <FilterSection title="Total Órdenes" icon="receipt">
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -194,7 +196,7 @@ export function CustomerFilters({ onToggle, isOpen, onFilterChange, onSortChange
               </div>
             </FilterSection>
 
-            <FilterSection title="Ordenar Por" icon="sort">
+            <FilterSection title="Ordenar Por" icon="arrow-down-up">
               <div className="relative">
                 <label htmlFor="customer-sort" className="sr-only">Ordenar clientes por</label>
                 <select
@@ -207,9 +209,7 @@ export function CustomerFilters({ onToggle, isOpen, onFilterChange, onSortChange
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
-                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none">
-                  unfold_more
-                </span>
+                <Icon name="unfold-more" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none" />
               </div>
             </FilterSection>
           </div>

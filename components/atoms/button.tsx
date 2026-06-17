@@ -1,13 +1,15 @@
 import { cn } from "@/lib/utils"
 import { ButtonHTMLAttributes, forwardRef } from "react"
+import { ButtonSpinner } from "./button-spinner"
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "whatsapp"
   size?: "sm" | "md" | "lg"
+  loading?: boolean
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", children, ...props }, ref) => {
+  ({ className, variant = "primary", size = "md", loading = false, disabled, children, ...props }, ref) => {
     const variantClasses = {
       primary: "bg-primary text-primary-foreground hover:opacity-90 shadow-lg shadow-primary/20",
       secondary: "glass-panel hover:bg-white/5",
@@ -30,8 +32,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           sizeClasses[size],
           className
         )}
+        disabled={disabled || loading}
         {...props}
       >
+        {loading && <ButtonSpinner />}
         {children}
       </button>
     )

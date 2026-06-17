@@ -1,3 +1,5 @@
+import { Icon } from "@/components/atoms/icon"
+
 interface InventoryItem {
   platform: string
   label: string
@@ -29,7 +31,7 @@ export function InventoryStatus() {
             <div className="flex items-center gap-2">
               <p className="text-sm font-semibold">{item.label}</p>
               {item.isLow && (
-                <span className="material-symbols-outlined text-sm text-error">warning</span>
+                <Icon name="alert" className="text-sm text-error" />
               )}
             </div>
             <span className={`text-[10px] font-bold ${item.isLow ? "text-error" : item.color}`}>{item.count}</span>
@@ -39,7 +41,7 @@ export function InventoryStatus() {
       {lowStockItems.length > 0 && (
         <div className="mt-4 p-3 rounded-lg bg-error-container/10 border border-error/20">
           <p className="text-xs font-semibold text-error mb-2 flex items-center gap-1">
-            <span className="material-symbols-outlined text-sm">warning</span>
+            <Icon name="alert" className="text-sm" />
             Stock Bajo (&lt; 5 unidades)
           </p>
           {lowStockItems.map((item) => (

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { Icon } from "@/components/atoms/icon"
 
 interface InventoryAssignmentCenterProps {
   onClose: () => void
@@ -33,11 +34,11 @@ export function InventoryAssignmentCenter({ onClose }: InventoryAssignmentCenter
     <div className="glass rounded-xl border border-white/5 overflow-hidden sticky top-24">
       <div className="flex items-center justify-between p-4 border-b border-white/5">
         <h3 className="text-sm font-semibold text-on-surface flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-primary">assignment</span>
+          <Icon name="clipboard-text" className="text-sm text-primary" />
           Centro de Asignación
         </h3>
         <button onClick={onClose} className="text-on-surface-variant hover:text-on-surface">
-          <span className="material-symbols-outlined text-sm">close</span>
+          <Icon name="close" className="text-sm" />
         </button>
       </div>
 

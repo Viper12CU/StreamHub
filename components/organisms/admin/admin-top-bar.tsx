@@ -2,6 +2,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { AdminSearchInput } from "@/components/molecules/admin-search-input"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { Icon } from "@/components/atoms/icon"
 
 interface AdminTopBarProps {
   collapsed: boolean
@@ -28,15 +29,15 @@ export function AdminTopBar({ collapsed }: AdminTopBarProps) {
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-4 mr-6">
           <button className="p-2 text-on-surface-variant hover:bg-white/5 rounded-full transition-colors cursor-pointer active:scale-95">
-            <span className="material-symbols-outlined">notifications</span>
+            <Icon name="bell" size="xl" />
           </button>
           <button className="p-2 text-on-surface-variant hover:bg-white/5 rounded-full transition-colors cursor-pointer active:scale-95">
             <Link href="/admin/settings">
-              <span className="material-symbols-outlined">settings</span>
+              <Icon name="cog" size="xl" />
             </Link>
           </button>
           <button className="p-2 text-on-surface-variant hover:bg-white/5 rounded-full transition-colors cursor-pointer active:scale-95">
-            <span className="material-symbols-outlined">help</span>
+            <Icon name="help-circle" size="xl" />
           </button>
         </div>
       </div>

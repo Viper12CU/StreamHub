@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 interface CollapseButtonProps {
   collapsed: boolean
@@ -11,9 +11,7 @@ export function CollapseButton({ collapsed, onToggle }: CollapseButtonProps) {
       onClick={onToggle}
       className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center w-6 h-12 rounded-r-lg bg-surface-container-high border border-white/10 border-l-0 text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all duration-300 z-50 right-[-24px]"
     >
-      <span className="material-symbols-outlined text-sm transition-transform duration-300">
-        {collapsed ? "chevron_right" : "chevron_left"}
-      </span>
+      <Icon name={collapsed ? "chevron-right" : "chevron-left"} className="text-sm transition-transform duration-300" />
     </button>
   )
 }

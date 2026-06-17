@@ -2,6 +2,7 @@
 
 import { memo, useMemo } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Icon } from "@/components/atoms/icon"
 import type { PlatformWithMetrics } from "@/lib/api/platforms"
 
 interface TopProductsByPlatformProps {
@@ -52,7 +53,7 @@ function TopProductsByPlatformInner({ platforms, loading }: TopProductsByPlatfor
   if (platforms.length === 0) {
     return (
       <div className="glass rounded-xl p-8 border border-white/5 text-center">
-        <span className="material-symbols-outlined text-3xl text-on-surface-variant/30 mb-2 block">emoji_events</span>
+        <Icon name="trophy" className="text-3xl text-on-surface-variant/30 mb-2 block" />
         <p className="text-sm text-on-surface-variant">Sin datos de productos</p>
       </div>
     )
@@ -79,12 +80,12 @@ function TopProductsByPlatformInner({ platforms, loading }: TopProductsByPlatfor
       <div className="glass rounded-xl overflow-hidden border border-white/5">
         <div className="p-4 border-b border-white/5 flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-amber-500 text-sm">emoji_events</span>
+            <Icon name="trophy" className="text-amber-500 text-sm" />
           </div>
           <h3 className="text-sm font-semibold text-on-surface">Top Productos por Plataforma</h3>
         </div>
         <div className="p-8 text-center">
-          <span className="material-symbols-outlined text-3xl text-on-surface-variant/30 mb-2 block">emoji_events</span>
+          <Icon name="trophy" className="text-3xl text-on-surface-variant/30 mb-2 block" />
           <p className="text-xs text-on-surface-variant">Sin datos de productos para mostrar</p>
         </div>
       </div>
@@ -96,7 +97,7 @@ function TopProductsByPlatformInner({ platforms, loading }: TopProductsByPlatfor
       <div className="p-4 border-b border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-amber-500 text-sm">emoji_events</span>
+            <Icon name="trophy" className="text-amber-500 text-sm" />
           </div>
           <h3 className="text-sm font-semibold text-on-surface">Top Productos por Plataforma</h3>
         </div>

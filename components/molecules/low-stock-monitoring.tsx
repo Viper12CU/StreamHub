@@ -1,3 +1,4 @@
+import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { LowStockItem } from "@/lib/api/inventory"
 
@@ -23,7 +24,7 @@ export function LowStockMonitoring({ items, loading }: LowStockMonitoringProps) 
     <div className="glass rounded-xl border border-white/5 p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-on-surface flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-amber-500">warning</span>
+          <Icon name="alert" className="text-sm text-amber-500" />
           Productos con Stock Bajo
         </h3>
       </div>
@@ -32,7 +33,7 @@ export function LowStockMonitoring({ items, loading }: LowStockMonitoringProps) 
         <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-12 w-full rounded-lg" />)}</div>
       ) : items.length === 0 ? (
         <div className="text-center py-8">
-          <span className="material-symbols-outlined text-3xl text-green-400/40 mb-2">check_circle</span>
+          <Icon name="check-circle" className="text-3xl text-green-400/40 mb-2" />
           <p className="text-xs text-on-surface-variant">Todos los productos tienen stock suficiente</p>
         </div>
       ) : (

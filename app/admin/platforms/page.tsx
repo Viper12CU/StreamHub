@@ -25,6 +25,7 @@ import {
   type CreatePlatformInput,
 } from "@/lib/api/platforms"
 import { getInventoryHealth, type InventoryHealth } from "@/lib/api/inventory"
+import { Icon } from "@/components/atoms/icon"
 import { sileo } from "sileo"
 
 export default function PlatformsPage() {
@@ -230,7 +231,7 @@ export default function PlatformsPage() {
             onClick={() => setShowCreateModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary/50"
           >
-            <span className="material-symbols-outlined text-sm">add</span>
+            <Icon name="plus" />
             Crear Plataforma
           </button>
         </div>
@@ -240,9 +241,7 @@ export default function PlatformsPage() {
       <section className="glass p-4 rounded-xl border border-white/5">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">
-              search
-            </span>
+            <Icon name="magnify" className="absolute left-3 top-5 -translate-y-1/2 text-on-surface-variant" />
             <label htmlFor="platform-search" className="sr-only">Buscar plataformas</label>
             <input
               id="platform-search"
@@ -261,7 +260,7 @@ export default function PlatformsPage() {
                 viewMode === "grid" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
-              <span className="material-symbols-outlined text-sm">grid_view</span>
+              <Icon name="view-grid" size="lg" />
               Grid
             </button>
             <button
@@ -271,7 +270,7 @@ export default function PlatformsPage() {
                 viewMode === "table" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
-              <span className="material-symbols-outlined text-sm">table_rows</span>
+              <Icon name="table" size="lg" />
               Tabla
             </button>
           </div>
@@ -300,7 +299,7 @@ export default function PlatformsPage() {
               description="Todas las plataformas"
               value={String(platforms.length)}
               accent="border-primary"
-              icon="smart_display"
+              icon="monitor-dashboard"
               iconColor="text-primary"
             />
             <MetricCard
@@ -310,7 +309,7 @@ export default function PlatformsPage() {
               accent="border-green-500"
               badge="Exito"
               badgeColor="text-green-400"
-              icon="check_circle"
+              icon="check-circle"
               iconColor="text-green-400"
             />
             <MetricCard
@@ -320,7 +319,7 @@ export default function PlatformsPage() {
               accent="border-amber-500"
               badge="Pendiente"
               badgeColor="text-amber-500"
-              icon="pause_circle"
+              icon="pause-circle"
               iconColor="text-amber-500"
             />
             <MetricCard
@@ -328,7 +327,7 @@ export default function PlatformsPage() {
               description={`${totalProductCount} registrados`}
               value={String(totalProductCount)}
               accent="border-secondary"
-              icon="shopping_cart"
+              icon="shopping"
               iconColor="text-secondary"
             />
             <MetricCard
@@ -336,7 +335,7 @@ export default function PlatformsPage() {
               description={`${totalInventory.toLocaleString()} Assets`}
               value={totalInventory.toLocaleString()}
               accent="border-tertiary"
-              icon="inventory_2"
+              icon="warehouse"
               iconColor="text-tertiary"
             />
             <MetricCard
@@ -344,7 +343,7 @@ export default function PlatformsPage() {
               description={`$${totalRevenue.toLocaleString()}`}
               value={`$${totalRevenue.toLocaleString()}`}
               accent="border-green-500"
-              icon="trending_up"
+              icon="trending-up"
               iconColor="text-green-400"
             />
           </>
@@ -354,7 +353,7 @@ export default function PlatformsPage() {
       {/* Error State */}
       {fetchError && !loading && (
         <div className="glass rounded-xl p-8 border border-error/20 text-center space-y-3">
-          <span className="material-symbols-outlined text-3xl text-error/50 block">error</span>
+          <Icon name="alert-circle" className="text-error/50 block" />
           <p className="text-sm text-on-surface">{fetchError}</p>
           <button
             onClick={() => fetchPlatforms()}

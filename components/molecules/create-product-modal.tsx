@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
+import { ButtonSpinner } from "@/components/atoms/button-spinner"
+import { Icon } from "@/components/atoms/icon"
 import { usePlatforms } from "@/hooks/use-platforms"
 import { productTypes, generateSlug } from "@/lib/constants/products"
 import type { CreateProductInput, ProductType, ProductStatus } from "@/lib/api/products"
@@ -25,7 +27,7 @@ function StepIndicator({ currentStep, totalSteps }: { currentStep: number; total
             "bg-surface-container-high text-on-surface-variant"
           )}>
             {s < currentStep ? (
-              <span className="material-symbols-outlined text-sm">check</span>
+              <Icon name="check" className="text-sm" />
             ) : s}
           </div>
           {s < totalSteps && (
@@ -155,7 +157,7 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
         <div className="flex items-center justify-between p-5 border-b border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary">add_box</span>
+              <Icon name="plus-box" className="text-primary" />
             </div>
             <div>
               <h2 id="create-modal-title" className="text-lg font-semibold text-on-surface">Crear Producto</h2>
@@ -167,7 +169,7 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
             className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors focus-visible:ring-2 focus-visible:ring-primary/50"
             aria-label="Cerrar modal"
           >
-            <span className="material-symbols-outlined text-sm">close</span>
+            <Icon name="close" className="text-sm" />
           </button>
         </div>
 
@@ -232,7 +234,7 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
                           <option key={p.id} value={p.id}>{p.name}</option>
                         ))}
                       </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none">unfold_more</span>
+                      <Icon name="unfold-more" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none" />
                     </div>
                   </div>
                   <div className="space-y-1.5">
@@ -249,7 +251,7 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
                           <option key={t.value} value={t.value}>{t.label}</option>
                         ))}
                       </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none">unfold_more</span>
+                      <Icon name="unfold-more" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none" />
                     </div>
                   </div>
                 </div>
@@ -310,14 +312,14 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
                         <option value="EUR">EUR (€)</option>
                         <option value="MXN">MXN ($)</option>
                       </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none">unfold_more</span>
+                      <Icon name="unfold-more" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none" />
                     </div>
                   </div>
                 </div>
                 <div className="p-4 bg-surface-container-low border border-white/5 rounded-xl">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-primary text-sm">analytics</span>
+                      <Icon name="chart-areaspline" className="text-primary text-sm" />
                       <span className="text-[11px] font-medium text-on-surface-variant">Margen Estimado</span>
                     </div>
                     <span className="text-lg font-bold text-primary">{margin != null ? `${margin}%` : "N/A"}</span>
@@ -440,7 +442,7 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
                 </div>
               </div>
               <div className="p-4 bg-primary/[0.08] border border-primary/20 rounded-xl flex items-start gap-3">
-                <span className="material-symbols-outlined text-primary text-sm mt-0.5">info</span>
+                <Icon name="information" className="text-primary text-sm mt-0.5" />
                 <p className="text-xs text-on-surface">El producto será creado y estará visible en el catálogo inmediatamente.</p>
               </div>
             </div>
@@ -453,7 +455,7 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
             onClick={() => step > 1 ? setStep(step - 1) : handleClose()}
             className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors focus-visible:ring-2 focus-visible:ring-primary/50"
           >
-            <span className="material-symbols-outlined text-sm">{step > 1 ? "arrow_back" : "close"}</span>
+            <Icon name={step > 1 ? "arrow-left" : "close"} className="text-sm" />
             {step > 1 ? "Anterior" : "Cancelar"}
           </button>
           <div className="flex gap-2">
@@ -463,7 +465,7 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
                 className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary/50"
               >
                 Siguiente
-                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                <Icon name="arrow-right" className="text-sm" />
               </button>
             ) : (
               <button
@@ -477,9 +479,9 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
                 )}
               >
                 {submitting ? (
-                  <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                  <ButtonSpinner />
                 ) : (
-                  <span className="material-symbols-outlined text-sm">check</span>
+                  <Icon name="check" className="text-sm" />
                 )}
                 {submitting ? "Creando..." : "Crear Producto"}
               </button>

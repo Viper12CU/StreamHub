@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 interface OrderFiltersProps {
   onToggle: () => void
@@ -34,7 +35,7 @@ function FilterSection({ title, icon, children }: FilterSectionProps) {
   return (
     <div className="space-y-2.5">
       <div className="flex items-center gap-2">
-        <span className="material-symbols-outlined text-xs text-on-surface-variant opacity-60">{icon}</span>
+        <Icon name={icon} className="text-xs text-on-surface-variant opacity-60" />
         <p className="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">{title}</p>
       </div>
       {children}
@@ -97,7 +98,7 @@ export function OrderFilters({ onToggle, isOpen }: OrderFiltersProps) {
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-sm">filter_alt</span>
+            <Icon name="filter-variant" className="text-primary text-sm" />
           </div>
           <div>
             <span className="text-sm font-semibold text-on-surface">Filtros</span>
@@ -123,12 +124,10 @@ export function OrderFilters({ onToggle, isOpen }: OrderFiltersProps) {
               Limpiar
             </button>
           )}
-          <span className={cn(
-            "material-symbols-outlined text-on-surface-variant text-sm transition-transform duration-200",
+          <Icon name="chevron-down" className={cn(
+            "text-on-surface-variant text-sm transition-transform duration-200",
             isOpen && "rotate-180"
-          )}>
-            expand_more
-          </span>
+          )} />
         </div>
       </button>
 
@@ -152,7 +151,7 @@ export function OrderFilters({ onToggle, isOpen }: OrderFiltersProps) {
           </FilterSection>
 
           {/* Payment Method */}
-          <FilterSection title="Método de Pago" icon="account_balance_wallet">
+          <FilterSection title="Método de Pago" icon="wallet">
             <div className="flex flex-wrap gap-2">
               {paymentMethods.map((method) => (
                 <FilterChip
@@ -166,7 +165,7 @@ export function OrderFilters({ onToggle, isOpen }: OrderFiltersProps) {
           </FilterSection>
 
           {/* Platform */}
-          <FilterSection title="Plataforma" icon="smart_display">
+          <FilterSection title="Plataforma" icon="television">
             <div className="flex flex-wrap gap-2">
               {platforms.map((platform) => (
                 <button
@@ -188,7 +187,7 @@ export function OrderFilters({ onToggle, isOpen }: OrderFiltersProps) {
 
           {/* Date Range, Customer, Value Range & Sort */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            <FilterSection title="Rango de Fechas" icon="calendar_today">
+            <FilterSection title="Rango de Fechas" icon="calendar">
               <div className="flex items-center gap-2">
                 <input
                   type="date"
@@ -206,7 +205,7 @@ export function OrderFilters({ onToggle, isOpen }: OrderFiltersProps) {
               </div>
             </FilterSection>
 
-            <FilterSection title="Cliente" icon="person">
+            <FilterSection title="Cliente" icon="account">
               <input
                 type="text"
                 value={customerSearch}
@@ -216,7 +215,7 @@ export function OrderFilters({ onToggle, isOpen }: OrderFiltersProps) {
               />
             </FilterSection>
 
-            <FilterSection title="Valor de Orden" icon="attach_money">
+            <FilterSection title="Valor de Orden" icon="currency-usd">
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -243,9 +242,7 @@ export function OrderFilters({ onToggle, isOpen }: OrderFiltersProps) {
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
-                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none">
-                  unfold_more
-                </span>
+                <Icon name="unfold-more" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none" />
               </div>
             </FilterSection>
           </div>

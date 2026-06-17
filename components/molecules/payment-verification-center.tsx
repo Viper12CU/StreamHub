@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 const pendingVerifications = [
   { id: "ORD-2026-000480", customer: "Jordan Smith", amount: 7.99, paymentMethod: "MLC", submissionTime: "Hace 5 horas", hasProof: true, urgent: false },
@@ -19,7 +20,7 @@ export function PaymentVerificationCenter() {
       <div className="p-4 border-b border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-amber-500 text-sm">gpp_maybe</span>
+            <Icon name="shield-check" className="text-amber-500 text-sm" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-on-surface">Órdenes Esperando Verificación</h3>
@@ -66,22 +67,22 @@ export function PaymentVerificationCenter() {
               <div className="flex items-center gap-2">
                 {order.hasProof && (
                   <button className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
-                    <span className="material-symbols-outlined text-sm">image</span>
+                    <Icon name="image" className="text-sm" />
                   </button>
                 )}
               </div>
             </div>
             <div className="flex gap-2 mt-3">
               <button className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-green-500/10 text-green-400 text-[10px] font-semibold rounded-lg hover:bg-green-500/20 transition-colors border border-green-500/20">
-                <span className="material-symbols-outlined text-sm">check</span>
+                <Icon name="check" className="text-sm" />
                 Aprobar
               </button>
               <button className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-error/10 text-error text-[10px] font-semibold rounded-lg hover:bg-error/20 transition-colors border border-error/20">
-                <span className="material-symbols-outlined text-sm">close</span>
+                <Icon name="close" className="text-sm" />
                 Rechazar
               </button>
               <button className="flex items-center justify-center gap-1.5 px-3 py-2 bg-surface-container-high text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-white/5 transition-colors border border-white/5">
-                <span className="material-symbols-outlined text-sm">replay</span>
+                <Icon name="replay" className="text-sm" />
               </button>
             </div>
           </div>

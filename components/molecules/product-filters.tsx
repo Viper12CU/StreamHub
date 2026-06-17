@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 import { usePlatforms } from "@/hooks/use-platforms"
 
 interface ProductFiltersProps {
@@ -43,7 +44,7 @@ function FilterSection({ title, icon, children }: FilterSectionProps) {
   return (
     <div className="space-y-2.5">
       <div className="flex items-center gap-2">
-        <span className="material-symbols-outlined text-xs text-on-surface-variant opacity-60">{icon}</span>
+        <Icon name={icon} className="text-xs text-on-surface-variant opacity-60" />
         <p className="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">{title}</p>
       </div>
       {children}
@@ -72,10 +73,10 @@ const inventoryMap: Record<string, string> = {
 }
 
 const productTypes = [
-  { name: "Cuenta Completa", icon: "person" },
-  { name: "Perfil Compartido", icon: "group" },
-  { name: "Código de Activación", icon: "vpn_key" },
-  { name: "Paquete de Suscripción", icon: "inventory_2" },
+  { name: "Cuenta Completa", icon: "account" },
+  { name: "Perfil Compartido", icon: "account-group" },
+  { name: "Código de Activación", icon: "key" },
+  { name: "Paquete de Suscripción", icon: "package-variant-closed" },
 ]
 
 const statuses = [
@@ -167,7 +168,7 @@ export function ProductFilters({ onToggle, isOpen, onFilterChange, onSortChange 
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-sm">filter_alt</span>
+            <Icon name="filter-variant" className="text-primary text-sm" />
           </div>
           <div>
             <span className="text-sm font-semibold text-on-surface">Filtros</span>
@@ -187,12 +188,12 @@ export function ProductFilters({ onToggle, isOpen, onFilterChange, onSortChange 
               Limpiar
             </button>
           )}
-          <span className={cn(
-            "material-symbols-outlined text-on-surface-variant text-sm transition-transform duration-200",
-            isOpen && "rotate-180"
-          )}>
-            expand_more
-          </span>
+          <Icon
+            name="chevron-down"
+            className={cn(
+              "text-on-surface-variant text-sm transition-transform duration-200",
+              isOpen && "rotate-180"
+            )}/>
         </div>
       </div>
 
@@ -203,7 +204,7 @@ export function ProductFilters({ onToggle, isOpen, onFilterChange, onSortChange 
       )}>
         <div className="px-4 pb-4 space-y-5 border-t border-white/5 pt-4">
           {/* Platform */}
-          <FilterSection title="Plataforma" icon="smart_display">
+          <FilterSection title="Plataforma" icon="television">
             <div className="flex flex-wrap gap-2">
               {platforms.map((platform) => (
                 <button
@@ -224,7 +225,7 @@ export function ProductFilters({ onToggle, isOpen, onFilterChange, onSortChange 
           </FilterSection>
 
           {/* Product Type */}
-          <FilterSection title="Tipo de Producto" icon="category">
+          <FilterSection title="Tipo de Producto" icon="shape-outline">
             <div className="flex flex-wrap gap-2">
               {productTypes.map((type) => (
                 <button
@@ -237,7 +238,7 @@ export function ProductFilters({ onToggle, isOpen, onFilterChange, onSortChange 
                       : "bg-surface-container-low text-on-surface-variant border-white/5 hover:bg-surface-container-high hover:border-white/10"
                   )}
                 >
-                  <span className="material-symbols-outlined text-xs opacity-60">{type.icon}</span>
+                  <Icon name={type.icon} className="text-xs opacity-60" />
                   {type.name}
                 </button>
               ))}
@@ -246,7 +247,7 @@ export function ProductFilters({ onToggle, isOpen, onFilterChange, onSortChange 
 
           {/* Status & Inventory - Side by Side */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <FilterSection title="Estado" icon="flag">
+            <FilterSection title="Estado" icon="flag-outline">
               <div className="flex flex-wrap gap-2">
                 {statuses.map((status) => (
                   <FilterChip
@@ -275,7 +276,7 @@ export function ProductFilters({ onToggle, isOpen, onFilterChange, onSortChange 
 
           {/* Price Range & Sort - Side by Side */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <FilterSection title="Rango de Precio" icon="payments">
+            <FilterSection title="Rango de Precio" icon="credit-card-outline">
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs">$</span>
@@ -316,9 +317,7 @@ export function ProductFilters({ onToggle, isOpen, onFilterChange, onSortChange 
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
-                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none">
-                  unfold_more
-                </span>
+                <Icon name="unfold-more" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none" />
               </div>
             </FilterSection>
           </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 interface InventoryTabsProps {
   activeTab: string
@@ -9,11 +10,11 @@ interface InventoryTabsProps {
 }
 
 const defaultTabs = [
-  { id: "all", label: "Todo el Inventario", icon: "inventory_2" },
-  { id: "accounts", label: "Cuentas", icon: "person" },
-  { id: "profiles", label: "Perfiles Compartidos", icon: "group" },
-  { id: "codes", label: "Códigos de Activación", icon: "vpn_key" },
-  { id: "packages", label: "Paquetes de Suscripción", icon: "inventory" },
+  { id: "all", label: "Todo el Inventario", icon: "package-variant-closed" },
+  { id: "accounts", label: "Cuentas", icon: "account" },
+  { id: "profiles", label: "Perfiles Compartidos", icon: "account-group" },
+  { id: "codes", label: "Códigos de Activación", icon: "key" },
+  { id: "packages", label: "Paquetes de Suscripción", icon: "package" },
 ]
 
 export function InventoryTabs({ activeTab, onTabChange, counts = {} }: InventoryTabsProps) {
@@ -32,7 +33,7 @@ export function InventoryTabs({ activeTab, onTabChange, counts = {} }: Inventory
                 : "text-on-surface-variant border-transparent hover:text-on-surface hover:bg-white/[0.02]"
             )}
           >
-            <span className="material-symbols-outlined text-sm">{tab.icon}</span>
+            <Icon name={tab.icon} className="text-sm" />
             {tab.label}
             <span className={cn(
               "px-1.5 py-0.5 text-[10px] font-bold rounded-full",

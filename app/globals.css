@@ -143,6 +143,17 @@
   vertical-align: middle;
 }
 
+/* Material Design Icons (MDI) */
+.mdi {
+  display: inline-block;
+  font-family: "Material Design Icons";
+  /* font-size: inherit; */
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  vertical-align: middle;
+}
+
 /* Hero Gradient */
 .hero-gradient {
   background: radial-gradient(circle at 20% 30%, rgba(229, 9, 20, 0.15) 0%, transparent 50%),

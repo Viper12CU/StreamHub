@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { StatusBadge } from "@/components/atoms/status-badge"
+import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
 import { statusMap, productTypeMap, getInventoryColor, formatRelativeDate } from "@/lib/constants/products"
 import type { ProductWithDetails } from "@/lib/api/products"
@@ -95,7 +96,7 @@ function PaginationFooter({ pagination, onPageChange }: { pagination: { page: nu
 function EmptyState({ onCreateClick }: { onCreateClick?: () => void }) {
   return (
     <div className="glass rounded-xl p-12 border border-white/5 text-center">
-      <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-4 block">inventory</span>
+      <Icon name="inventory" className="text-5xl text-on-surface-variant/30 mb-4 block" />
       <p className="text-sm font-semibold text-on-surface mb-1">No hay productos registrados</p>
       <p className="text-xs text-on-surface-variant/60 mb-4">Crea tu primer producto para comenzar a vender</p>
       {onCreateClick && (
@@ -103,7 +104,7 @@ function EmptyState({ onCreateClick }: { onCreateClick?: () => void }) {
           onClick={onCreateClick}
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary/50"
         >
-          <span className="material-symbols-outlined text-sm">add</span>
+          <Icon name="plus" className="text-sm" />
           Crear Primer Producto
         </button>
       )}

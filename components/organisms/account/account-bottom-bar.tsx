@@ -3,13 +3,14 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 const navItems = [
-  { href: "/web/account", label: "Inicio", icon: "dashboard" },
-  { href: "/web/account/purchases", label: "Compras", icon: "shopping_bag" },
-  { href: "/web/account/active-services", label: "Servicios", icon: "subscriptions" },
-  { href: "/web/account/wishlist", label: "Wishlist", icon: "favorite" },
-  { href: "/web/catalog", label: "Tienda", icon: "storefront" },
+  { href: "/web/account", label: "Inicio", icon: "view-dashboard" },
+  { href: "/web/account/purchases", label: "Compras", icon: "shopping" },
+  { href: "/web/account/active-services", label: "Servicios", icon: "credit-card-outline" },
+  { href: "/web/account/wishlist", label: "Wishlist", icon: "heart" },
+  { href: "/web/catalog", label: "Tienda", icon: "store" },
 ]
 
 export function AccountBottomBar() {
@@ -32,15 +33,13 @@ export function AccountBottomBar() {
                   : "text-[var(--on-surface-variant)] hover:text-[var(--on-surface)]"
               )}
             >
-              <span
+              <Icon
+                name={item.icon}
                 className={cn(
-                  "material-symbols-outlined text-[22px] leading-none transition-all duration-200",
+                  "text-[22px] leading-none transition-all duration-200",
                   isActive && "scale-110"
                 )}
-                style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
-              >
-                {item.icon}
-              </span>
+              />
               <span className="text-[10px] font-medium leading-tight truncate">
                 {item.label}
               </span>

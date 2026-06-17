@@ -3,6 +3,8 @@
 import { useEffect, useState, useRef, useCallback } from "react"
 import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
+import { ButtonSpinner } from "@/components/atoms/button-spinner"
+import { Icon } from "@/components/atoms/icon"
 import {
   updatePlatform,
   type PlatformWithMetrics,
@@ -142,10 +144,10 @@ export function EditPlatformModal({ platform, onClose, onUpdate }: EditPlatformM
   }
 
   const sections = [
-    { id: "info" as const, label: "Información", icon: "info" },
-    { id: "description" as const, label: "Descripción", icon: "description" },
+    { id: "info" as const, label: "Información", icon: "information" },
+    { id: "description" as const, label: "Descripción", icon: "file-document-outline" },
     { id: "branding" as const, label: "Branding", icon: "palette" },
-    { id: "display" as const, label: "Display", icon: "visibility" },
+    { id: "display" as const, label: "Display", icon: "eye" },
   ]
 
   const modalContent = (
@@ -180,7 +182,7 @@ export function EditPlatformModal({ platform, onClose, onUpdate }: EditPlatformM
             className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors focus-visible:ring-2 focus-visible:ring-primary/50"
             aria-label="Cerrar modal"
           >
-            <span className="material-symbols-outlined text-sm">close</span>
+            <Icon name="close" className="text-sm" />
           </button>
         </div>
 
@@ -198,7 +200,7 @@ export function EditPlatformModal({ platform, onClose, onUpdate }: EditPlatformM
                     : "text-on-surface-variant hover:text-on-surface"
                 )}
               >
-                <span className="material-symbols-outlined text-xs">{s.icon}</span>
+                <Icon name={s.icon} className="text-xs" />
                 <span className="hidden sm:inline">{s.label}</span>
               </button>
             ))}
@@ -372,7 +374,7 @@ export function EditPlatformModal({ platform, onClose, onUpdate }: EditPlatformM
             onClick={handleClose}
             className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 focus-visible:ring-2 focus-visible:ring-primary/50"
           >
-            <span className="material-symbols-outlined text-sm">close</span>
+            <Icon name="close" className="text-sm" />
             Cancelar
           </button>
           <button
@@ -386,9 +388,9 @@ export function EditPlatformModal({ platform, onClose, onUpdate }: EditPlatformM
             )}
           >
             {submitting ? (
-              <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+              <ButtonSpinner />
             ) : (
-              <span className="material-symbols-outlined text-sm">check</span>
+              <Icon name="check" className="text-sm" />
             )}
             {submitting ? "Guardando..." : "Guardar Cambios"}
           </button>

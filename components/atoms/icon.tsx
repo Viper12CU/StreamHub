@@ -1,26 +1,36 @@
-import { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { forwardRef } from "react"
 
-interface IconProps {
-  icon: LucideIcon
-  size?: "sm" | "md" | "lg" | "xl"
+interface IconProps extends React.HTMLAttributes<HTMLSpanElement> {
+  name: string
+  size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl"
   className?: string
-  filled?: boolean
 }
 
-const sizeClasses = {
-  sm: "w-4 h-4",
-  md: "w-5 h-5",
-  lg: "w-6 h-6",
-  xl: "w-8 h-8",
+const sizeMap: Record<string, string> = {
+  xs: "text-xs",
+  sm: "text-sm",
+  md: "text-base",
+  lg: "text-lg",
+  xl: "text-xl",
+  "2xl": "text-2xl",
+  "3xl": "text-3xl",
+  "4xl": "text-4xl",
 }
 
-export function Icon({ icon: IconComponent, size = "md", className, filled = false }: IconProps) {
-  return (
-    <IconComponent 
-      className={cn(sizeClasses[size], className)} 
-      fill={filled ? "currentColor" : "none"}
-      strokeWidth={filled ? 0 : 2}
+const Icon = forwardRef<HTMLSpanElement, IconProps>(
+  ({ name, size = "lg", className, style, ...props }, ref) => (
+    <span
+      ref={ref}
+      className={cn("mdi", `mdi-${name}`, sizeMap[size], className)}
+      style={style}
+      aria-hidden="true"
+      {...props}
     />
   )
-}
+)
+
+Icon.displayName = "Icon"
+
+export { Icon }
+export type { IconProps }

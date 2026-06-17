@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 interface AdminNavItemProps {
   href: string
@@ -22,12 +23,7 @@ export function AdminNavItem({ href, icon, label, isActive = false, collapsed = 
           : "text-on-surface-variant hover:text-on-surface hover:bg-white/5 hover:translate-x-1",
       )}
     >
-      <span
-        className="material-symbols-outlined shrink-0"
-        style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
-      >
-        {icon}
-      </span>
+      <Icon name={icon} className="shrink-0 " size="2xl"/>
       {!collapsed && <span className="text-xs font-semibold">{label}</span>}
     </Link>
   )

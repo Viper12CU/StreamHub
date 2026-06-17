@@ -1,3 +1,4 @@
+import { Icon } from "@/components/atoms/icon"
 import { MetricCard } from "@/components/atoms/metric-card"
 import { RevenueChart } from "@/components/molecules/revenue-chart"
 import { ActivityTable } from "@/components/molecules/activity-table"
@@ -11,12 +12,12 @@ import { CustomerGrowth } from "@/components/molecules/customer-growth"
 import { RecentActivityFeed } from "@/components/molecules/recent-activity-feed"
 
 const metrics = [
-  { label: "Ingresos", description: "Revenue del mes actual", value: "$12,450", accent: "border-primary", badge: "+18%", badgeColor: "text-primary", icon: "attach_money", iconColor: "text-primary" },
-  { label: "Hoy", description: "+7.2% vs ayer", value: "$540", accent: "border-secondary", badge: "+7.2%", badgeColor: "text-primary", icon: "today", iconColor: "text-secondary" },
-  { label: "Pedidos", description: "328 órdenes totales", value: "328", accent: "border-tertiary", icon: "shopping_cart", iconColor: "text-tertiary" },
-  { label: "Pendientes", description: "Requieren atención", value: "24", accent: "border-error", badge: "Atención", badgeColor: "text-error", icon: "pending_actions", iconColor: "text-error" },
-  { label: "Clientes Activos", description: "Últimos 30 días", value: "1.2k", accent: "border-secondary", icon: "group", iconColor: "text-secondary" },
-  { label: "Stock Disponible", description: "Cuentas + perfiles", value: "842", accent: "border-on-surface-variant", icon: "inventory_2", iconColor: "text-on-surface-variant" },
+  { label: "Ingresos", description: "Revenue del mes actual", value: "$12,450", accent: "border-primary", badge: "+18%", badgeColor: "text-primary", icon: "currency-usd", iconColor: "text-primary" },
+  { label: "Hoy", description: "+7.2% vs ayer", value: "$540", accent: "border-secondary", badge: "+7.2%", badgeColor: "text-primary", icon: "calendar-today", iconColor: "text-secondary" },
+  { label: "Pedidos", description: "328 órdenes totales", value: "328", accent: "border-tertiary", icon: "cart", iconColor: "text-tertiary" },
+  { label: "Pendientes", description: "Requieren atención", value: "24", accent: "border-error", badge: "Atención", badgeColor: "text-error", icon: "progress-clock", iconColor: "text-error" },
+  { label: "Clientes Activos", description: "Últimos 30 días", value: "1.2k", accent: "border-secondary", icon: "account-group", iconColor: "text-secondary" },
+  { label: "Stock Disponible", description: "Cuentas + perfiles", value: "842", accent: "border-on-surface-variant", icon: "package-variant-closed", iconColor: "text-on-surface-variant" },
 ]
 
 export default function AdminDashboardPage() {
@@ -76,7 +77,7 @@ export default function AdminDashboardPage() {
 
       {/* Floating Action Button */}
       <button className="fixed bottom-10 right-10 w-14 h-14 bg-primary-container text-on-primary-container rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
-        <span className="material-symbols-outlined text-2xl">add</span>
+        <Icon name="plus" className="text-2xl" />
       </button>
     </>
   )

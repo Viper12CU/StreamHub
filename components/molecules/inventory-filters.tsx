@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 interface InventoryFiltersProps {
   onToggle: () => void
@@ -36,7 +37,7 @@ function FilterSection({ title, icon, children }: FilterSectionProps) {
   return (
     <div className="space-y-2.5">
       <div className="flex items-center gap-2">
-        <span className="material-symbols-outlined text-xs text-on-surface-variant opacity-60">{icon}</span>
+        <Icon name={icon} className="text-xs text-on-surface-variant opacity-60" />
         <p className="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">{title}</p>
       </div>
       {children}
@@ -78,7 +79,7 @@ export function InventoryFilters({ onToggle, isOpen, platforms = [], onFilterCha
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-sm">filter_alt</span>
+            <Icon name="filter-variant" className="text-primary text-sm" />
           </div>
           <div>
             <span className="text-sm font-semibold text-on-surface">Filtros</span>
@@ -98,12 +99,12 @@ export function InventoryFilters({ onToggle, isOpen, platforms = [], onFilterCha
               Limpiar
             </button>
           )}
-          <span className={cn(
-            "material-symbols-outlined text-on-surface-variant text-sm transition-transform duration-200",
-            isOpen && "rotate-180"
-          )}>
-            expand_more
-          </span>
+          <Icon
+            name="chevron-down"
+            className={cn(
+              "text-on-surface-variant text-sm transition-transform duration-200",
+              isOpen && "rotate-180"
+            )}/>
         </div>
       </button>
 
@@ -113,7 +114,7 @@ export function InventoryFilters({ onToggle, isOpen, platforms = [], onFilterCha
       )}>
         <div className="px-4 pb-4 space-y-5 border-t border-white/5 pt-4">
           {/* Platform */}
-          <FilterSection title="Plataforma" icon="smart_display">
+          <FilterSection title="Plataforma" icon="television">
             <div className="flex flex-wrap gap-2">
               {platforms.map((platform) => (
                 <button
@@ -140,7 +141,7 @@ export function InventoryFilters({ onToggle, isOpen, platforms = [], onFilterCha
           </FilterSection>
 
           {/* Status */}
-          <FilterSection title="Estado" icon="flag">
+            <FilterSection title="Estado" icon="flag-outline">
             <div className="flex flex-wrap gap-2">
               {statuses.map((status) => (
                 <FilterChip
@@ -155,7 +156,7 @@ export function InventoryFilters({ onToggle, isOpen, platforms = [], onFilterCha
 
           {/* Date Range & Sort */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <FilterSection title="Fecha de Expiración" icon="calendar_today">
+            <FilterSection title="Fecha de Expiración" icon="calendar-outline">
               <div className="flex items-center gap-2">
                 <input
                   type="date"
@@ -180,9 +181,7 @@ export function InventoryFilters({ onToggle, isOpen, platforms = [], onFilterCha
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
-                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none">
-                  unfold_more
-                </span>
+                <Icon name="unfold-more" className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs pointer-events-none" />
               </div>
             </FilterSection>
           </div>

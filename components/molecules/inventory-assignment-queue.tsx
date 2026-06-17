@@ -1,5 +1,7 @@
 "use client"
 
+import { Icon } from "@/components/atoms/icon"
+
 const assignmentQueue = [
   { id: "ORD-2026-000481", customer: "Sarah Chen", product: "Spotify Family", platform: "Spotify", available: 3 },
   { id: "ORD-2026-000478", customer: "Marcus V.", product: "HBO Max Ultra", platform: "HBO Max", available: 1 },
@@ -23,7 +25,7 @@ export function InventoryAssignmentQueue() {
       <div className="p-4 border-b border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-secondary text-sm">inventory_2</span>
+            <Icon name="package-variant-closed" className="text-secondary text-sm" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-on-surface">Órdenes Esperando Inventario</h3>

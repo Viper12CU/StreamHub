@@ -1,7 +1,6 @@
 import { VerifiedBadge } from "@/components/molecules/verified-badge"
 import { FeatureBadge } from "@/components/molecules/feature-badge"
 import { Button } from "@/components/atoms/button"
-import { Shield, Zap, ShieldCheck } from "lucide-react"
 
 export function HeroSection() {
   return (
@@ -43,9 +42,9 @@ export function HeroSection() {
             </div>
 
             <div className="flex flex-wrap gap-6 pt-10 border-t border-white/10">
-              <FeatureBadge icon={Shield} label="Pago seguro" />
-              <FeatureBadge icon={Zap} label="Entrega inmediata" />
-              <FeatureBadge icon={ShieldCheck} label="Garantía de 30 días" />
+              <FeatureBadge icon="shield" label="Pago seguro" />
+              <FeatureBadge icon="flash" label="Entrega inmediata" />
+              <FeatureBadge icon="shield-check" label="Garantía de 30 días" />
             </div>
           </div>
 

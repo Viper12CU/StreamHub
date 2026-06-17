@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
 
 const chartBars = [
   { height: "40%", active: false },
@@ -45,7 +46,7 @@ export function RevenueChart() {
       </div>
       <div className="flex items-center gap-4 mb-4 text-xs text-on-surface-variant">
         <span className="flex items-center gap-1">
-          <span className="material-symbols-outlined text-sm text-primary">trending_up</span>
+          <Icon name="trending-up" className="text-sm text-primary" />
           Tendencia: +12.5%
         </span>
         <span>Promedio por orden: <span className="font-semibold text-on-surface">$37.96</span></span>

@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { CustomerAnalyticsData } from "@/lib/api/customers"
 
@@ -34,7 +35,7 @@ export function CustomerAnalytics({ analytics, loading }: CustomerAnalyticsProps
       {/* Customer Growth */}
       <div className="glass p-5 rounded-xl border border-white/5">
         <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-primary">trending_up</span>
+          <Icon name="trending-up" className="text-sm text-primary" />
           Crecimiento de Clientes
         </h3>
         {growthData.length === 0 ? (
@@ -60,13 +61,13 @@ export function CustomerAnalytics({ analytics, loading }: CustomerAnalyticsProps
       {/* Retention Overview */}
       <div className="glass p-5 rounded-xl border border-white/5">
         <h3 className="text-sm font-semibold text-on-surface mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-sm text-primary">assessment</span>
+          <Icon name="chart-bar" className="text-sm text-primary" />
           Retención
         </h3>
         <div className="space-y-4">
           <div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-sm text-green-400">repeat</span>
+              <Icon name="repeat" className="text-sm text-green-400" />
             </div>
             <div className="flex-1">
               <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Tasa de Retención</p>
@@ -75,7 +76,7 @@ export function CustomerAnalytics({ analytics, loading }: CustomerAnalyticsProps
           </div>
           <div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-sm text-primary">repeat</span>
+              <Icon name="repeat" className="text-sm text-primary" />
             </div>
             <div className="flex-1">
               <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Compradores Recurrentes</p>
@@ -84,7 +85,7 @@ export function CustomerAnalytics({ analytics, loading }: CustomerAnalyticsProps
           </div>
           <div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-sm text-secondary">shopping_cart</span>
+              <Icon name="cart" className="text-sm text-secondary" />
             </div>
             <div className="flex-1">
               <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Compradores Únicos</p>
