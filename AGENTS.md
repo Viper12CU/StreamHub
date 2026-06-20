@@ -41,6 +41,7 @@ Redirige a `/admin/login`. Layout con sidebar colapsable y top bar.
 | `/admin/deliveries` | `app/admin/deliveries/page.tsx` |
 | `/admin/payments` | `app/admin/payments/page.tsx` |
 | `/admin/coupons` | `app/admin/coupons/page.tsx` |
+| `/admin/offers` | `app/admin/offers/page.tsx` |
 | `/admin/inventory` | `app/admin/inventory/page.tsx` |
 | `/admin/products` | `app/admin/products/page.tsx` |
 | `/admin/platforms` | `app/admin/platforms/page.tsx` |
@@ -130,6 +131,13 @@ components/
 - `molecules/top-products-by-platform.tsx` — Tabla de top productos por plataforma (ventas, ingresos, inventario)
 - `molecules/platform-health.tsx` — Monitoreo de salud de plataformas (inventario bajo, productos inactivos, caída ingresos, activos por expirar)
 - `molecules/recent-platform-activity.tsx` — Timeline de actividad reciente de plataformas
+- `molecules/offer-tabs.tsx` — Tabs de estado de ofertas (4 estados: All, Active, Inactive, Expired) con conteo
+- `molecules/offer-filters.tsx` — Filtros de ofertas (tipo: discount/combo, fechas de vigencia)
+- `molecules/offer-table.tsx` — Tabla de ofertas con selección múltiple, menú acciones (ver, duplicar, activar/desactivar, eliminar)
+- `molecules/offer-detail-drawer.tsx` — Drawer de detalle de oferta (resumen, productos, notas) con API real
+- `molecules/create-offer-modal.tsx` — Modal de creación de oferta 4 pasos (tipo, detalle, vigencia, resumen) conectado a API
+- `molecules/offer-analytics.tsx` — Analytics de ofertas (donut estados, barras tipos, resumen descuentos)
+- `molecules/recent-offer-activity.tsx` — Timeline de actividad reciente de ofertas (mock data)
 - `organisms/admin/admin-sidebar.tsx` — Sidebar completa (11 items de navegación)
 - `organisms/admin/admin-top-bar.tsx` — Top bar completa (compone AdminSearchInput, AdminUserProfile)
 
@@ -147,7 +155,9 @@ components/
 ```
 lib/
   api/auth.ts          — Funciones de autenticación (signIn, signUp, signOut, setSessionToken)
+  api/customers.ts     — API de clientes (CRUD, stats, analytics, insights, activity, cache 30s)
   api/inventory.ts     — API de inventario (CRUD, stats, health, low-stock, activity, bulk, assign, cache 30s)
+  api/offers.ts        — API de ofertas (CRUD, deactivate, duplicate, addProduct, removeProduct, cache 30s)
   api/platforms.ts     — API de plataformas (CRUD, analytics, health, cache 30s)
   api/products.ts      — API de productos (CRUD, analytics, health, bulk, duplicate, cache 30s)
   constants/products.ts — Constantes compartidas: statusMap, productTypeMap, productTypes, statusOptions, generateSlug, formatDate, formatDateFull, formatRelativeDate, getInventoryColor, safeToFixed

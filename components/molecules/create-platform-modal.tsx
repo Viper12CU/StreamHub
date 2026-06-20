@@ -1,9 +1,8 @@
 "use client"
 
-import { useEffect, useState, useRef, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
-import { ButtonSpinner } from "@/components/atoms/button-spinner"
 import { Icon } from "@/components/atoms/icon"
 import type { CreatePlatformInput } from "@/lib/api/platforms"
 
@@ -17,7 +16,7 @@ const steps = [
   { label: "Descripción", icon: "file-document-outline" },
   { label: "Branding", icon: "palette" },
   { label: "Display", icon: "eye" },
-  { label: "Resumen", icon: "file-document" },
+  { label: "Resumen", icon: "text-box" },
 ]
 
 const categories: { value: CreatePlatformInput["category"]; label: string }[] = [
@@ -45,9 +44,8 @@ function generateSlug(name: string) {
 
 export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalProps) {
   const [mounted, setMounted] = useState(false)
-  const [closing, setClosing] = useState(false)
   const [step, setStep] = useState(0)
-  const [submitting, setSubmitting] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
@@ -59,46 +57,12 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
     allowPurchases: true,
     status: "active" as CreatePlatformInput["status"],
   })
-  const modalRef = useRef<HTMLDivElement>(null)
-  const firstInputRef = useRef<HTMLInputElement>(null)
-
-  const handleClose = useCallback(() => {
-    setClosing(true)
-    setTimeout(() => onClose(), 200)
-  }, [onClose])
 
   useEffect(() => {
     setMounted(true)
     document.body.style.overflow = "hidden"
-    setTimeout(() => firstInputRef.current?.focus(), 100)
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        handleClose()
-      }
-      if (e.key === "Tab" && modalRef.current) {
-        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        )
-        if (focusable.length === 0) return
-        const first = focusable[0]
-        const last = focusable[focusable.length - 1]
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault()
-          last.focus()
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault()
-          first.focus()
-        }
-      }
-    }
-    document.addEventListener("keydown", handleKeyDown)
-
-    return () => {
-      document.body.style.overflow = ""
-      document.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [handleClose])
+    return () => { document.body.style.overflow = "" }
+  }, [])
 
   const handleNameChange = (name: string) => {
     setFormData((prev) => ({
@@ -116,7 +80,7 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
   const handleSubmit = async () => {
     if (!formData.name || !formData.slug || !formData.category) return
     try {
-      setSubmitting(true)
+      setLoading(true)
       await onCreate({
         name: formData.name,
         slug: formData.slug,
@@ -131,59 +95,49 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
     } catch {
       // error handled in parent
     } finally {
-      setSubmitting(false)
+      setLoading(false)
     }
   }
 
   const modalContent = (
-    <div
-      className={`fixed inset-0 flex items-center justify-center transition-opacity duration-200 ${closing ? "opacity-0" : "opacity-100"}`}
-      style={{ zIndex: 9999 }}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
-    >
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
-      <div
-        ref={modalRef}
-        className={`relative glass rounded-2xl w-full max-w-[560px] max-w-[calc(100vw-2rem)] max-h-[85vh] overflow-hidden flex flex-col transition-transform duration-200 ${closing ? "scale-95" : "scale-100"}`}
-      >
+    <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 9999 }}>
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative glass rounded-2xl w-[600px] max-h-[85vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-white/5">
           <div>
-            <h2 id="modal-title" className="text-base font-semibold text-on-surface">Crear Plataforma</h2>
+            <h2 className="text-base font-semibold text-on-surface">Crear Plataforma</h2>
             <p className="text-[10px] text-on-surface-variant mt-0.5">Paso {step + 1} de {steps.length}</p>
           </div>
-          <button
-            onClick={handleClose}
-            className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors focus-visible:ring-2 focus-visible:ring-primary/50"
-            aria-label="Cerrar modal"
-          >
+          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
             <Icon name="close" className="text-sm" />
           </button>
         </div>
 
         {/* Step Indicator */}
         <div className="px-5 pt-4 pb-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {steps.map((s, i) => (
-              <div key={i} className="flex items-center gap-2 flex-1">
+              <div key={i} className="flex items-center gap-1 flex-1">
                 <div className={cn(
-                  "w-7 h-7 rounded-full flex items-center justify-center transition-all shrink-0",
+                  "w-6 h-6 rounded-full flex items-center justify-center transition-all shrink-0",
                   i <= step
                     ? "bg-primary text-white shadow-lg shadow-primary/20"
                     : "bg-surface-container-high text-on-surface-variant"
                 )}>
-                  <Icon name={s.icon} className="text-sm" />
+                  <Icon name={s.icon} className="text-[10px]" />
                 </div>
                 <span className={cn(
-                  "text-[10px] font-semibold hidden sm:block",
+                  "text-[9px] font-semibold hidden sm:block",
                   i <= step ? "text-primary" : "text-on-surface-variant"
                 )}>
                   {s.label}
                 </span>
                 {i < steps.length - 1 && (
-                  <div className={cn("flex-1 h-px mx-1", i < step ? "bg-primary" : "bg-surface-container-high")} />
+                  <div className={cn(
+                    "flex-1 h-px mx-1",
+                    i < step ? "bg-primary" : "bg-surface-container-high"
+                  )} />
                 )}
               </div>
             ))}
@@ -197,10 +151,8 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
               <h3 className="text-sm font-semibold text-on-surface">Información Básica</h3>
               <div className="space-y-3">
                 <div>
-                  <label htmlFor="platform-name" className="text-[10px] text-on-surface-variant uppercase tracking-wider">Nombre *</label>
+                  <label className="text-[10px] text-on-surface-variant uppercase tracking-wider">Nombre *</label>
                   <input
-                    ref={firstInputRef}
-                    id="platform-name"
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleNameChange(e.target.value)}
@@ -209,9 +161,8 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
                   />
                 </div>
                 <div>
-                  <label htmlFor="platform-slug" className="text-[10px] text-on-surface-variant uppercase tracking-wider">Slug *</label>
+                  <label className="text-[10px] text-on-surface-variant uppercase tracking-wider">Slug *</label>
                   <input
-                    id="platform-slug"
                     type="text"
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
@@ -266,7 +217,6 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
                       value={formData.logoColor}
                       onChange={(e) => setFormData({ ...formData, logoColor: e.target.value })}
                       className="w-10 h-10 rounded-lg border border-white/5 cursor-pointer"
-                      aria-label="Seleccionar color de logo"
                     />
                     <div
                       className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-lg font-black italic"
@@ -298,10 +248,9 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
                     <button
                       role="switch"
                       aria-checked={formData[option.key as keyof typeof formData] as boolean}
-                      aria-label={option.label}
                       onClick={() => setFormData({ ...formData, [option.key]: !formData[option.key as keyof typeof formData] })}
                       className={cn(
-                        "w-10 h-6 rounded-full transition-all relative focus-visible:ring-2 focus-visible:ring-primary/50",
+                        "w-10 h-6 rounded-full transition-all relative",
                         formData[option.key as keyof typeof formData] ? "bg-primary" : "bg-surface-container-high"
                       )}
                     >
@@ -375,6 +324,12 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
                   </>
                 )}
               </div>
+              <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
+                <div className="flex items-center gap-2">
+                  <Icon name="information" className="text-sm text-primary" />
+                  <p className="text-[11px] text-primary">La plataforma se creará con estado "Activa" y será visible en la tienda.</p>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -382,22 +337,17 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
         {/* Footer */}
         <div className="p-4 border-t border-white/5 flex items-center justify-between">
           <button
-            onClick={() => step > 0 ? setStep(step - 1) : handleClose()}
-            className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 focus-visible:ring-2 focus-visible:ring-primary/50"
+            onClick={() => step > 0 ? setStep(step - 1) : onClose()}
+            className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5"
           >
             <Icon name={step > 0 ? "arrow-left" : "close"} className="text-sm" />
             {step > 0 ? "Anterior" : "Cancelar"}
           </button>
-          {step < 4 ? (
+          {step < steps.length - 1 ? (
             <button
               onClick={() => setStep(step + 1)}
               disabled={!canProceed()}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-primary/50",
-                canProceed()
-                  ? "bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
-                  : "bg-surface-container-high text-on-surface-variant cursor-not-allowed"
-              )}
+              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Siguiente
               <Icon name="arrow-right" className="text-sm" />
@@ -405,20 +355,20 @@ export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalPr
           ) : (
             <button
               onClick={handleSubmit}
-              disabled={submitting}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-primary/50",
-                submitting
-                  ? "bg-surface-container-high text-on-surface-variant cursor-not-allowed"
-                  : "bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
-              )}
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-50"
             >
-              {submitting ? (
-                <ButtonSpinner />
+              {loading ? (
+                <>
+                  <Icon name="loading" className="text-sm animate-spin" />
+                  Creando...
+                </>
               ) : (
-                <Icon name="check" className="text-sm" />
+                <>
+                  <Icon name="check" className="text-sm" />
+                  Crear Plataforma
+                </>
               )}
-              {submitting ? "Creando..." : "Crear Plataforma"}
             </button>
           )}
         </div>
