@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Icon } from "@/components/atoms/icon"
 import { MetricCard } from "@/components/atoms/metric-card"
 import { RevenueChart } from "@/components/molecules/revenue-chart"
@@ -10,17 +13,31 @@ import { ShortcutsPanel } from "@/components/molecules/shortcuts-panel"
 import { TopProducts } from "@/components/molecules/top-products"
 import { CustomerGrowth } from "@/components/molecules/customer-growth"
 import { RecentActivityFeed } from "@/components/molecules/recent-activity-feed"
-
-const metrics = [
-  { label: "Ingresos", description: "Revenue del mes actual", value: "$12,450", accent: "border-primary", badge: "+18%", badgeColor: "text-primary", icon: "currency-usd", iconColor: "text-primary" },
-  { label: "Hoy", description: "+7.2% vs ayer", value: "$540", accent: "border-secondary", badge: "+7.2%", badgeColor: "text-primary", icon: "calendar-today", iconColor: "text-secondary" },
-  { label: "Pedidos", description: "328 órdenes totales", value: "328", accent: "border-tertiary", icon: "cart", iconColor: "text-tertiary" },
-  { label: "Pendientes", description: "Requieren atención", value: "24", accent: "border-error", badge: "Atención", badgeColor: "text-error", icon: "progress-clock", iconColor: "text-error" },
-  { label: "Clientes Activos", description: "Últimos 30 días", value: "1.2k", accent: "border-secondary", icon: "account-group", iconColor: "text-secondary" },
-  { label: "Stock Disponible", description: "Cuentas + perfiles", value: "842", accent: "border-on-surface-variant", icon: "package-variant-closed", iconColor: "text-on-surface-variant" },
-]
+import { getInventoryStats, type InventoryStats } from "@/lib/api/inventory"
+import { getCustomerStats, type CustomerCounts } from "@/lib/api/customers"
 
 export default function AdminDashboardPage() {
+  const [invStats, setInvStats] = useState<InventoryStats | null>(null)
+  const [custStats, setCustStats] = useState<CustomerCounts | null>(null)
+
+  useEffect(() => {
+    getInventoryStats().then(setInvStats).catch(() => {})
+    getCustomerStats().then(setCustStats).catch(() => {})
+  }, [])
+
+  const metrics = [
+    // FUTURO: Requiere GET /dashboard/stats
+    { label: "Ingresos", description: "Revenue del mes actual", value: "$—", accent: "border-primary", icon: "currency-usd", iconColor: "text-primary", badge: "FUTURO", badgeColor: "text-on-surface-variant" },
+    { label: "Hoy", description: "Ingresos de hoy", value: "$—", accent: "border-secondary", icon: "calendar-today", iconColor: "text-secondary", badge: "FUTURO", badgeColor: "text-on-surface-variant" },
+    // FUTURO: Requiere GET /orders/stats
+    { label: "Pedidos", description: "Órdenes totales", value: "—", accent: "border-tertiary", icon: "cart", iconColor: "text-tertiary", badge: "FUTURO", badgeColor: "text-on-surface-variant" },
+    { label: "Pendientes", description: "Requieren atención", value: "—", accent: "border-error", icon: "progress-clock", iconColor: "text-error", badge: "FUTURO", badgeColor: "text-error" },
+    // Conectado a API
+    { label: "Clientes Activos", description: "Últimos 30 días", value: custStats?.active != null ? String(custStats.active) : "—", accent: "border-secondary", icon: "account-group", iconColor: "text-secondary" },
+    // Conectado a API
+    { label: "Stock Disponible", description: "Cuentas + perfiles", value: invStats?.available != null ? String(invStats.available) : "—", accent: "border-on-surface-variant", icon: "package-variant-closed", iconColor: "text-on-surface-variant" },
+  ]
+
   return (
     <>
       {/* Header */}
@@ -44,34 +61,34 @@ export default function AdminDashboardPage() {
           ))}
         </div>
 
-        {/* Revenue Chart */}
+        {/* FUTURO: RevenueChart — requiere GET /dashboard/revenue */}
         <RevenueChart />
 
-        {/* Critical Alerts */}
+        {/* Critical Alerts — conectado a APIs */}
         <AlertsPanel />
 
-        {/* Recent Orders */}
+        {/* FUTURO: ActivityTable — requiere GET /orders */}
         <ActivityTable />
 
-        {/* Verify Queue */}
+        {/* FUTURO: VerifyQueue — requiere GET /payments/pending */}
         <VerifyQueue />
 
-        {/* Inventory Status */}
+        {/* Inventory Status — conectado a APIs */}
         <InventoryStatus />
 
-        {/* Platform Mix */}
+        {/* Platform Mix — conectado a APIs */}
         <PlatformMix />
 
-        {/* Shortcuts */}
+        {/* Shortcuts — estático (navegación) */}
         <ShortcutsPanel />
 
-        {/* Top Products */}
+        {/* Top Products — conectado a API */}
         <TopProducts />
 
-        {/* Customer Growth */}
+        {/* Customer Growth — conectado a API */}
         <CustomerGrowth />
 
-        {/* Recent Activity Feed */}
+        {/* FUTURO: RecentActivityFeed — requiere endpoint unificado */}
         <RecentActivityFeed />
       </div>
 

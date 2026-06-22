@@ -5,10 +5,14 @@ import { createPortal } from "react-dom"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Icon } from "@/components/atoms/icon"
+import { cn } from "@/lib/utils"
 import {
   getPlatformById,
   getPlatformProducts,
   getPlatformAnalytics,
+  updatePlatform,
+  deletePlatform,
+  clearPlatformCache,
   type PlatformWithMetrics,
   type PlatformProduct,
   type PlatformAnalytics,
@@ -16,10 +20,12 @@ import {
 import { getInventory, type InventoryWithDetails } from "@/lib/api/inventory"
 import { sileo } from "sileo"
 
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 interface PlatformDetailDrawerProps {
   platformId: string
   onClose: () => void
   onEdit: (platform: PlatformWithMetrics) => void
+  onRefresh?: () => void
   inventoryCounts?: Record<string, number>
 }
 
@@ -169,7 +175,7 @@ function DrawerSkeleton() {
   )
 }
 
-export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCounts = {} }: PlatformDetailDrawerProps) {
+export function PlatformDetailDrawer({ platformId, onClose, onEdit, onRefresh, inventoryCounts = {} }: PlatformDetailDrawerProps) {
   const [mounted, setMounted] = useState(false)
   const [closing, setClosing] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -180,6 +186,8 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
   const [platformInventory, setPlatformInventory] = useState<InventoryWithDetails[]>([])
   const closeRef = useRef<HTMLButtonElement>(null)
   const drawerRef = useRef<HTMLDivElement>(null)
+  const [confirmAction, setConfirmAction] = useState<"activate" | "deactivate" | "delete" | null>(null)
+  const [actionLoading, setActionLoading] = useState(false)
 
   const handleClose = useCallback(() => {
     setClosing(true)
@@ -275,6 +283,47 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
     const b = parseInt(hex.slice(5, 7), 16)
     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
     return luminance > 0.5 ? "#1a1a2e" : "#ffffff"
+  }
+
+  const handleStatusChange = async () => {
+    if (!platform) return
+    setActionLoading(true)
+    try {
+      const newStatus = platform.status === "active" ? "inactive" : "active"
+      await updatePlatform(platform.id, { status: newStatus })
+      sileo.success({ title: "Éxito", description: `Plataforma ${newStatus === "active" ? "activada" : "desactivada"}` })
+      clearPlatformCache()
+      setConfirmAction(null)
+      onRefresh?.()
+      onClose()
+    } catch (err) {
+      sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo cambiar el estado" })
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!platform) return
+    setActionLoading(true)
+    try {
+      await deletePlatform(platform.id)
+      sileo.success({ title: "Éxito", description: "Plataforma eliminada" })
+      clearPlatformCache()
+      setConfirmAction(null)
+      onRefresh?.()
+      onClose()
+    } catch (err) {
+      sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo eliminar" })
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const confirmMessages = {
+    activate: { title: "Activar Plataforma", desc: "¿Activar esta plataforma? Será visible y recibirá órdenes.", icon: "check-circle", color: "green" },
+    deactivate: { title: "Desactivar Plataforma", desc: "¿Desactivar esta plataforma? No recibirá nuevas órdenes.", icon: "pause", color: "amber" },
+    delete: { title: "Eliminar Plataforma", desc: "¿Eliminar esta plataforma permanentemente? Esta acción no se puede deshacer.", icon: "delete", color: "red" },
   }
 
   const drawerContent = (
@@ -491,7 +540,6 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
                     </div>
                     <div className="p-3 bg-surface-container-low rounded-lg">
                       <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Conversión</p>
-                      <p className="text-xs font-bold text-green-400 mt-1">{analytics.conversion_rate || 0}%</p>
                     </div>
                     <div className="p-3 bg-surface-container-low rounded-lg">
                       <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Clientes</p>
@@ -551,31 +599,28 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
           <div className="p-4 border-t border-white/5 bg-surface-container-lowest/90 backdrop-blur-xl space-y-3">
             <div className="flex gap-2">
               <button
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary/50"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
                 onClick={() => platform && onEdit(platform)}
               >
                 <Icon name="pencil" className="text-sm" />
                 Editar Plataforma
               </button>
-              <button
-                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 focus-visible:ring-2 focus-visible:ring-primary/50"
-                onClick={() => sileo.success({ title: "Próximamente", description: "Analytics detallado en desarrollo" })}
-              >
-                <Icon name="chart-areaspline" className="text-sm" />
-                Analytics
-              </button>
             </div>
             <div className="flex gap-2">
               <button
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-500/10 text-amber-500 text-xs font-semibold rounded-xl hover:bg-amber-500/20 transition-colors border border-amber-500/20 focus-visible:ring-2 focus-visible:ring-amber-500/50"
-                onClick={() => sileo.success({ title: "Próximamente", description: "Archivado de plataforma en desarrollo" })}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-xl transition-colors border ${
+                  platform.status === "active"
+                    ? "bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/20"
+                    : "bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20"
+                }`}
+                onClick={() => setConfirmAction(platform.status === "active" ? "deactivate" : "activate")}
               >
-                <Icon name="archive" className="text-sm" />
-                Archivar
+                <Icon name={platform.status === "active" ? "pause" : "check-circle"} className="text-sm" />
+                {platform.status === "active" ? "Desactivar" : "Activar"}
               </button>
               <button
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20 focus-visible:ring-2 focus-visible:ring-error/50"
-                onClick={() => sileo.success({ title: "Próximamente", description: "Eliminación de plataforma en desarrollo" })}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20"
+                onClick={() => setConfirmAction("delete")}
               >
                 <Icon name="delete" className="text-sm" />
                 Eliminar
@@ -583,6 +628,28 @@ export function PlatformDetailDrawer({ platformId, onClose, onEdit, inventoryCou
             </div>
           </div>
         )}
+
+        {/* Confirmation Dialog */}
+        {/* Confirmation Dialog */}
+        {confirmAction && (
+          <ConfirmDialog
+            open={!!confirmAction}
+            onClose={() => setConfirmAction(null)}
+            onConfirm={() => {
+              if (confirmAction === "delete") {
+                handleDelete()
+              } else {
+                handleStatusChange()
+              }
+            }}
+            title={confirmMessages[confirmAction].title}
+            description={confirmMessages[confirmAction].desc}
+            icon={confirmMessages[confirmAction].icon}
+            color={confirmMessages[confirmAction].color}
+            loading={actionLoading}
+          />
+        )}
+
       </div>
     </div>
   )

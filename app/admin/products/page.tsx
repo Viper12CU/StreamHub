@@ -419,6 +419,7 @@ export default function ProductsPage() {
           productId={selectedProduct}
           onClose={() => setSelectedProduct(null)}
           onEdit={(product) => setEditProduct(product)}
+          onActionChange={handleProductUpdate}
         />
       )}
       {editProduct && (

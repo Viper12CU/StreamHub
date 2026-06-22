@@ -7,13 +7,15 @@ import { StatusBadge } from "@/components/atoms/status-badge"
 import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
 import { statusMap, productTypeMap, formatDateFull } from "@/lib/constants/products"
-import { getProductById, getProductMetrics, duplicateProduct, deleteProduct, bulkAction, clearProductCache, type ProductWithDetails, type ProductMetrics } from "@/lib/api/products"
+import { getProductById, getProductMetrics, deleteProduct, bulkAction, clearProductCache, type ProductWithDetails, type ProductMetrics } from "@/lib/api/products"
 import { sileo } from "sileo"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 interface ProductDetailDrawerProps {
   productId: string
   onClose: () => void
   onEdit: (product: ProductWithDetails) => void
+  onActionChange?: () => void
 }
 
 function DrawerSkeleton() {
@@ -43,15 +45,15 @@ function DrawerSkeleton() {
   )
 }
 
-export function ProductDetailDrawer({ productId, onClose, onEdit }: ProductDetailDrawerProps) {
+export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange }: ProductDetailDrawerProps) {
   const [mounted, setMounted] = useState(false)
   const [closing, setClosing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [product, setProduct] = useState<ProductWithDetails | null>(null)
   const [metrics, setMetrics] = useState<ProductMetrics | null>(null)
-  const drawerRef = useRef<HTMLDivElement>(null)
-  const closeRef = useRef<HTMLButtonElement>(null)
+  const [confirmAction, setConfirmAction] = useState<"archive" | "delete" | null>(null)
+  const [actionLoading, setActionLoading] = useState(false)
 
   const handleClose = useCallback(() => {
     setClosing(true)
@@ -118,40 +120,51 @@ export function ProductDetailDrawer({ productId, onClose, onEdit }: ProductDetai
     return () => { cancelled = true }
   }, [productId])
 
-  const handleDuplicate = async () => {
-    if (!product) return
-    try {
-      await duplicateProduct(product.id)
-      sileo.success({ title: "Exito", description: "Producto duplicado correctamente" })
-      handleClose()
-    } catch (err) {
-      sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo duplicar" })
-    }
-  }
-
   const handleArchive = async () => {
     if (!product) return
+    setActionLoading(true)
     try {
       await bulkAction({ action: "archive", ids: [product.id] })
       sileo.success({ title: "Exito", description: "Producto archivado correctamente" })
+      onActionChange?.()
       handleClose()
     } catch (err) {
       sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo archivar" })
+    } finally {
+      setActionLoading(false)
     }
   }
 
   const handleDelete = async () => {
     if (!product) return
+    setActionLoading(true)
     try {
       await deleteProduct(product.id)
       sileo.success({ title: "Exito", description: "Producto eliminado correctamente" })
+      onActionChange?.()
       handleClose()
     } catch (err) {
       sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo eliminar" })
+    } finally {
+      setActionLoading(false)
     }
   }
 
-  const copySlug = async () => {
+  const confirmMessages = {
+    archive: {
+      title: "Archivar producto",
+      desc: "El producto pasará a estado archivado y no será visible en la tienda. Podrás restaurarlo más adelante.",
+      icon: "archive",
+      color: "amber",
+    },
+    delete: {
+      title: "Eliminar producto",
+      desc: "Esta acción eliminará permanentemente el producto y todos sus datos asociados. No se puede deshacer.",
+      icon: "delete",
+      color: "red",
+    },
+  } as const;
+
     if (!product?.slug) return
     try {
       await navigator.clipboard.writeText(product.slug)
@@ -336,39 +349,48 @@ export function ProductDetailDrawer({ productId, onClose, onEdit }: ProductDetai
         {/* Footer */}
         {!loading && !error && product && (
           <div className="p-4 border-t border-white/5 bg-surface-container-lowest/90 backdrop-blur-xl space-y-3">
-            <div className="flex gap-2">
-              <button
-                onClick={() => onEdit(product)}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary/50"
-              >
-                <Icon name="pencil" className="text-sm" />
-                Editar Producto
-              </button>
-              <button
-                onClick={handleDuplicate}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 focus-visible:ring-2 focus-visible:ring-primary/50"
-                aria-label="Duplicar producto"
-              >
-                <Icon name="content-copy" className="text-sm" />
-                Duplicar
-              </button>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleArchive}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-surface-container-high text-on-surface-variant text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 focus-visible:ring-2 focus-visible:ring-primary/50"
-              >
-                <Icon name="archive" className="text-sm" />
-                Archivar
-              </button>
-              <button
-                onClick={handleDelete}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20 focus-visible:ring-2 focus-visible:ring-error/50"
-              >
-                <Icon name="delete" className="text-sm" />
-                Eliminar
-              </button>
-            </div>
+            <button
+              onClick={() => onEdit(product)}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary/50"
+            >
+              <Icon name="pencil" className="text-sm" />
+              Editar Producto
+            </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setConfirmAction("archive")}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-surface-container-high text-on-surface-variant text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 focus-visible:ring-2 focus-visible:ring-primary/50"
+                >
+                  <Icon name="archive" className="text-sm" />
+                  Archivar
+                </button>
+                <button
+                  onClick={() => setConfirmAction("delete")}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20 focus-visible:ring-2 focus-visible:ring-error/50"
+                >
+                  <Icon name="delete" className="text-sm" />
+                  Eliminar
+                </button>
+                {/* Confirmation Dialog */}
+                {confirmAction && (
+                  <ConfirmDialog
+                    open={!!confirmAction}
+                    onClose={() => setConfirmAction(null)}
+                    loading={actionLoading}
+                    title={confirmMessages[confirmAction].title}
+                    description={confirmMessages[confirmAction].desc}
+                    icon={confirmMessages[confirmAction].icon}
+                    color={confirmMessages[confirmAction].color}
+                    onConfirm={() => {
+                      if (confirmAction === "delete") {
+                        handleDelete()
+                      } else {
+                        handleArchive()
+                      }
+                    }}
+                  />
+                )}
+              </div>
           </div>
         )}
       </div>

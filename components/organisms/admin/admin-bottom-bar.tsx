@@ -10,7 +10,8 @@ const navItems = [
   { label: "Plataformas", icon: "television", href: "/admin/platforms" },
   { label: "Productos", icon: "shape", href: "/admin/products" },
   { label: "Inventario", icon: "package-variant", href: "/admin/inventory" },
-  { label: "Pedidos", icon: "cart", href: "/admin/orders" },
+  // { label: "Pedidos", icon: "cart", href: "/admin/orders" },
+  { label: "Ofertas", icon: "tag", href: "/admin/offers" },
   { label: "Clientes", icon: "account-group", href: "/admin/customers" },
 ]
 

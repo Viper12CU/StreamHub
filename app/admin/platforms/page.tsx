@@ -433,7 +433,7 @@ export default function PlatformsPage() {
         />
       )}
       {selectedPlatform && (
-        <PlatformDetailDrawer platformId={selectedPlatform} onClose={() => setSelectedPlatform(null)} onEdit={setEditingPlatform} inventoryCounts={inventoryCounts} />
+        <PlatformDetailDrawer platformId={selectedPlatform} onClose={() => setSelectedPlatform(null)} onEdit={setEditingPlatform} onRefresh={() => fetchPlatforms()} inventoryCounts={inventoryCounts} />
       )}
     </div>
   )
