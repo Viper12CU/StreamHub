@@ -1,3 +1,4 @@
+import { memo } from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Icon } from "@/components/atoms/icon"
@@ -10,11 +11,12 @@ interface AdminNavItemProps {
   collapsed?: boolean
 }
 
-export function AdminNavItem({ href, icon, label, isActive = false, collapsed = false }: AdminNavItemProps) {
+export const AdminNavItem = memo(function AdminNavItem({ href, icon, label, isActive = false, collapsed = false }: AdminNavItemProps) {
   return (
     <Link
       href={href}
       title={collapsed ? label : undefined}
+      aria-current={isActive ? "page" : undefined}
       className={cn(
         "flex items-center gap-6 rounded-lg transition-all duration-300",
         collapsed ? "justify-center px-0 py-3" : "px-4 py-3",
@@ -27,4 +29,4 @@ export function AdminNavItem({ href, icon, label, isActive = false, collapsed = 
       {!collapsed && <span className="text-xs font-semibold">{label}</span>}
     </Link>
   )
-}
+})

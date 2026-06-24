@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { StatusBadge } from "@/components/atoms/status-badge"
+import { orderStatusMap, platformColors } from "@/lib/constants/shared"
 
 interface Order {
   id: string
@@ -38,26 +39,7 @@ const orders: Order[] = [
   { id: "ORD-000473", orderNumber: "ORD-2026-000473", customerName: "Ana López", customerEmail: "ana.lopez@outlook.com", product: "Netflix Premium 4 Screens", platform: "Netflix", amount: 8.99, paymentMethod: "MLC", status: "refunded", createdDate: "Jun 3, 2026", lastUpdated: "3 días" },
 ]
 
-const platformColors: Record<string, string> = {
-  Netflix: "bg-primary-container",
-  Spotify: "bg-secondary",
-  "YouTube Premium": "bg-[#ff0000]",
-  "HBO Max": "bg-[#b829e3]",
-  "Disney+": "bg-tertiary",
-  Crunchyroll: "bg-[#f47521]",
-  IPTV: "bg-amber-500",
-}
-
-const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
-  pending: { label: "Pendiente", variant: "warning" },
-  payment_submitted: { label: "Pago Enviado", variant: "neutral" },
-  payment_review: { label: "Revisión de Pago", variant: "warning" },
-  approved: { label: "Aprobada", variant: "success" },
-  inventory_assigned: { label: "Inventario Asignado", variant: "success" },
-  delivered: { label: "Entregada", variant: "success" },
-  cancelled: { label: "Cancelada", variant: "error" },
-  refunded: { label: "Reembolsada", variant: "error" },
-}
+const statusMap = orderStatusMap
 
 const paymentMethodIcons: Record<string, string> = {
   Zelle: "Z",

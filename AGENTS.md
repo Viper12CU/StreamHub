@@ -31,7 +31,7 @@ Toda la web de la tienda. Layout independiente con Providers y branding.
 | `/web/account/settings` | `app/web/account/settings/page.tsx` |
 
 #### `/admin` — Panel de administración
-Redirige a `/admin/login`. Layout con sidebar colapsable y top bar.
+Redirige a `/admin/login`. Layout con sidebar colapsable, top bar y loading skeleton durante verificación de sesión.
 
 | Route | File |
 |---|---|
@@ -66,15 +66,15 @@ components/
 ```
 
 ### Admin components
-- `atoms/admin-nav-item.tsx` — Item de navegación con Material Symbols
-- `atoms/collapse-button.tsx` — Botón toggle sidebar colapsable
+- `atoms/admin-nav-item.tsx` — Item de navegación con Material Symbols (memoized, aria-current)
+- `atoms/collapse-button.tsx` — Botón toggle sidebar colapsable (aria-label, aria-expanded)
 - `atoms/icon.tsx` — Componente unificado de iconos (MDI + Material Symbols)
 - `atoms/metric-card.tsx` — KPI metric card con badge y descripción
 - `atoms/status-badge.tsx` — Badge de estado (success/error/warning/neutral)
 - `atoms/platform-icon.tsx` — Icono de plataforma con color
 - `atoms/empty-state.tsx` — Estado vacío para secciones del dashboard
 - `molecules/admin-logo.tsx` — Logo StreamHub Admin Portal
-- `molecules/admin-search-input.tsx` — Campo de búsqueda top bar
+- `molecules/admin-search-input.tsx` — Campo de búsqueda top bar (role="search", aria-label)
 - `molecules/admin-user-profile.tsx` — Perfil admin en top bar
 - `molecules/revenue-chart.tsx` — Gráfico de barras de ingresos (4 filtros)
 - `molecules/activity-table.tsx` — Tabla de órdenes recientes (10 filas, menú acciones)
@@ -82,7 +82,7 @@ components/
 - `molecules/verify-queue.tsx` — Cola de verificación de pagos (highlight >24h)
 - `molecules/inventory-status.tsx` — Estado de inventario (low stock warning)
 - `molecules/platform-mix.tsx` — Donut chart de plataformas (6 plataformas)
-- `molecules/shortcuts-panel.tsx` — Accesos rápidos (6 acciones)
+- `molecules/shortcuts-panel.tsx` — Accesos rápidos (6 acciones, Links a rutas admin)
 - `molecules/top-products.tsx` — Top 10 productos (plataforma + ingresos)
 - `molecules/customer-growth.tsx` — Gráfico de crecimiento de clientes
 - `molecules/recent-activity-feed.tsx` — Timeline de actividad reciente
@@ -160,11 +160,13 @@ lib/
   api/offers.ts        — API de ofertas (CRUD, deactivate, duplicate, addProduct, removeProduct, cache 30s)
   api/platforms.ts     — API de plataformas (CRUD, analytics, health, cache 30s)
   api/products.ts      — API de productos (CRUD, analytics, health, bulk, duplicate, cache 30s)
-  constants/products.ts — Constantes compartidas: statusMap, productTypeMap, productTypes, statusOptions, generateSlug, formatDate, formatDateFull, formatRelativeDate, getInventoryColor, safeToFixed
+  constants/shared.ts  — Constantes compartidas: statusMap (product/platform/customer/order/offer/inventory), productTypeMap, assetTypeLabels, platformCategories, platformColors, generateSlug, formatDate, formatRelativeDate, formatDateFull, getInitials, getRelativeDate, getMonthYear, getLetter, getInventoryColor
+  constants/products.ts — Re-exporta desde shared.ts + productTypes, statusOptions, safeToFixed (específicos de productos)
   axios.ts             — Instancia de axios configurada
   session-context.tsx  — Context de sesión (useSession, SessionProvider)
   utils.ts             — Utilidad cn() para classnames
 hooks/
+  use-debounce.ts      — Hook useDebounce<T>(value, delay) para debounce de valores (default 300ms)
   use-mobile.ts        — Hook para detectar dispositivo móvil
   use-platforms.ts     — Hook con cache de plataformas activas (usePlatforms)
 ```

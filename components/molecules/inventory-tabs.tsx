@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { cn } from "@/lib/utils"
 import { Icon } from "@/components/atoms/icon"
 
@@ -17,7 +18,7 @@ const defaultTabs = [
   { id: "packages", label: "Paquetes de Suscripción", icon: "package" },
 ]
 
-export function InventoryTabs({ activeTab, onTabChange, counts = {} }: InventoryTabsProps) {
+export const InventoryTabs = memo(function InventoryTabs({ activeTab, onTabChange, counts = {} }: InventoryTabsProps) {
   const tabs = defaultTabs.map((t) => ({ ...t, count: counts[t.id] ?? 0 }))
   return (
     <section className="glass rounded-xl border border-white/5 overflow-hidden">
@@ -48,4 +49,4 @@ export function InventoryTabs({ activeTab, onTabChange, counts = {} }: Inventory
       </div>
     </section>
   )
-}
+})

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { Icon } from "@/components/atoms/icon"
 import type { Offer } from "@/lib/api/offers"
+import { offerStatusMap } from "@/lib/constants/shared"
 
 interface OfferTableProps {
   offers: Offer[]
@@ -15,11 +16,7 @@ interface OfferTableProps {
   viewMode: "grid" | "table"
 }
 
-const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
-  active: { label: "Activa", variant: "success" },
-  inactive: { label: "Inactiva", variant: "warning" },
-  expired: { label: "Expirada", variant: "error" },
-}
+const statusMap = offerStatusMap
 
 const typeStyles: Record<string, { bg: string; text: string; icon: string; label: string }> = {
   discount: { bg: "bg-primary/15", text: "text-primary", icon: "percent", label: "Descuento" },

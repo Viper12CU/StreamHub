@@ -76,6 +76,8 @@ export function ActivityTable() {
                 <td className="py-3 text-right relative">
                   <button
                     onClick={() => setOpenMenu(openMenu === activity.id ? null : activity.id)}
+                    aria-label="Acciones de orden"
+                    aria-expanded={openMenu === activity.id}
                     className="text-on-surface-variant hover:text-on-surface"
                   >
                     <Icon name="dots-vertical" />

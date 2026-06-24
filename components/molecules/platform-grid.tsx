@@ -5,6 +5,7 @@ import { StatusBadge } from "@/components/atoms/status-badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Icon } from "@/components/atoms/icon"
 import type { PlatformWithMetrics } from "@/lib/api/platforms"
+import { platformStatusMap, getLetter, getMonthYear } from "@/lib/constants/shared"
 
 interface PlatformGridProps {
   activeTab: string
@@ -17,20 +18,7 @@ interface PlatformGridProps {
   inventoryCounts?: Record<string, number>
 }
 
-const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
-  active: { label: "Activa", variant: "success" },
-  inactive: { label: "Inactiva", variant: "warning" },
-  archived: { label: "Archivada", variant: "neutral" },
-}
-
-function getLetter(name: string) {
-  return name.charAt(0).toUpperCase()
-}
-
-function getMonthYear(dateStr: string) {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString("es-ES", { month: "short", year: "numeric" })
-}
+const statusMap = platformStatusMap
 
 function GridSkeleton() {
   return (

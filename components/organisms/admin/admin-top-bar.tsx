@@ -28,15 +28,13 @@ export function AdminTopBar({ collapsed }: AdminTopBarProps) {
 
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-4 mr-6">
-          <button className="p-2 text-on-surface-variant hover:bg-white/5 rounded-full transition-colors cursor-pointer active:scale-95">
+          <button aria-label="Notificaciones" className="p-2 text-on-surface-variant hover:bg-white/5 rounded-full transition-colors cursor-pointer active:scale-95">
             <Icon name="bell" size="xl" />
           </button>
-          <button className="p-2 text-on-surface-variant hover:bg-white/5 rounded-full transition-colors cursor-pointer active:scale-95">
-            <Link href="/admin/settings">
-              <Icon name="cog" size="xl" />
-            </Link>
-          </button>
-          <button className="p-2 text-on-surface-variant hover:bg-white/5 rounded-full transition-colors cursor-pointer active:scale-95">
+          <Link href="/admin/settings" aria-label="Configuración" className="p-2 text-on-surface-variant hover:bg-white/5 rounded-full transition-colors cursor-pointer active:scale-95 inline-flex items-center justify-center">
+            <Icon name="cog" size="xl" />
+          </Link>
+          <button aria-label="Ayuda" className="p-2 text-on-surface-variant hover:bg-white/5 rounded-full transition-colors cursor-pointer active:scale-95">
             <Icon name="help-circle" size="xl" />
           </button>
         </div>

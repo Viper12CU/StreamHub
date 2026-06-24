@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { Customer } from "@/lib/api/customers"
+import { customerStatusMap, getInitials, getRelativeDate, getMonthYear } from "@/lib/constants/shared"
 
 interface CustomerTableProps {
   activeTab: string
@@ -18,12 +19,7 @@ interface CustomerTableProps {
   onPageChange?: (page: number) => void
 }
 
-const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
-  active: { label: "Activo", variant: "success" },
-  vip: { label: "VIP", variant: "warning" },
-  inactive: { label: "Inactivo", variant: "neutral" },
-  suspended: { label: "Suspendido", variant: "error" },
-}
+const statusMap = customerStatusMap
 
 const avatarColors = [
   "bg-primary/20 text-primary",
@@ -33,27 +29,6 @@ const avatarColors = [
   "bg-purple-500/20 text-purple-400",
   "bg-green-500/20 text-green-400",
 ]
-
-function getInitials(name: string) {
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-}
-
-function getRelativeDate(dateStr: string | null) {
-  if (!dateStr) return "Nunca"
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const days = Math.floor(diff / 86400000)
-  if (days === 0) return "Hoy"
-  if (days === 1) return "Ayer"
-  if (days < 7) return `Hace ${days} días`
-  if (days < 30) return `Hace ${Math.floor(days / 7)} sem`
-  if (days < 365) return `Hace ${Math.floor(days / 30)} meses`
-  return `Hace ${Math.floor(days / 365)} años`
-}
-
-function getMonthYear(dateStr: string) {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString("es-ES", { month: "short", year: "numeric" })
-}
 
 function GridSkeleton() {
   return (

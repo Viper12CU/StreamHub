@@ -77,7 +77,7 @@ export function CreateCustomerModal({ onClose, onCreate }: CreateCustomerModalPr
             <h2 className="text-base font-semibold text-on-surface">Crear Cliente</h2>
             <p className="text-[10px] text-on-surface-variant mt-0.5">Paso {step + 1} de {steps.length}</p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
+          <button onClick={onClose} aria-label="Cerrar modal" className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
             <Icon name="close" className="text-sm" />
           </button>
         </div>
@@ -182,7 +182,7 @@ export function CreateCustomerModal({ onClose, onCreate }: CreateCustomerModalPr
                 <div>
                   <label className="text-[10px] text-on-surface-variant uppercase tracking-wider">Contraseña *</label>
                   <input
-                    type="text"
+                    type="password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     className="w-full mt-1 px-3 py-2.5 bg-surface-container-low border border-white/5 rounded-xl text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"

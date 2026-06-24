@@ -5,6 +5,7 @@ import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
 import { Icon } from "@/components/atoms/icon"
 import type { CreatePlatformInput } from "@/lib/api/platforms"
+import { platformCategories, generateSlug } from "@/lib/constants/shared"
 
 interface CreatePlatformModalProps {
   onClose: () => void
@@ -19,28 +20,7 @@ const steps = [
   { label: "Resumen", icon: "text-box" },
 ]
 
-const categories: { value: CreatePlatformInput["category"]; label: string }[] = [
-  { value: "streaming", label: "Streaming" },
-  { value: "musica", label: "Música" },
-  { value: "video", label: "Video" },
-  { value: "iptv", label: "IPTV" },
-  { value: "software", label: "Software" },
-  { value: "vpn", label: "VPN" },
-  { value: "ai_tools", label: "AI Tools" },
-  { value: "gaming", label: "Gaming" },
-  { value: "otro", label: "Otro" },
-]
-
-function generateSlug(name: string) {
-  return name
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-}
+const categories = platformCategories
 
 export function CreatePlatformModal({ onClose, onCreate }: CreatePlatformModalProps) {
   const [mounted, setMounted] = useState(false)

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { cn } from "@/lib/utils"
 import { Icon } from "@/components/atoms/icon"
+import { orderStatusMap } from "@/lib/constants/shared"
 
 interface OrderDetailDrawerProps {
   orderId: string
@@ -49,6 +50,8 @@ const orderData = {
   workflowStep: 5,
 }
 
+const statusMap = orderStatusMap
+
 const workflowSteps = [
   { label: "Orden Creada", icon: "receipt" },
   { label: "Pago Enviado", icon: "credit-card" },
@@ -58,20 +61,8 @@ const workflowSteps = [
   { label: "Completada", icon: "check-circle" },
 ]
 
-const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
-  pending: { label: "Pendiente", variant: "warning" },
-  payment_submitted: { label: "Pago Enviado", variant: "neutral" },
-  payment_review: { label: "Revisión de Pago", variant: "warning" },
-  approved: { label: "Aprobada", variant: "success" },
-  inventory_assigned: { label: "Inventario Asignado", variant: "success" },
-  delivered: { label: "Entregada", variant: "success" },
-  cancelled: { label: "Cancelada", variant: "error" },
-  refunded: { label: "Reembolsada", variant: "error" },
-}
-
 export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) {
   const [mounted, setMounted] = useState(false)
-  const [activeSection, setActiveSection] = useState("info")
   const [noteText, setNoteText] = useState(orderData.notes)
   const [showConfirmModal, setShowConfirmModal] = useState<string | null>(null)
 
@@ -80,6 +71,8 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
     document.body.style.overflow = "hidden"
     return () => { document.body.style.overflow = "" }
   }, [])
+
+  const displayOrderId = orderId || orderData.id
 
   const drawerContent = (
     <div className="fixed inset-0 flex justify-end" style={{ zIndex: 9999 }}>
@@ -92,7 +85,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
               <Icon name="receipt" className="text-primary text-sm" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-on-surface">{orderData.id}</h2>
+              <h2 className="text-base font-semibold text-on-surface">{displayOrderId}</h2>
               <p className="text-[10px] text-on-surface-variant">Creada: {orderData.createdDate}</p>
             </div>
           </div>
@@ -101,7 +94,7 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
               status={statusMap[orderData.status].label}
               variant={statusMap[orderData.status].variant}
             />
-            <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
+            <button onClick={onClose} aria-label="Cerrar detalle de orden" className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
               <Icon name="close" className="text-sm" />
             </button>
           </div>
@@ -332,17 +325,17 @@ export function OrderDetailDrawer({ orderId, onClose }: OrderDetailDrawerProps) 
               <Icon name="truck" className="text-sm" />
               Entregar Orden
             </button>
-            <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5">
+            <button aria-label="Editar orden" className="flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5">
               <Icon name="pencil" className="text-sm" />
               Editar
             </button>
           </div>
           <div className="flex gap-2">
-            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-500/10 text-amber-500 text-xs font-semibold rounded-xl hover:bg-amber-500/20 transition-colors border border-amber-500/20">
+            <button aria-label="Reembolsar orden" className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-500/10 text-amber-500 text-xs font-semibold rounded-xl hover:bg-amber-500/20 transition-colors border border-amber-500/20">
               <Icon name="undo" className="text-sm" />
               Reembolsar
             </button>
-            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20">
+            <button aria-label="Cancelar orden" className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20">
               <Icon name="cancel" className="text-sm" />
               Cancelar Orden
             </button>

@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { cn } from "@/lib/utils"
 import { Icon } from "@/components/atoms/icon"
 
@@ -22,7 +23,7 @@ const tabColors: Record<string, string> = {
   expired: "text-error",
 }
 
-export function OfferTabs({ activeTab, onTabChange, counts }: OfferTabsProps) {
+export const OfferTabs = memo(function OfferTabs({ activeTab, onTabChange, counts }: OfferTabsProps) {
   return (
     <section className="glass rounded-xl border border-white/5 overflow-hidden">
       <div className="flex overflow-x-auto custom-scrollbar">
@@ -63,4 +64,4 @@ export function OfferTabs({ activeTab, onTabChange, counts }: OfferTabsProps) {
       </div>
     </section>
   )
-}
+})

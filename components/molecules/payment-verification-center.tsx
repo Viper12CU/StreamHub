@@ -29,7 +29,7 @@ export function PaymentVerificationCenter() {
         </div>
         {pendingVerifications.some((o) => o.urgent) && (
           <span className="px-2 py-1 bg-error/10 text-error text-[10px] font-bold rounded-full animate-pulse">
-            {pendingVerifications.filter((o) => o.urgent).urgent ? pendingVerifications.filter((o) => o.urgent).length : 0} urgentes
+            {pendingVerifications.filter((o) => o.urgent).length} urgentes
           </span>
         )}
       </div>
@@ -73,15 +73,15 @@ export function PaymentVerificationCenter() {
               </div>
             </div>
             <div className="flex gap-2 mt-3">
-              <button className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-green-500/10 text-green-400 text-[10px] font-semibold rounded-lg hover:bg-green-500/20 transition-colors border border-green-500/20">
+              <button aria-label="Aprobar pago" className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-green-500/10 text-green-400 text-[10px] font-semibold rounded-lg hover:bg-green-500/20 transition-colors border border-green-500/20">
                 <Icon name="check" className="text-sm" />
                 Aprobar
               </button>
-              <button className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-error/10 text-error text-[10px] font-semibold rounded-lg hover:bg-error/20 transition-colors border border-error/20">
+              <button aria-label="Rechazar pago" className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-error/10 text-error text-[10px] font-semibold rounded-lg hover:bg-error/20 transition-colors border border-error/20">
                 <Icon name="close" className="text-sm" />
                 Rechazar
               </button>
-              <button className="flex items-center justify-center gap-1.5 px-3 py-2 bg-surface-container-high text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-white/5 transition-colors border border-white/5">
+              <button aria-label="Reenviar verificación" className="flex items-center justify-center gap-1.5 px-3 py-2 bg-surface-container-high text-on-surface-variant text-[10px] font-semibold rounded-lg hover:bg-white/5 transition-colors border border-white/5">
                 <Icon name="replay" className="text-sm" />
               </button>
             </div>

@@ -67,6 +67,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       <div className="mt-auto pt-4 border-t border-white/5">
         <button
           onClick={handleLogout}
+          aria-label="Cerrar sesión"
           title={collapsed ? "Logout" : undefined}
           className={cn(
             "flex items-center gap-6 text-on-surface-variant hover:text-error transition-colors rounded-lg w-full",

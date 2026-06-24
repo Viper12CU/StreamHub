@@ -15,6 +15,7 @@ import {
 } from "@/lib/api/offers"
 import { sileo } from "sileo"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { offerStatusMap } from "@/lib/constants/shared"
 
 interface OfferDetailDrawerProps {
   offerId: string
@@ -22,11 +23,7 @@ interface OfferDetailDrawerProps {
   onRefresh: () => void
 }
 
-const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
-  active: { label: "Activa", variant: "success" },
-  inactive: { label: "Inactiva", variant: "warning" },
-  expired: { label: "Expirada", variant: "error" },
-}
+const statusMap = offerStatusMap
 
 export function OfferDetailDrawer({ offerId, onClose, onRefresh }: OfferDetailDrawerProps) {
   const [mounted, setMounted] = useState(false)

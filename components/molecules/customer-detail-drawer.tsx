@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { getCustomerById, updateCustomer, clearCustomerCache, type CustomerDetail } from "@/lib/api/customers"
 import { sileo } from "sileo"
+import { customerStatusMap, orderStatusMap, getInitials, getRelativeDate } from "@/lib/constants/shared"
 
 interface CustomerDetailDrawerProps {
   customerId: string
@@ -15,19 +16,7 @@ interface CustomerDetailDrawerProps {
   onRefresh?: () => void
 }
 
-const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
-  active: { label: "Activo", variant: "success" },
-  vip: { label: "VIP", variant: "warning" },
-  inactive: { label: "Inactivo", variant: "neutral" },
-  suspended: { label: "Suspendido", variant: "error" },
-}
-
-const orderStatusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
-  delivered: { label: "Entregada", variant: "success" },
-  pending: { label: "Pendiente", variant: "warning" },
-  cancelled: { label: "Cancelada", variant: "error" },
-  active: { label: "Activa", variant: "success" },
-}
+const statusMap = customerStatusMap
 
 export function CustomerDetailDrawer({ customerId, onClose, onRefresh }: CustomerDetailDrawerProps) {
   const [mounted, setMounted] = useState(false)

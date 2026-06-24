@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { AdminSidebar } from "@/components/organisms/admin/admin-sidebar"
 import { AdminTopBar } from "@/components/organisms/admin/admin-top-bar"
@@ -8,6 +8,26 @@ import { AdminBottomBar } from "@/components/organisms/admin/admin-bottom-bar"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { getSession } from "@/lib/api/auth"
 import { sileo } from "sileo"
+
+function AdminLoadingSkeleton() {
+  return (
+    <div className="bg-background text-on-background min-h-screen flex">
+      <div className="fixed left-0 top-0 h-screen w-[72px] bg-surface-container border-r border-white/5 animate-pulse" />
+      <div className="flex-1 flex flex-col min-h-screen ml-[72px]">
+        <div className="fixed top-0 right-0 h-20 bg-surface/80 backdrop-blur-xl border-b border-white/10 w-[calc(100%-72px)] animate-pulse" />
+        <section className="mt-20 p-8 flex flex-col gap-6">
+          <div className="h-8 w-48 bg-surface-container-high rounded animate-pulse" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-28 bg-surface-container-high rounded-xl animate-pulse" />
+            ))}
+          </div>
+          <div className="h-64 bg-surface-container-high rounded-xl animate-pulse" />
+        </section>
+      </div>
+    </div>
+  )
+}
 
 export default function AdminLayout({
   children,
@@ -72,12 +92,14 @@ export default function AdminLayout({
     }
   }, [isLoading, isAuthenticated, isAdmin, isLoginPage, router])
 
+  const handleToggle = useCallback(() => setCollapsed((prev) => !prev), [])
+
   if (isLoginPage) {
     return <>{children}</>
   }
 
   if (isLoading || !isAuthenticated || !isAdmin) {
-    return null
+    return <AdminLoadingSkeleton />
   }
 
   if (isMobile) {
@@ -91,7 +113,7 @@ export default function AdminLayout({
           </section>
 
           <footer className="mt-auto p-6 text-center opacity-30">
-            <p className="text-xs">&copy; 2024 StreamHub Admin Portal. All rights reserved.</p>
+            <p className="text-xs">&copy; {new Date().getFullYear()} StreamHub Admin Portal. All rights reserved.</p>
           </footer>
         </main>
 
@@ -102,7 +124,7 @@ export default function AdminLayout({
 
   return (
     <div className="bg-background text-on-background min-h-screen flex">
-      <AdminSidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
+      <AdminSidebar collapsed={collapsed} onToggle={handleToggle} />
 
       <main className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${collapsed ? "ml-[72px]" : "ml-[280px]"}`}>
         <AdminTopBar collapsed={collapsed} />
@@ -112,7 +134,7 @@ export default function AdminLayout({
         </section>
 
         <footer className="mt-auto p-6 text-center opacity-30">
-          <p className="text-xs">&copy; 2024 StreamHub Admin Portal. All rights reserved.</p>
+          <p className="text-xs">&copy; {new Date().getFullYear()} StreamHub Admin Portal. All rights reserved.</p>
         </footer>
       </main>
     </div>

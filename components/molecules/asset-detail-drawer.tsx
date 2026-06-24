@@ -7,6 +7,7 @@ import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getInventoryItem, deleteInventoryItem, updateInventoryItem, clearInventoryCache, type InventoryWithDetails } from "@/lib/api/inventory"
 import { sileo } from "sileo"
+import { inventoryStatusMap, assetTypeLabels, formatDate } from "@/lib/constants/shared"
 
 interface AssetDetailDrawerProps {
   assetId: string
@@ -14,29 +15,7 @@ interface AssetDetailDrawerProps {
   onRefresh?: () => void
 }
 
-const statusMap: Record<string, { label: string; variant: "success" | "warning" | "neutral" | "error" }> = {
-  available: { label: "Disponible", variant: "success" },
-  reserved: { label: "Reservado", variant: "warning" },
-  assigned: { label: "Asignado", variant: "neutral" },
-  expired: { label: "Expirado", variant: "error" },
-  suspended: { label: "Suspendido", variant: "error" },
-}
-
-const assetTypeLabels: Record<string, string> = {
-  account: "Cuenta Completa",
-  profile: "Perfil Compartido",
-  code: "Código de Activación",
-  package: "Paquete de Suscripción",
-}
-
-function formatDate(dateStr: string | null) {
-  if (!dateStr) return "N/A"
-  try {
-    return new Date(dateStr).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })
-  } catch {
-    return "N/A"
-  }
-}
+const statusMap = inventoryStatusMap
 
 export function AssetDetailDrawer({ assetId, onClose, onRefresh }: AssetDetailDrawerProps) {
   const [mounted, setMounted] = useState(false)

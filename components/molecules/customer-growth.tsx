@@ -23,7 +23,7 @@ export function CustomerGrowth() {
     const maxVal = key === "count" ? maxCount : Math.max(...growth.map((g) => g.total), 1)
     return growth
       .map((g, i) => {
-        const x = (i / (growth.length - 1)) * 100
+        const x = growth.length === 1 ? 50 : (i / (growth.length - 1)) * 100
         const y = 100 - ((g[key] || 0) / maxVal) * 80
         return `${i === 0 ? "M" : "L"}${x},${y}`
       })

@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/atoms/status-badge"
 import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { InventoryWithDetails } from "@/lib/api/inventory"
+import { inventoryStatusMap, assetTypeLabels, formatDate } from "@/lib/constants/shared"
 
 interface InventoryTableProps {
   items: InventoryWithDetails[]
@@ -17,20 +18,7 @@ interface InventoryTableProps {
   onPageChange: (page: number) => void
 }
 
-const statusMap: Record<string, { label: string; variant: "success" | "warning" | "neutral" | "error" }> = {
-  available: { label: "Disponible", variant: "success" },
-  reserved: { label: "Reservado", variant: "warning" },
-  assigned: { label: "Asignado", variant: "neutral" },
-  expired: { label: "Expirado", variant: "error" },
-  suspended: { label: "Suspendido", variant: "error" },
-}
-
-const assetTypeLabels: Record<string, string> = {
-  account: "Cuenta Completa",
-  profile: "Perfil Compartido",
-  code: "Código de Activación",
-  package: "Paquete de Suscripción",
-}
+const statusMap = inventoryStatusMap
 
 function TableSkeleton() {
   return (
@@ -91,15 +79,6 @@ function getExpirationStyle(days: number | null) {
   if (days <= 7) return "text-error font-bold"
   if (days <= 15) return "text-amber-500 font-semibold"
   return "text-on-surface-variant"
-}
-
-function formatDate(dateStr: string | null) {
-  if (!dateStr) return "N/A"
-  try {
-    return new Date(dateStr).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })
-  } catch {
-    return "N/A"
-  }
 }
 
 export function InventoryTable({ items, loading, pagination, selectedAssets, onSelectAssets, onViewAsset, onPageChange }: InventoryTableProps) {

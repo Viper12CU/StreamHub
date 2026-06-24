@@ -19,6 +19,7 @@ import {
 } from "@/lib/api/platforms"
 import { getInventory, type InventoryWithDetails } from "@/lib/api/inventory"
 import { sileo } from "sileo"
+import { platformStatusMap, getLetter, formatDate } from "@/lib/constants/shared"
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 interface PlatformDetailDrawerProps {
@@ -29,11 +30,7 @@ interface PlatformDetailDrawerProps {
   inventoryCounts?: Record<string, number>
 }
 
-const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
-  active: { label: "Activa", variant: "success" },
-  inactive: { label: "Inactiva", variant: "warning" },
-  archived: { label: "Archivada", variant: "neutral" },
-}
+const statusMap = platformStatusMap
 
 function DrawerSkeleton() {
   return (

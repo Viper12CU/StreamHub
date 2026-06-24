@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { Icon } from "@/components/atoms/icon"
 import { cn } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -29,7 +30,7 @@ const tabColors: Record<string, string> = {
   suspended: "text-error",
 }
 
-export function CustomerTabs({ activeTab, onTabChange, counts, loading }: CustomerTabsProps) {
+export const CustomerTabs = memo(function CustomerTabs({ activeTab, onTabChange, counts, loading }: CustomerTabsProps) {
   if (loading) {
     return (
       <section className="glass rounded-xl border border-white/5 overflow-hidden p-1">
@@ -81,4 +82,4 @@ export function CustomerTabs({ activeTab, onTabChange, counts, loading }: Custom
       </div>
     </section>
   )
-}
+})

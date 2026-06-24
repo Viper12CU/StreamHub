@@ -52,14 +52,14 @@ function FilterSection({ title, icon, children }: FilterSectionProps) {
   )
 }
 
-const productTypeMap: Record<string, string> = {
+const productTypeLabelToApi: Record<string, string> = {
   "Cuenta Completa": "full_account",
   "Perfil Compartido": "shared_profile",
   "Código de Activación": "activation_code",
   "Paquete de Suscripción": "subscription_package",
 }
 
-const statusMap: Record<string, string> = {
+const statusLabelToApi: Record<string, string> = {
   "Activo": "active",
   "Borrador": "draft",
   "Archivado": "archived",
@@ -130,10 +130,10 @@ export function ProductFilters({ onToggle, isOpen, onFilterChange, onSortChange 
       }
     }
     if (activeFilters.type?.length) {
-      apiFilters.product_type = activeFilters.type.map((t) => productTypeMap[t] || t)
+      apiFilters.product_type = activeFilters.type.map((t) => productTypeLabelToApi[t] || t)
     }
     if (activeFilters.status?.length) {
-      apiFilters.status = activeFilters.status.map((s) => statusMap[s] || s)
+      apiFilters.status = activeFilters.status.map((s) => statusLabelToApi[s] || s)
     }
     if (activeFilters.inventory?.length) {
       apiFilters.inventory_status = activeFilters.inventory.map((i) => inventoryMap[i] || i)
