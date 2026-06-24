@@ -48,7 +48,7 @@ export function CreateAssetModal({ onClose, onCreated }: CreateAssetModalProps) 
   useEffect(() => {
     setMounted(true)
     document.body.style.overflow = "hidden"
-    getProducts({ limit: 100 }).then((res) => setProducts(res.data)).catch(() => {})
+    getProducts().then((res) => setProducts(res.data)).catch(() => {})
     return () => { document.body.style.overflow = "" }
   }, [])
 
@@ -113,7 +113,7 @@ export function CreateAssetModal({ onClose, onCreated }: CreateAssetModalProps) 
             <p className="text-[10px] text-on-surface-variant mt-0.5">Paso {step + 1} de {steps.length}</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
-            <Icon name="close" className="text-sm" />
+            <Icon name="close" />
           </button>
         </div>
 
@@ -128,10 +128,10 @@ export function CreateAssetModal({ onClose, onCreated }: CreateAssetModalProps) 
                     ? "bg-primary text-white shadow-lg shadow-primary/20"
                     : "bg-surface-container-high text-on-surface-variant"
                 )}>
-                  <Icon name={s.icon} className="text-[10px]" />
+                  <Icon name={s.icon} size="sm" />
                 </div>
                 <span className={cn(
-                  "text-[9px] font-semibold hidden sm:block",
+                  "text-[12px] font-semibold hidden sm:block",
                   i <= step ? "text-primary" : "text-on-surface-variant"
                 )}>
                   {s.label}

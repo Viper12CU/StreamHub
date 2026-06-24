@@ -213,7 +213,7 @@ export default function ProductsPage() {
             onClick={() => setShowCreateModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 focus-visible:ring-2 focus-visible:ring-primary/50"
           >
-            <Icon name="plus" className="text-sm" />
+            <Icon name="plus"/>
             Crear Producto
           </button>
           {/* <button
@@ -239,7 +239,7 @@ export default function ProductsPage() {
       <section className="glass p-4 rounded-xl border border-white/5">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <Icon name="magnify" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" />
+            <Icon name="magnify" className="absolute left-3 top-5 -translate-y-1/2 text-on-surface-variant" />
             <label htmlFor="product-search" className="sr-only">Buscar productos</label>
             <input
               id="product-search"
@@ -258,7 +258,7 @@ export default function ProductsPage() {
                 viewMode === "grid" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
-              <Icon name="view-grid" className="text-sm" />
+              <Icon name="view-grid" size="lg" />
               Grid
             </button>
             <button
@@ -268,7 +268,7 @@ export default function ProductsPage() {
                 viewMode === "table" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
-              <Icon name="table" className="text-sm" />
+              <Icon name="table" size="lg"/>
               Tabla
             </button>
           </div>

@@ -175,7 +175,7 @@ export function EditProductModal({ product, onClose, onUpdate }: EditProductModa
             className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors focus-visible:ring-2 focus-visible:ring-primary/50"
             aria-label="Cerrar modal"
           >
-            <Icon name="close" className="text-sm" />
+            <Icon name="close"/>
           </button>
         </div>
 
@@ -196,8 +196,8 @@ export function EditProductModal({ product, onClose, onUpdate }: EditProductModa
                     : "text-on-surface-variant hover:text-on-surface"
                 )}
               >
-                <Icon name={s.icon} className="text-xs" />
-                <span className="hidden sm:inline">{s.label}</span>
+                <Icon name={s.icon}  />
+                <span className="hidden text-[12px] sm:inline ">{s.label}</span>
               </button>
             ))}
           </div>

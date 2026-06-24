@@ -5,13 +5,14 @@ import { createPortal } from "react-dom"
 import { Icon } from "@/components/atoms/icon"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { cn } from "@/lib/utils"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { getCustomerById, updateCustomer, clearCustomerCache, type CustomerDetail } from "@/lib/api/customers"
 import { sileo } from "sileo"
 
 interface CustomerDetailDrawerProps {
   customerId: string
   onClose: () => void
+  onRefresh?: () => void
 }
 
 const statusMap: Record<string, { label: string; variant: "success" | "error" | "warning" | "neutral" }> = {
@@ -28,15 +29,42 @@ const orderStatusMap: Record<string, { label: string; variant: "success" | "erro
   active: { label: "Activa", variant: "success" },
 }
 
-export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDrawerProps) {
+export function CustomerDetailDrawer({ customerId, onClose, onRefresh }: CustomerDetailDrawerProps) {
   const [mounted, setMounted] = useState(false)
   const [customer, setCustomer] = useState<CustomerDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [noteText, setNoteText] = useState("")
-  const [showConfirmModal, setShowConfirmModal] = useState<string | null>(null)
+  const [confirmAction, setConfirmAction] = useState<"vip" | "suspended" | "reactivate" | "deactivate-vip" | null>(null)
+  const [actionLoading, setActionLoading] = useState(false)
   const [savingNotes, setSavingNotes] = useState(false)
-  const [updatingStatus, setUpdatingStatus] = useState(false)
+
+  const confirmMessages = {
+    vip: {
+      title: "Marcar como VIP",
+      desc: "¿Estás seguro de que deseas marcar este cliente como VIP? Tendrá acceso prioritario y trato preferencial.",
+      icon: "diamond",
+      color: "amber",
+    },
+    suspended: {
+      title: "Suspender Cliente",
+      desc: "¿Estás seguro de que deseas suspender este cliente? No podrá realizar compras ni acceder a servicios.",
+      icon: "account-off",
+      color: "red",
+    },
+    reactivate: {
+      title: "Reactivar Cliente",
+      desc: "¿Estás seguro de que deseas reactivar este cliente? Podrá realizar compras nuevamente.",
+      icon: "check-circle",
+      color: "green",
+    },
+    "deactivate-vip": {
+      title: "Quitar VIP",
+      desc: "¿Estás seguro de que deseas quitar el estado VIP a este cliente? Perderá los privilegios prioritarios.",
+      icon: "account-remove",
+      color: "amber",
+    },
+  }
 
   const fetchCustomer = useCallback(async () => {
     try {
@@ -94,17 +122,18 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
   const handleStatusChange = async (newStatus: "vip" | "suspended" | "active") => {
     if (!customer) return
     try {
-      setUpdatingStatus(true)
+      setActionLoading(true)
       await updateCustomer(customer.id, { status: newStatus })
       setCustomer({ ...customer, status: newStatus })
       clearCustomerCache()
       const labels = { vip: "marcado como VIP", suspended: "suspendido", active: "activado" }
       sileo.success({ title: "Estado actualizado", description: `Cliente ${labels[newStatus]} correctamente.` })
+      onRefresh?.()
     } catch {
       sileo.error({ title: "Error", description: "No se pudo actualizar el estado." })
     } finally {
-      setUpdatingStatus(false)
-      setShowConfirmModal(null)
+      setActionLoading(false)
+      setConfirmAction(null)
     }
   }
 
@@ -339,8 +368,8 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
           <div className="flex gap-2">
             {customer?.status === "vip" ? (
               <button
-                onClick={() => handleStatusChange("active")}
-                disabled={updatingStatus}
+                onClick={() => setConfirmAction("deactivate-vip")}
+                disabled={actionLoading}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 disabled:opacity-50"
               >
                 <Icon name="account-remove" className="text-sm" />
@@ -348,8 +377,8 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
               </button>
             ) : (
               <button
-                onClick={() => setShowConfirmModal("vip")}
-                disabled={updatingStatus || customer?.status === "suspended"}
+                onClick={() => setConfirmAction("vip")}
+                disabled={actionLoading || customer?.status === "suspended"}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-amber-500/10 text-amber-500 text-xs font-semibold rounded-xl hover:bg-amber-500/20 transition-colors border border-amber-500/20 disabled:opacity-50"
               >
                 <Icon name="diamond" className="text-sm" />
@@ -358,8 +387,8 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
             )}
             {customer?.status === "suspended" ? (
               <button
-                onClick={() => handleStatusChange("active")}
-                disabled={updatingStatus}
+                onClick={() => setConfirmAction("reactivate")}
+                disabled={actionLoading}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-green-500/10 text-green-400 text-xs font-semibold rounded-xl hover:bg-green-500/20 transition-colors border border-green-500/20 disabled:opacity-50"
               >
                 <Icon name="check-circle" className="text-sm" />
@@ -367,8 +396,8 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
               </button>
             ) : (
               <button
-                onClick={() => setShowConfirmModal("suspend")}
-                disabled={updatingStatus || customer?.status === "vip"}
+                onClick={() => setConfirmAction("suspended")}
+                disabled={actionLoading || customer?.status === "vip"}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20 disabled:opacity-50"
               >
                 <Icon name="block" className="text-sm" />
@@ -377,41 +406,27 @@ export function CustomerDetailDrawer({ customerId, onClose }: CustomerDetailDraw
             )}
           </div>
         </div>
-      </div>
 
-      {/* Confirmation Modal */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 10000 }}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirmModal(null)} />
-          <div className="relative glass rounded-2xl p-6 w-[400px] space-y-4">
-            <h3 className="text-sm font-semibold text-on-surface">Confirmar Acción</h3>
-            <p className="text-xs text-on-surface-variant">
-              {showConfirmModal === "vip"
-                ? "¿Estás seguro de que deseas marcar este cliente como VIP? Tendrá acceso prioritario."
-                : "¿Estás seguro de que deseas suspender este cliente? No podrá realizar compras."}
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowConfirmModal(null)}
-                className="flex-1 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => handleStatusChange(showConfirmModal === "vip" ? "vip" : "suspended")}
-                disabled={updatingStatus}
-                className={`flex-1 py-2.5 text-white text-xs font-semibold rounded-xl transition-colors shadow-lg disabled:opacity-50 ${
-                  showConfirmModal === "vip"
-                    ? "bg-amber-500 hover:bg-amber-600 shadow-amber-500/20"
-                    : "bg-error hover:bg-error/90 shadow-error/20"
-                }`}
-              >
-                {updatingStatus ? "Procesando..." : "Confirmar"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        {/* Confirmation Modal */}
+        {confirmAction && (
+          <ConfirmDialog
+            open={!!confirmAction}
+            onClose={() => setConfirmAction(null)}
+            onConfirm={() => {
+              if (confirmAction === "reactivate" || confirmAction === "deactivate-vip") {
+                handleStatusChange("active")
+              } else {
+                handleStatusChange(confirmAction)
+              }
+            }}
+            title={confirmMessages[confirmAction].title}
+            description={confirmMessages[confirmAction].desc}
+            icon={confirmMessages[confirmAction].icon}
+            color={confirmMessages[confirmAction].color}
+            loading={actionLoading}
+          />
+        )}
+      </div>
     </div>
   )
 

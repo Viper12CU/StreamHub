@@ -348,7 +348,11 @@ export default function CustomersPage() {
 
       {/* Modals & Drawers */}
       {selectedCustomer && (
-        <CustomerDetailDrawer customerId={selectedCustomer} onClose={() => setSelectedCustomer(null)} />
+        <CustomerDetailDrawer
+          customerId={selectedCustomer}
+          onClose={() => setSelectedCustomer(null)}
+          onRefresh={() => fetchCustomers()}
+        />
       )}
     </div>
   )

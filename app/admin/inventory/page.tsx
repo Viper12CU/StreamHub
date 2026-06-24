@@ -230,7 +230,7 @@ export default function InventoryPage() {
             onClick={() => setShowCreateModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
           >
-            <Icon name="plus" className="text-sm" />
+            <Icon name="plus"/>
             Agregar Inventario
           </button>
           {/* <button
@@ -254,7 +254,7 @@ export default function InventoryPage() {
       <section className="glass p-4 rounded-xl border border-white/5">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <Icon name="magnify" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" />
+            <Icon name="magnify" className="absolute left-3 top-5 -translate-y-1/2 text-on-surface-variant" />
             <input
               type="text"
               value={search}

@@ -52,7 +52,9 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
   const [error, setError] = useState<string | null>(null)
   const [product, setProduct] = useState<ProductWithDetails | null>(null)
   const [metrics, setMetrics] = useState<ProductMetrics | null>(null)
-  const [confirmAction, setConfirmAction] = useState<"archive" | "delete" | null>(null)
+  const drawerRef = useRef<HTMLDivElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const [confirmAction, setConfirmAction] = useState<"archive" | "activate" | "delete" | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
 
   const handleClose = useCallback(() => {
@@ -120,16 +122,25 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
     return () => { cancelled = true }
   }, [productId])
 
-  const handleArchive = async () => {
+  const handleStatusChange = async () => {
     if (!product) return
+    const action = product.status === "archived" ? "activate" : "archive"
     setActionLoading(true)
     try {
-      await bulkAction({ action: "archive", ids: [product.id] })
-      sileo.success({ title: "Exito", description: "Producto archivado correctamente" })
+      await bulkAction({ action, ids: [product.id] })
+      sileo.success({
+        title: "Exito",
+        description: action === "archive" ? "Producto archivado correctamente" : "Producto activado correctamente",
+      })
+      clearProductCache()
+      setConfirmAction(null)
       onActionChange?.()
       handleClose()
     } catch (err) {
-      sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo archivar" })
+      sileo.error({
+        title: "Error",
+        description: err instanceof Error ? err.message : action === "archive" ? "No se pudo archivar" : "No se pudo activar",
+      })
     } finally {
       setActionLoading(false)
     }
@@ -141,6 +152,8 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
     try {
       await deleteProduct(product.id)
       sileo.success({ title: "Exito", description: "Producto eliminado correctamente" })
+      clearProductCache()
+      setConfirmAction(null)
       onActionChange?.()
       handleClose()
     } catch (err) {
@@ -152,19 +165,26 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
 
   const confirmMessages = {
     archive: {
-      title: "Archivar producto",
-      desc: "El producto pasará a estado archivado y no será visible en la tienda. Podrás restaurarlo más adelante.",
+      title: "Archivar Producto",
+      desc: `¿Archivar "${product?.name}"? No estará visible en la tienda. Podrás restaurarlo más adelante.`,
       icon: "archive",
       color: "amber",
     },
+    activate: {
+      title: "Activar Producto",
+      desc: `¿Activar "${product?.name}"? Será visible y disponible para venta.`,
+      icon: "check-circle",
+      color: "green",
+    },
     delete: {
-      title: "Eliminar producto",
-      desc: "Esta acción eliminará permanentemente el producto y todos sus datos asociados. No se puede deshacer.",
+      title: "Eliminar Producto",
+      desc: `¿Eliminar "${product?.name}" permanentemente? Esta acción no se puede deshacer.`,
       icon: "delete",
       color: "red",
     },
-  } as const;
+  }
 
+  const copySlug = async () => {
     if (!product?.slug) return
     try {
       await navigator.clipboard.writeText(product.slug)
@@ -356,42 +376,46 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
               <Icon name="pencil" className="text-sm" />
               Editar Producto
             </button>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setConfirmAction("archive")}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-surface-container-high text-on-surface-variant text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 focus-visible:ring-2 focus-visible:ring-primary/50"
-                >
-                  <Icon name="archive" className="text-sm" />
-                  Archivar
-                </button>
-                <button
-                  onClick={() => setConfirmAction("delete")}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20 focus-visible:ring-2 focus-visible:ring-error/50"
-                >
-                  <Icon name="delete" className="text-sm" />
-                  Eliminar
-                </button>
-                {/* Confirmation Dialog */}
-                {confirmAction && (
-                  <ConfirmDialog
-                    open={!!confirmAction}
-                    onClose={() => setConfirmAction(null)}
-                    loading={actionLoading}
-                    title={confirmMessages[confirmAction].title}
-                    description={confirmMessages[confirmAction].desc}
-                    icon={confirmMessages[confirmAction].icon}
-                    color={confirmMessages[confirmAction].color}
-                    onConfirm={() => {
-                      if (confirmAction === "delete") {
-                        handleDelete()
-                      } else {
-                        handleArchive()
-                      }
-                    }}
-                  />
-                )}
-              </div>
+            <div className="flex gap-2">
+              <button
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-xl transition-colors border ${
+                  product.status === "archived"
+                    ? "bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20"
+                    : "bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/20"
+                }`}
+                onClick={() => setConfirmAction(product.status === "archived" ? "activate" : "archive")}
+              >
+                <Icon name={product.status === "archived" ? "check-circle" : "archive"} className="text-sm" />
+                {product.status === "archived" ? "Activar" : "Archivar"}
+              </button>
+              <button
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-error/10 text-error text-xs font-semibold rounded-xl hover:bg-error/20 transition-colors border border-error/20 focus-visible:ring-2 focus-visible:ring-error/50"
+                onClick={() => setConfirmAction("delete")}
+              >
+                <Icon name="delete" className="text-sm" />
+                Eliminar
+              </button>
+            </div>
           </div>
+        )}
+
+        {confirmAction && (
+          <ConfirmDialog
+            open={!!confirmAction}
+            onClose={() => setConfirmAction(null)}
+            onConfirm={() => {
+              if (confirmAction === "delete") {
+                handleDelete()
+              } else {
+                handleStatusChange()
+              }
+            }}
+            title={confirmMessages[confirmAction].title}
+            description={confirmMessages[confirmAction].desc}
+            icon={confirmMessages[confirmAction].icon}
+            color={confirmMessages[confirmAction].color}
+            loading={actionLoading}
+          />
         )}
       </div>
     </div>

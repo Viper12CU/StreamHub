@@ -14,6 +14,7 @@ import {
   type OfferWithProducts,
 } from "@/lib/api/offers"
 import { sileo } from "sileo"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 interface OfferDetailDrawerProps {
   offerId: string
@@ -85,6 +86,7 @@ export function OfferDetailDrawer({ offerId, onClose, onRefresh }: OfferDetailDr
       await deleteOffer(offer.id)
       sileo.success({ title: "Éxito", description: "Oferta eliminada" })
       clearOfferCache()
+      setConfirmAction(null)
       onRefresh()
       onClose()
     } catch (err) {
@@ -100,9 +102,24 @@ export function OfferDetailDrawer({ offerId, onClose, onRefresh }: OfferDetailDr
   ]
 
   const confirmMessages = {
-    activate: { title: "Activar Oferta", desc: "¿Estás seguro de que deseas activar esta oferta? Estará visible para los clientes.", icon: "check-circle", color: "green" },
-    deactivate: { title: "Desactivar Oferta", desc: "¿Estás seguro de que deseas desactivar esta oferta? No será visible para los clientes.", icon: "pause", color: "amber" },
-    delete: { title: "Eliminar Oferta", desc: "¿Estás seguro de que deseas eliminar esta oferta permanentemente? Esta acción no se puede deshacer.", icon: "delete", color: "red" },
+    activate: {
+      title: "Activar Oferta",
+      desc: `¿Activar "${offer?.title}"? Será visible para los clientes.`,
+      icon: "check-circle",
+      color: "green",
+    },
+    deactivate: {
+      title: "Desactivar Oferta",
+      desc: `¿Desactivar "${offer?.title}"? No será visible para los clientes.`,
+      icon: "pause",
+      color: "amber",
+    },
+    delete: {
+      title: "Eliminar Oferta",
+      desc: `¿Eliminar "${offer?.title}" permanentemente? Esta acción no se puede deshacer.`,
+      icon: "delete",
+      color: "red",
+    },
   }
 
   const drawerContent = (
@@ -341,65 +358,26 @@ export function OfferDetailDrawer({ offerId, onClose, onRefresh }: OfferDetailDr
             </div>
           </div>
         )}
-      </div>
 
-      {/* Confirmation Dialog */}
-      {confirmAction && (
-        <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 10000 }}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmAction(null)} />
-          <div className="relative glass rounded-2xl w-[420px] p-6 animate-in fade-in zoom-in-95 duration-200">
-            <div className={cn(
-              "w-12 h-12 rounded-xl flex items-center justify-center mb-4",
-              confirmMessages[confirmAction].color === "green" && "bg-green-500/10",
-              confirmMessages[confirmAction].color === "amber" && "bg-amber-500/10",
-              confirmMessages[confirmAction].color === "red" && "bg-error/10",
-            )}>
-              <Icon
-                name={confirmMessages[confirmAction].icon}
-                className={cn(
-                  "text-xl",
-                  confirmMessages[confirmAction].color === "green" && "text-green-400",
-                  confirmMessages[confirmAction].color === "amber" && "text-amber-500",
-                  confirmMessages[confirmAction].color === "red" && "text-error",
-                )}
-              />
-            </div>
-            <h3 className="text-base font-semibold text-on-surface mb-2">{confirmMessages[confirmAction].title}</h3>
-            <p className="text-xs text-on-surface-variant leading-relaxed">{confirmMessages[confirmAction].desc}</p>
-            <div className="flex gap-2 mt-6">
-              <button
-                onClick={() => setConfirmAction(null)}
-                disabled={actionLoading}
-                className="flex-1 py-2.5 bg-surface-container-high text-on-surface text-xs font-semibold rounded-xl hover:bg-surface-container-low transition-colors border border-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => {
-                  if (confirmAction === "delete") handleDelete()
-                  else handleStatusChange()
-                }}
-                disabled={actionLoading}
-                className={cn(
-                  "flex-1 py-2.5 text-xs font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-                  confirmMessages[confirmAction].color === "green" && "bg-green-500 text-white hover:bg-green-500/90",
-                  confirmMessages[confirmAction].color === "amber" && "bg-amber-500 text-white hover:bg-amber-500/90",
-                  confirmMessages[confirmAction].color === "red" && "bg-error text-white hover:bg-error/90",
-                )}
-              >
-                {actionLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Icon name="loading" className="text-sm animate-spin" />
-                    Procesando...
-                  </span>
-                ) : (
-                  "Confirmar"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        {confirmAction && (
+          <ConfirmDialog
+            open={!!confirmAction}
+            onClose={() => setConfirmAction(null)}
+            onConfirm={() => {
+              if (confirmAction === "delete") {
+                handleDelete()
+              } else {
+                handleStatusChange()
+              }
+            }}
+            title={confirmMessages[confirmAction].title}
+            description={confirmMessages[confirmAction].desc}
+            icon={confirmMessages[confirmAction].icon}
+            color={confirmMessages[confirmAction].color}
+            loading={actionLoading}
+          />
+        )}
+      </div>
     </div>
   )
 

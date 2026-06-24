@@ -158,7 +158,7 @@ export function CreateOfferModal({ onClose, onCreate }: CreateOfferModalProps) {
             <p className="text-[10px] text-on-surface-variant mt-0.5">Paso {step + 1} de {steps.length}</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors">
-            <Icon name="close" className="text-sm" />
+            <Icon name="close"/>
           </button>
         </div>
 
@@ -173,10 +173,10 @@ export function CreateOfferModal({ onClose, onCreate }: CreateOfferModalProps) {
                     ? "bg-primary text-white shadow-lg shadow-primary/20"
                     : "bg-surface-container-high text-on-surface-variant"
                 )}>
-                  <Icon name={s.icon} className="text-[10px]" />
+                  <Icon name={s.icon} size="sm" />
                 </div>
                 <span className={cn(
-                  "text-[9px] font-semibold hidden sm:block",
+                  "text-[12px] font-semibold hidden sm:block",
                   i <= step ? "text-primary" : "text-on-surface-variant"
                 )}>
                   {s.label}
