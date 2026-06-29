@@ -6,12 +6,14 @@ import { cn } from "@/lib/utils"
 import { Icon } from "@/components/atoms/icon"
 import { usePlatforms } from "@/hooks/use-platforms"
 import { productTypes, generateSlug } from "@/lib/constants/products"
+import { uploadProductImage } from "@/lib/api/products"
 import FileUpload from "@/components/molecules/file-upload"
-import type { CreateProductInput, ProductType, ProductStatus } from "@/lib/api/products"
+import type { CreateProductInput, ProductType, ProductStatus, Product } from "@/lib/api/products"
+import { sileo } from "sileo"
 
 interface CreateProductModalProps {
   onClose: () => void
-  onCreate: (data: CreateProductInput) => Promise<void>
+  onCreate: (data: CreateProductInput) => Promise<Product>
 }
 
 const steps = [
@@ -72,15 +74,7 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
     if (!formData.name || !formData.platform_id || !formData.product_type || !formData.price_sale) return
     try {
       setLoading(true)
-      let thumbnail: string | undefined
-      if (formData.image) {
-        thumbnail = await new Promise<string>((resolve) => {
-          const reader = new FileReader()
-          reader.onloadend = () => resolve(reader.result as string)
-          reader.readAsDataURL(formData.image!)
-        })
-      }
-      await onCreate({
+      const created = await onCreate({
         name: formData.name,
         slug: formData.slug || undefined,
         description: formData.description || undefined,
@@ -89,13 +83,21 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
         price_sale: parseFloat(formData.price_sale),
         price_cost: formData.price_cost ? parseFloat(formData.price_cost) : undefined,
         currency: formData.currency,
-        thumbnail,
         stock_initial: formData.stock_initial ? parseInt(formData.stock_initial) : undefined,
         low_stock_threshold: parseInt(formData.low_stock_threshold),
         status: formData.status,
       })
-    } catch {
-      // Error handled by parent
+      if (formData.image && created?.id) {
+        try {
+          await uploadProductImage(created.id, formData.image)
+        } catch (imgErr) {
+          console.error("[CreateProduct] Image upload failed:", imgErr)
+          sileo.warning({ title: "Producto creado", description: "El producto se creó pero no se pudo subir la imagen. Puedes subirla desde la tabla." })
+        }
+      }
+    } catch (err) {
+      console.error("[CreateProduct] Error:", err)
+      sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo crear el producto" })
     } finally {
       setLoading(false)
     }

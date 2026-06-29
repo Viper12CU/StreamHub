@@ -6,7 +6,7 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  if (config.data !== undefined && config.data !== null) {
+  if (config.data !== undefined && config.data !== null && !(config.data instanceof FormData)) {
     config.headers["Content-Type"] = "application/json";
   }
   return config;

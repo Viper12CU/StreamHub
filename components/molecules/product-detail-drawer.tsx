@@ -5,9 +5,10 @@ import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { Icon } from "@/components/atoms/icon"
+import FileUpload from "@/components/molecules/file-upload"
 import { Skeleton } from "@/components/ui/skeleton"
 import { statusMap, productTypeMap, formatDateFull } from "@/lib/constants/products"
-import { getProductById, getProductMetrics, deleteProduct, bulkAction, clearProductCache, type ProductWithDetails, type ProductMetrics } from "@/lib/api/products"
+import { getProductById, getProductMetrics, deleteProduct, bulkAction, uploadProductImage, deleteProductImage, clearProductCache, type ProductWithDetails, type ProductMetrics } from "@/lib/api/products"
 import { sileo } from "sileo"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
@@ -56,11 +57,22 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
   const closeRef = useRef<HTMLButtonElement>(null)
   const [confirmAction, setConfirmAction] = useState<"archive" | "activate" | "delete" | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
+  const [imageLoading, setImageLoading] = useState(true)
+  const [imageError, setImageError] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const previewOpenRef = useRef(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [confirmDeleteImage, setConfirmDeleteImage] = useState(false)
+  const [confirmEditImage, setConfirmEditImage] = useState(false)
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null)
+  const [imageActionLoading, setImageActionLoading] = useState(false)
 
   const handleClose = useCallback(() => {
     setClosing(true)
     setTimeout(() => onClose(), 200)
   }, [onClose])
+
+  useEffect(() => { previewOpenRef.current = previewOpen }, [previewOpen])
 
   useEffect(() => {
     setMounted(true)
@@ -68,7 +80,10 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
     setTimeout(() => closeRef.current?.focus(), 100)
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose()
+      if (e.key === "Escape") {
+        if (previewOpenRef.current) { setPreviewOpen(false); return }
+        handleClose()
+      }
       if (e.key === "Tab" && drawerRef.current) {
         const focusable = drawerRef.current.querySelectorAll<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -108,6 +123,9 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
         if (!cancelled) {
           setProduct(productData)
           setMetrics(metricsData)
+          setImageLoading(true)
+          setImageError(false)
+          setPreviewOpen(false)
         }
       } catch (err) {
         if (!cancelled) {
@@ -194,6 +212,52 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
     }
   }
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setPendingImageFile(file)
+    setConfirmEditImage(true)
+    e.target.value = ""
+  }
+
+  const handleUploadImage = async () => {
+    if (!product || !pendingImageFile) return
+    setImageActionLoading(true)
+    try {
+      const updated = await uploadProductImage(product.id, pendingImageFile)
+      setProduct(prev => prev ? { ...prev, image_url: updated.image_url } : prev)
+      setImageLoading(true)
+      setImageError(false)
+      sileo.success({ title: "Exito", description: "Imagen del producto actualizada" })
+      setConfirmEditImage(false)
+      setPendingImageFile(null)
+      clearProductCache()
+      onActionChange?.()
+    } catch (err) {
+      sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo subir la imagen" })
+    } finally {
+      setImageActionLoading(false)
+    }
+  }
+
+  const handleDeleteImage = async () => {
+    if (!product) return
+    setImageActionLoading(true)
+    try {
+      await deleteProductImage(product.id)
+      setProduct(prev => prev ? { ...prev, image_url: null } : prev)
+      setPreviewOpen(false)
+      sileo.success({ title: "Exito", description: "Imagen eliminada correctamente" })
+      setConfirmDeleteImage(false)
+      clearProductCache()
+      onActionChange?.()
+    } catch (err) {
+      sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo eliminar la imagen" })
+    } finally {
+      setImageActionLoading(false)
+    }
+  }
+
   const drawerContent = (
     <div
       className={`fixed inset-0 flex justify-end transition-opacity duration-200 ${closing ? "opacity-0" : "opacity-100"}`}
@@ -245,6 +309,107 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
             </div>
           ) : product ? (
             <div className="p-5 space-y-5">
+              {/* Product Image */}
+              {(product.image_url || product.thumbnail) ? (
+                <div
+                  className="group relative w-full aspect-video rounded-xl overflow-hidden bg-surface-container-low border border-white/5 cursor-pointer"
+                  onClick={() => !imageError && setPreviewOpen(true)}
+                >
+                  {imageLoading && (
+                    <Skeleton className="absolute inset-0 w-full h-full" />
+                  )}
+                  {imageError ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-on-surface-variant">
+                      <Icon name="image-off" className="text-2xl opacity-40" />
+                      <p className="text-[10px] uppercase tracking-wider opacity-60">Error al cargar imagen</p>
+                    </div>
+                  ) : (
+                    <>
+                      <img
+                        src={product.image_url || product.thumbnail || ""}
+                        alt={product.name}
+                        className={`w-full h-full object-cover transition-all duration-300 ${imageLoading ? "opacity-0" : "opacity-100"} group-hover:blur-sm group-hover:scale-105`}
+                        onLoad={() => setImageLoading(false)}
+                        onError={() => { setImageLoading(false); setImageError(true) }}
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100 w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
+                          <Icon name="eye" className="text-lg text-white" />
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="w-full aspect-video rounded-xl bg-surface-container-low border border-white/5 p-3 ">
+                  <FileUpload
+                    maxFiles={1}
+                    maxFileSize="5MB"
+                    acceptedTypes={["image/jpeg", "image/png", "image/webp"]}
+                    className="!h-full [&_.filepond--panel]:!min-h-0 [&_.filepond--panel]:!h-full [&_.filepond--height]:!h-full"
+                    labelIdle='<span style="font-size:13px">Arrastra la imagen o <span class="filepond--label-action">examina</span></span>'
+                    onFilesChange={(files) => {
+                      if (files.length > 0) {
+                        setPendingImageFile(files[0])
+                        setConfirmEditImage(true)
+                      }
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Image Preview Modal */}
+              {previewOpen && (product.image_url || product.thumbnail) && (
+                <div
+                  className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+                  onClick={() => setPreviewOpen(false)}
+                >
+                  {/* Top bar */}
+                  <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 bg-gradient-to-b from-black/60 to-transparent">
+                    <p className="text-sm text-white/70 font-medium truncate max-w-[60%]">{product.name}</p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click() }}
+                        className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-blue-500/30 transition-colors border border-white/20 focus-visible:ring-2 focus-visible:ring-white/50"
+                        aria-label="Editar imagen"
+                        title="Cambiar imagen"
+                      >
+                        <Icon name="pencil" className="text-lg" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setConfirmDeleteImage(true) }}
+                        className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-error/30 transition-colors border border-white/20 focus-visible:ring-2 focus-visible:ring-white/50"
+                        aria-label="Eliminar imagen"
+                        title="Eliminar imagen"
+                      >
+                        <Icon name="delete" className="text-lg" />
+                      </button>
+                      <button
+                        onClick={() => setPreviewOpen(false)}
+                        className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-colors border border-white/20 focus-visible:ring-2 focus-visible:ring-white/50"
+                        aria-label="Cerrar vista previa"
+                      >
+                        <Icon name="close" className="text-lg" />
+                      </button>
+                    </div>
+                  </div>
+                  <img
+                    src={product.image_url || product.thumbnail || ""}
+                    alt={product.name}
+                    className="max-w-[90vw] max-h-[85vh] object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-200"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileSelect}
+              />
+
               {/* Product Header */}
               <div className="flex items-start gap-4">
                 <div
@@ -415,6 +580,32 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
             icon={confirmMessages[confirmAction].icon}
             color={confirmMessages[confirmAction].color}
             loading={actionLoading}
+          />
+        )}
+
+        {confirmEditImage && (
+          <ConfirmDialog
+            open={confirmEditImage}
+            onClose={() => { setConfirmEditImage(false); setPendingImageFile(null) }}
+            onConfirm={handleUploadImage}
+            title="Cambiar Imagen"
+            description={`¿Actualizar la imagen de "${product?.name}"? La imagen anterior será reemplazada permanentemente.`}
+            icon="image"
+            color="blue"
+            loading={imageActionLoading}
+          />
+        )}
+
+        {confirmDeleteImage && (
+          <ConfirmDialog
+            open={confirmDeleteImage}
+            onClose={() => setConfirmDeleteImage(false)}
+            onConfirm={handleDeleteImage}
+            title="Eliminar Imagen"
+            description={`¿Eliminar la imagen de "${product?.name}"? El producto no tendrá imagen hasta que subas una nueva.`}
+            icon="delete"
+            color="red"
+            loading={imageActionLoading}
           />
         )}
       </div>

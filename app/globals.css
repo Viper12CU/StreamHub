@@ -296,3 +296,96 @@
   0% { transform: translateX(-100%); }
   100% { transform: translateX(200%); }
 }
+
+/* ── FilePond dark theme ─────────────────────────────────── */
+.filepond-wrapper {
+  --filepond--background: transparent;
+  --filepond--border-color: rgba(255, 255, 255, 0.08);
+  --filepond--border-color-active: rgba(229, 9, 20, 0.5);
+  --filepond--color-background: rgba(255, 255, 255, 0.03);
+  --filepond--color-background-item-panel: rgba(255, 255, 255, 0.05);
+  --filepond--color-item-panel-corner: rgba(255, 255, 255, 0.08);
+
+  --filepond--color-label-text: rgba(255, 255, 255, 0.5);
+  --filepond--color-label-text-item-panel: rgba(255, 255, 255, 0.6);
+  --filepond--color-label-action: #e50914;
+  --filepond--color-label-action-hover: #ff1a25;
+
+  --filepond--color-progress-indicator-bar: #e50914;
+  --filepond--color-progress-indicator-track: rgba(255, 255, 255, 0.08);
+
+  --filepond--color-badge-background: #e50914;
+  --filepond--color-badge-text-color: #ffffff;
+
+  --filepond--color-image-background: rgba(255, 255, 255, 0.05);
+  --filepond--color-image-background-item-panel: transparent;
+
+  --filepond--font-family: inherit;
+  --filepond--panel-border-radius: 12px;
+  --filepond--height: 120px;
+  --filepond--panel-border: 2px dashed rgba(255, 255, 255, 0.1);
+
+  --filepond--image-preview-max-height: 100px;
+}
+
+.filepond-wrapper .filepond--panel {
+  background: var(--filepond--color-background) !important;
+  border: var(--filepond--panel-border) !important;
+  border-radius: var(--filepond--panel-border-radius) !important;
+}
+
+.filepond-wrapper .filepond--drip {
+  background: rgba(229, 9, 20, 0.05) !important;
+  border-color: rgba(229, 9, 20, 0.4) !important;
+}
+
+.filepond-wrapper .filepond--label-center {
+  color: var(--filepond--color-label-text) !important;
+}
+
+.filepond-wrapper .filepond--label-action {
+  color: var(--filepond--color-label-action) !important;
+}
+
+.filepond-wrapper .filepond--label-action:hover {
+  color: var(--filepond--color-label-action-hover) !important;
+}
+
+.filepond-wrapper .filepond--file {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px !important;
+}
+
+.filepond-wrapper .filepond--file--allow-image-drag {
+  border-color: rgba(229, 9, 20, 0.4) !important;
+}
+
+.filepond-wrapper .filepond--image-preview {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.filepond-wrapper .filepond--item {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px !important;
+}
+
+.filepond-wrapper .filepond--progress-indicator {
+  background: var(--filepond--color-progress-indicator-bar) !important;
+}
+
+.filepond-wrapper .filepond--progress-indicator-element {
+  border-radius: 2px !important;
+}
+
+.filepond-wrapper .filepond--file-action-remove {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.filepond-wrapper .filepond--file-action-retry {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.filepond-wrapper .filepond--file-action-reload {
+  color: rgba(255, 255, 255, 0.4) !important;
+}

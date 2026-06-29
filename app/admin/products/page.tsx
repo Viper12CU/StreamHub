@@ -18,6 +18,7 @@ import {
   createProduct,
   bulkAction,
   clearProductCache,
+  type Product,
   type ProductWithDetails,
   type ProductFilters as ProductFiltersType,
   type ProductAnalytics as ProductAnalyticsType,
@@ -140,19 +141,14 @@ export default function ProductsPage() {
     fetchProducts()
   }, [filters, search, sortBy, fetchProducts])
 
-  const handleCreateProduct = useCallback(async (data: CreateProductInput) => {
-    try {
-      console.log(data);
-      await createProduct(data)
-      sileo.success({ title: "Exito", description: "Producto creado correctamente" })
-      setShowCreateModal(false)
-      clearProductCache()
-      fetchProducts()
-      fetchCounts()
-    } catch (err) {
-      sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo crear el producto" })
-      throw err
-    }
+  const handleCreateProduct = useCallback(async (data: CreateProductInput): Promise<Product> => {
+    const created = await createProduct(data)
+    sileo.success({ title: "Exito", description: "Producto creado correctamente" })
+    setShowCreateModal(false)
+    clearProductCache()
+    fetchProducts()
+    fetchCounts()
+    return created
   }, [fetchProducts, fetchCounts])
 
   const handleProductUpdate = useCallback(() => {

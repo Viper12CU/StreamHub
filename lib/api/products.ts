@@ -47,6 +47,7 @@ export interface Product {
   price_cost: number | null;
   currency: string;
   thumbnail: string | null;
+  image_url: string | null;
   stock_initial: number;
   low_stock_threshold: number;
   status: ProductStatus;
@@ -291,6 +292,29 @@ export async function duplicateProduct(id: string): Promise<Product> {
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "duplicar producto"));
+  }
+}
+
+export async function uploadProductImage(id: string, file: File): Promise<Product> {
+  try {
+    const formData = new FormData()
+    formData.append("image", file)
+    const response = await apiClient.post(`/products/${id}/image`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    clearProductCache()
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error as AxiosError, "subir imagen del producto"));
+  }
+}
+
+export async function deleteProductImage(id: string): Promise<void> {
+  try {
+    await apiClient.delete(`/products/${id}/image`);
+    clearProductCache()
+  } catch (error) {
+    throw new Error(getErrorMessage(error as AxiosError, "eliminar imagen del producto"));
   }
 }
 

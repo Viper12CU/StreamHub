@@ -64,6 +64,7 @@ export function ConfirmDialog({
             color === "green" && "bg-green-500/10",
             color === "amber" && "bg-amber-500/10",
             color === "red" && "bg-red-500/10",
+            color === "blue" && "bg-blue-500/10",
           )}
         >
           <Icon
@@ -73,6 +74,7 @@ export function ConfirmDialog({
               color === "green" && "text-green-400",
               color === "amber" && "text-amber-500",
               color === "red" && "text-red-500",
+              color === "blue" && "text-blue-500",
             )}
           />
         </div>
@@ -96,6 +98,7 @@ export function ConfirmDialog({
               color === "green" && "bg-green-500 text-white hover:bg-green-500/90",
               color === "amber" && "bg-amber-500 text-white hover:bg-amber-500/90",
               color === "red" && "bg-red-500 text-white hover:bg-red-500/90",
+              color === "blue" && "bg-blue-500 text-white hover:bg-blue-500/90",
             )}
           >
             {loading ? (
