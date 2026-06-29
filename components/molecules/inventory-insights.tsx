@@ -34,7 +34,11 @@ function InventoryInsightsInner({ health, loading }: InventoryInsightsProps) {
 
   if (!health) return null
 
-  const hasAnyData = health.low_stock_products.length > 0 || health.out_of_stock_products.length > 0 || health.most_stocked_products.length > 0
+  const lowStock = health.low_stock_products ?? []
+  const outOfStock = health.out_of_stock_products ?? []
+  const mostStocked = health.most_stocked_products ?? []
+
+  const hasAnyData = lowStock.length > 0 || outOfStock.length > 0 || mostStocked.length > 0
 
   if (!hasAnyData) {
     return (
@@ -53,11 +57,11 @@ function InventoryInsightsInner({ health, loading }: InventoryInsightsProps) {
       </h3>
 
       {/* Products Running Low */}
-      {health.low_stock_products.length > 0 && (
+      {lowStock.length > 0 && (
         <div>
           <p className="text-[10px] text-on-surface-variant uppercase mb-2">Stock Bajo</p>
           <div className="space-y-2">
-            {health.low_stock_products.map((product) => (
+            {lowStock.map((product) => (
               <div key={product.id} className="flex items-center justify-between p-2 bg-amber-500/10 rounded-lg">
                 <span className="text-xs text-on-surface">{product.name}</span>
                 <span className="text-[10px] font-semibold text-amber-500">{product.available_units} unidades</span>
@@ -68,11 +72,11 @@ function InventoryInsightsInner({ health, loading }: InventoryInsightsProps) {
       )}
 
       {/* Out of Stock */}
-      {health.out_of_stock_products.length > 0 && (
+      {outOfStock.length > 0 && (
         <div>
           <p className="text-[10px] text-on-surface-variant uppercase mb-2">Sin Stock</p>
           <div className="space-y-2">
-            {health.out_of_stock_products.map((product) => (
+            {outOfStock.map((product) => (
               <div key={product.id} className="flex items-center justify-between p-2 bg-error/10 rounded-lg">
                 <span className="text-xs text-on-surface">{product.name}</span>
                 <span className="text-[10px] font-semibold text-error">Reponer</span>
@@ -83,11 +87,11 @@ function InventoryInsightsInner({ health, loading }: InventoryInsightsProps) {
       )}
 
       {/* Most Stocked */}
-      {health.most_stocked_products.length > 0 && (
+      {mostStocked.length > 0 && (
         <div>
           <p className="text-[10px] text-on-surface-variant uppercase mb-2">Mayor Stock</p>
           <div className="space-y-2">
-            {health.most_stocked_products.map((product) => (
+            {mostStocked.map((product) => (
               <div key={product.id} className="flex items-center justify-between p-2 bg-green-500/10 rounded-lg">
                 <span className="text-xs text-on-surface">{product.name}</span>
                 <span className="text-[10px] font-semibold text-green-400">{product.available_units} unidades</span>

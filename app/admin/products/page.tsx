@@ -142,6 +142,7 @@ export default function ProductsPage() {
 
   const handleCreateProduct = useCallback(async (data: CreateProductInput) => {
     try {
+      console.log(data);
       await createProduct(data)
       sileo.success({ title: "Exito", description: "Producto creado correctamente" })
       setShowCreateModal(false)

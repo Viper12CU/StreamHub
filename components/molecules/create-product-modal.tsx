@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { Icon } from "@/components/atoms/icon"
 import { usePlatforms } from "@/hooks/use-platforms"
 import { productTypes, generateSlug } from "@/lib/constants/products"
+import FileUpload from "@/components/molecules/file-upload"
 import type { CreateProductInput, ProductType, ProductStatus } from "@/lib/api/products"
 
 interface CreateProductModalProps {
@@ -15,6 +16,7 @@ interface CreateProductModalProps {
 
 const steps = [
   { label: "Info", icon: "information" },
+  { label: "Imagen", icon: "image" },
   { label: "Precios", icon: "currency-usd" },
   { label: "Inventario", icon: "package-variant" },
   { label: "Resumen", icon: "text-box" },
@@ -37,6 +39,7 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
     stock_initial: "",
     low_stock_threshold: "5",
     status: "active" as ProductStatus,
+    image: null as File | null,
   })
 
   useEffect(() => {
@@ -69,6 +72,14 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
     if (!formData.name || !formData.platform_id || !formData.product_type || !formData.price_sale) return
     try {
       setLoading(true)
+      let thumbnail: string | undefined
+      if (formData.image) {
+        thumbnail = await new Promise<string>((resolve) => {
+          const reader = new FileReader()
+          reader.onloadend = () => resolve(reader.result as string)
+          reader.readAsDataURL(formData.image!)
+        })
+      }
       await onCreate({
         name: formData.name,
         slug: formData.slug || undefined,
@@ -78,6 +89,7 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
         price_sale: parseFloat(formData.price_sale),
         price_cost: formData.price_cost ? parseFloat(formData.price_cost) : undefined,
         currency: formData.currency,
+        thumbnail,
         stock_initial: formData.stock_initial ? parseInt(formData.stock_initial) : undefined,
         low_stock_threshold: parseInt(formData.low_stock_threshold),
         status: formData.status,
@@ -208,8 +220,45 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
             </div>
           )}
 
-          {/* Step 2: Precios */}
+          {/* Step 2: Imagen */}
           {step === 1 && (
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-on-surface">Imagen del Producto</h3>
+              <p className="text-[11px] text-on-surface-variant">Sube una imagen representativa del producto. Este paso es opcional.</p>
+              <div className="bg-surface-container-low border border-white/5 rounded-xl p-4">
+                <FileUpload
+                  onFilesChange={(files) => setFormData({ ...formData, image: files[0] || null })}
+                  maxFiles={1}
+                  maxFileSize="5MB"
+                  acceptedTypes={["image/jpeg", "image/png", "image/webp"]}
+                />
+              </div>
+              {formData.image && (
+                <div className="flex items-center gap-3 p-3 bg-surface-container-low border border-white/5 rounded-xl">
+                  <div className="w-16 h-16 rounded-lg bg-surface-container-high flex items-center justify-center overflow-hidden">
+                    <img
+                      src={URL.createObjectURL(formData.image)}
+                      alt="Vista previa"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-on-surface truncate">{formData.image.name}</p>
+                    <p className="text-[10px] text-on-surface-variant">{(formData.image.size / 1024).toFixed(1)} KB</p>
+                  </div>
+                  <button
+                    onClick={() => setFormData({ ...formData, image: null })}
+                    className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  >
+                    <Icon name="close" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 3: Precios */}
+          {step === 2 && (
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-on-surface">Precios</h3>
               <div className="space-y-3">
@@ -278,8 +327,8 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
             </div>
           )}
 
-          {/* Step 3: Inventario */}
-          {step === 2 && (
+          {/* Step 4: Inventario */}
+          {step === 3 && (
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-on-surface">Inventario</h3>
               <div className="space-y-3">
@@ -330,14 +379,22 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
             </div>
           )}
 
-          {/* Step 4: Resumen */}
-          {step === 3 && (
+          {/* Step 5: Resumen */}
+          {step === 4 && (
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-on-surface">Resumen del Producto</h3>
               <div className="glass rounded-xl p-4 space-y-3">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-lg">
-                    {formData.name ? formData.name[0].toUpperCase() : "?"}
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-lg overflow-hidden">
+                    {formData.image ? (
+                      <img
+                        src={URL.createObjectURL(formData.image)}
+                        alt="Producto"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      formData.name ? formData.name[0].toUpperCase() : "?"
+                    )}
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-on-surface">{formData.name || "Sin nombre"}</p>
@@ -375,6 +432,15 @@ export function CreateProductModal({ onClose, onCreate }: CreateProductModalProp
                     {formData.status === "active" ? "Activo" : formData.status === "draft" ? "Borrador" : "Archivado"}
                   </span>
                 </div>
+                {formData.image && (
+                  <>
+                    <div className="border-t border-white/5 pt-3" />
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-on-surface-variant uppercase tracking-wider">Imagen</span>
+                      <span className="text-xs font-medium text-on-surface truncate max-w-[150px]">{formData.image.name}</span>
+                    </div>
+                  </>
+                )}
               </div>
               <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
                 <div className="flex items-center gap-2">

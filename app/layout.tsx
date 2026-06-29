@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { Providers } from '@/components/providers'
+import 'filepond/dist/filepond.min.css'
+import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 
 const inter = Inter({ 
   subsets: ["latin"],

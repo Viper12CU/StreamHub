@@ -37,7 +37,20 @@ function AnalyticsSkeleton() {
 function ProductAnalyticsInner({ analytics, loading }: ProductAnalyticsProps) {
   if (loading) return <AnalyticsSkeleton />
 
-  if (!analytics || (analytics.top_products.length === 0 && analytics.sales_by_platform.length === 0)) {
+  if (!analytics) {
+    return (
+      <div className="glass rounded-xl p-8 border border-white/5 text-center">
+        <Icon name="chart-bar" className="text-3xl text-on-surface-variant/30 mb-2 block" />
+        <p className="text-sm text-on-surface-variant">Sin datos de analytics disponibles</p>
+      </div>
+    )
+  }
+
+  const topProducts = analytics.top_products ?? []
+  const salesByPlatform = analytics.sales_by_platform ?? []
+  const growthTrends = analytics.growth_trends ?? []
+
+  if (topProducts.length === 0 && salesByPlatform.length === 0) {
     return (
       <div className="glass rounded-xl p-8 border border-white/5 text-center">
         <Icon name="chart-bar" className="text-3xl text-on-surface-variant/30 mb-2 block" />
@@ -47,16 +60,16 @@ function ProductAnalyticsInner({ analytics, loading }: ProductAnalyticsProps) {
   }
 
   const { revenueData, maxRevenue, totalSales, platformData } = useMemo(() => {
-    const revenueData = analytics.top_products.map((p) => ({
+    const revenueData = topProducts.map((p) => ({
       name: p.name,
       revenue: p.revenue,
       color: p.platform_color,
     }))
     const maxRevenue = Math.max(...revenueData.map((d) => d.revenue), 1)
 
-    const totalSales = analytics.sales_by_platform.reduce((sum, p) => sum + p.count, 0)
+    const totalSales = salesByPlatform.reduce((sum, p) => sum + p.count, 0)
 
-    const platformData = analytics.sales_by_platform.map((p) => ({
+    const platformData = salesByPlatform.map((p) => ({
       name: p.platform_name,
       count: p.count,
       percentage: totalSales > 0 ? Math.round((p.count / totalSales) * 100) : 0,
@@ -123,7 +136,7 @@ function ProductAnalyticsInner({ analytics, loading }: ProductAnalyticsProps) {
       {/* Product Growth Trends */}
       <div className="glass p-6 rounded-xl">
         <h3 className="text-sm font-semibold text-on-surface mb-4">Tendencias de Crecimiento</h3>
-        {analytics.growth_trends.length === 0 ? (
+        {growthTrends.length === 0 ? (
           <div className="text-center py-6">
             <Icon name="chart-line" className="text-2xl text-on-surface-variant/30 block mb-1" />
             <p className="text-xs text-on-surface-variant">Sin tendencias disponibles</p>
@@ -133,7 +146,7 @@ function ProductAnalyticsInner({ analytics, loading }: ProductAnalyticsProps) {
             <div className="h-32 relative">
               <svg className="absolute inset-0 h-full w-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
                 {(() => {
-                  const trends = analytics.growth_trends
+                  const trends = growthTrends
                   const maxOrders = Math.max(...trends.map((t) => t.orders), 1)
                   const maxRevenueT = Math.max(...trends.map((t) => t.revenue), 1)
                   const orderPath = trends.map((t, i) => {

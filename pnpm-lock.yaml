@@ -110,6 +110,21 @@ importers:
       embla-carousel-react:
         specifier: 8.6.0
         version: 8.6.0(react@19.2.4)
+      filepond:
+        specifier: ^4.32.12
+        version: 4.32.12
+      filepond-plugin-file-validate-size:
+        specifier: ^2.2.8
+        version: 2.2.8(filepond@4.32.12)
+      filepond-plugin-file-validate-type:
+        specifier: ^1.2.9
+        version: 1.2.9(filepond@4.32.12)
+      filepond-plugin-image-exif-orientation:
+        specifier: ^1.0.11
+        version: 1.0.11(filepond@4.32.12)
+      filepond-plugin-image-preview:
+        specifier: ^4.6.12
+        version: 4.6.12(filepond@4.32.12)
       gsap:
         specifier: ^3.15.0
         version: 3.15.0
@@ -137,6 +152,9 @@ importers:
       react-dom:
         specifier: ^19
         version: 19.2.4(react@19.2.4)
+      react-filepond:
+        specifier: ^7.1.3
+        version: 7.1.3(filepond@4.32.12)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react-hook-form:
         specifier: ^7.54.1
         version: 7.71.1(react@19.2.4)
@@ -174,6 +192,9 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.2.3(@types/react@19.2.14)
+      '@types/react-filepond':
+        specifier: ^7.1.0
+        version: 7.1.0(filepond@4.32.12)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       postcss:
         specifier: ^8.5
         version: 8.5.6
@@ -1222,6 +1243,10 @@ packages:
     peerDependencies:
       '@types/react': ^19.2.0
 
+  '@types/react-filepond@7.1.0':
+    resolution: {integrity: sha512-oBsC4qbOdofxPJlVQTkh3enRAItgE26ieq3Cygc7tLmE5D4Z8//20y2pIE2mHW9LDIRcBvLg3wQ+zXM3E1XtBw==}
+    deprecated: This is a stub types definition. react-filepond provides its own type definitions, so you do not need this installed.
+
   '@types/react@19.2.14':
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
 
@@ -1437,6 +1462,29 @@ packages:
   fast-equals@5.4.0:
     resolution: {integrity: sha512-jt2DW/aNFNwke7AUd+Z+e6pz39KO5rzdbbFCg2sGafS4mk13MI7Z8O5z9cADNn5lhGODIgLwug6TZO2ctf7kcw==}
     engines: {node: '>=6.0.0'}
+
+  filepond-plugin-file-validate-size@2.2.8:
+    resolution: {integrity: sha512-yzb8scATmkWqPTP7oKQz6L8WwJm6Xmgc/fuq6DFGRaLz0I7372BUvBsxagBk/hypMIjvieNzhggm33Y60x3rcw==}
+    peerDependencies:
+      filepond: '>=3.1.2 <5.x'
+
+  filepond-plugin-file-validate-type@1.2.9:
+    resolution: {integrity: sha512-Tzv07aNdZvjUXDRA3XL16QMEvh6llDrXlcZ6W0eTHQ+taHaVg/JKJTFs/AViO+6ZcpPCcQStbhYEL2HoS+vldw==}
+    peerDependencies:
+      filepond: '>=1.x <5.x'
+
+  filepond-plugin-image-exif-orientation@1.0.11:
+    resolution: {integrity: sha512-hLBc12Fk6Zkj3L8mSAn+elugHOqT5rLUbgVXQQIQjMe0FsGjtpoxqeVR6jt4IWHGat2L9sFAgU2TGmd1mqosCg==}
+    peerDependencies:
+      filepond: '>=3.x <5.x'
+
+  filepond-plugin-image-preview@4.6.12:
+    resolution: {integrity: sha512-Y8ETX5QVV0mbPB0586UH8AUmG9tZg8PuN5bdEAIlZVJFTct5ebViJ7+Am94/VhTPjLqZjBf1zmDq5JU6XRsZKw==}
+    peerDependencies:
+      filepond: '>=4.x <5.x'
+
+  filepond@4.32.12:
+    resolution: {integrity: sha512-wro0/deLwua9CkL7HJygOlDaPo1c7Ov8kfzbZjH7m4hdi56gdHGDeRWnYa+qXnRm3Lty69gUGVFb3JZy/9vT8g==}
 
   follow-redirects@1.16.0:
     resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
@@ -1722,6 +1770,13 @@ packages:
     resolution: {integrity: sha512-AXJdLo8kgMbimY95O2aKQqsz2iWi9jMgKJhRBAxECE4IFxfcazB2LmzloIoibJI3C12IlY20+KFaLv+71bUJeQ==}
     peerDependencies:
       react: ^19.2.4
+
+  react-filepond@7.1.3:
+    resolution: {integrity: sha512-uQOCZt+YXnBfYn6OxK6vsgSoUROkBu/ZahcfIJnK94c1ZeSAS84L/XKDADq/8Adx/Lz88VtVWvUpTXnNpmjHFQ==}
+    peerDependencies:
+      filepond: '>=3.7.x < 5.x'
+      react: 16 - 19
+      react-dom: 16 - 19
 
   react-hook-form@7.71.1:
     resolution: {integrity: sha512-9SUJKCGKo8HUSsCO+y0CtqkqI5nNuaDqTxyqPsZPqIwudpj4rCrAz/jZV+jn57bx5gtZKOh3neQu94DXMc+w5w==}
@@ -2905,6 +2960,14 @@ snapshots:
     dependencies:
       '@types/react': 19.2.14
 
+  '@types/react-filepond@7.1.0(filepond@4.32.12)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+    dependencies:
+      react-filepond: 7.1.3(filepond@4.32.12)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+    transitivePeerDependencies:
+      - filepond
+      - react
+      - react-dom
+
   '@types/react@19.2.14':
     dependencies:
       csstype: 3.2.3
@@ -3092,6 +3155,24 @@ snapshots:
   eventemitter3@4.0.7: {}
 
   fast-equals@5.4.0: {}
+
+  filepond-plugin-file-validate-size@2.2.8(filepond@4.32.12):
+    dependencies:
+      filepond: 4.32.12
+
+  filepond-plugin-file-validate-type@1.2.9(filepond@4.32.12):
+    dependencies:
+      filepond: 4.32.12
+
+  filepond-plugin-image-exif-orientation@1.0.11(filepond@4.32.12):
+    dependencies:
+      filepond: 4.32.12
+
+  filepond-plugin-image-preview@4.6.12(filepond@4.32.12):
+    dependencies:
+      filepond: 4.32.12
+
+  filepond@4.32.12: {}
 
   follow-redirects@1.16.0: {}
 
@@ -3335,6 +3416,12 @@ snapshots:
     dependencies:
       react: 19.2.4
       scheduler: 0.27.0
+
+  react-filepond@7.1.3(filepond@4.32.12)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      filepond: 4.32.12
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
 
   react-hook-form@7.71.1(react@19.2.4):
     dependencies:

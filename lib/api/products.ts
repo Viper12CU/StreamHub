@@ -83,18 +83,18 @@ export interface ProductAnalytics {
     platform_color: string;
     orders: number;
     revenue: number;
-  }>;
+  }> | null;
   sales_by_platform: Array<{
     platform_name: string;
     platform_color: string;
     count: number;
     revenue: number;
-  }>;
+  }> | null;
   growth_trends: Array<{
     month: string;
     orders: number;
     revenue: number;
-  }>;
+  }> | null;
 }
 
 export interface ProductHealth {
@@ -103,13 +103,13 @@ export interface ProductHealth {
     name: string;
     available_units: number;
     low_stock_threshold: number;
-  }>;
-  out_of_stock_products: Array<{ id: string; name: string }>;
+  }> | null;
+  out_of_stock_products: Array<{ id: string; name: string }> | null;
   most_stocked_products: Array<{
     id: string;
     name: string;
     available_units: number;
-  }>;
+  }> | null;
 }
 
 export interface CreateProductInput {
