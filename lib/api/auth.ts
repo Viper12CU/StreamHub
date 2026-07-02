@@ -68,6 +68,8 @@ export async function signIn(data: { email: string; password: string }) {
     const response = await apiClient.post("/auth/sign-in/email", data);
     const body = response.data?.data ?? response.data;
 
+    console.log("API URL:", process.env.NEXT_PUBLIC_API_URL);
+
     if (body?.token) {
       setSessionToken(body.token);
     }
