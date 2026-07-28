@@ -22,7 +22,7 @@ export function ProductMediaSection({ imageSrc, imageAlt, accessType, status, cl
   };
 
   return (
-    <div className={cn("space-y-4 sticky top-28", className)}>
+    <div className={cn("space-y-4 top-28", className)}>
       <div className="glass-panel red-glow rounded-3xl aspect-[4/3] md:aspect-[5/4] relative overflow-hidden p-2">
         <div className="relative h-full w-full overflow-hidden rounded-[1.2rem]">
           <img

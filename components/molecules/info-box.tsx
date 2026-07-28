@@ -12,18 +12,18 @@ interface InfoBoxProps {
 const variantConfig = {
   info: {
     icon: Info,
-    className: "bg-primary/10 border-primary/20 text-muted-foreground",
+    className: "border-l-2 border-l-white/20 border-y border-r-white/[0.06] bg-white/[0.06] text-foreground/80",
     iconClass: "text-primary",
   },
   warning: {
     icon: Info,
-    className: "bg-amber-500/10 border-amber-500/20 text-amber-500",
-    iconClass: "text-amber-500",
+    className: "border-l-2 border-l-amber-500/40 border-y border-r-amber-500/[0.06] bg-amber-500/[0.08] text-amber-400",
+    iconClass: "text-amber-400",
   },
   guarantee: {
     icon: Shield,
-    className: "bg-amber-500/10 text-amber-500",
-    iconClass: "text-amber-500",
+    className: "border-l-2 border-l-primary/40 border-y border-r-primary/[0.06] bg-primary/[0.08] text-foreground/80",
+    iconClass: "text-primary",
   },
 };
 
@@ -33,7 +33,7 @@ export function InfoBox({ variant = "info", children, className }: InfoBoxProps)
 
   return (
     <div className={cn(
-      "rounded-xl p-4 flex items-start gap-3 border",
+      "rounded-2xl p-4 flex items-start gap-3 border",
       config.className,
       className
     )}>

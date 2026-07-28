@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -7,14 +8,16 @@ interface RelatedProductCardProps {
   price: string;
   imageSrc: string;
   accentColor: string;
+  slug: string;
   className?: string;
 }
 
-export function RelatedProductCard({ name, price, imageSrc, accentColor, className }: RelatedProductCardProps) {
+export function RelatedProductCard({ name, price, imageSrc, accentColor, slug, className }: RelatedProductCardProps) {
   return (
-    <div 
+    <Link
+      href={`/web/product/${slug}`}
       className={cn(
-        "glass-panel rounded-xl overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer",
+        "glass-panel rounded-xl overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer flex-shrink-0 w-[200px] md:w-[240px]",
         className
       )}
       style={{ borderTop: `2px solid ${accentColor}` }}
@@ -33,6 +36,6 @@ export function RelatedProductCard({ name, price, imageSrc, accentColor, classNa
         <span className="text-primary font-bold text-sm">{price}</span>
         <ShoppingCart className="w-4 h-4" />
       </div>
-    </div>
+    </Link>
   );
 }

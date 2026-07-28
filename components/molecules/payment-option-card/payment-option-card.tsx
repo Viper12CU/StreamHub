@@ -23,8 +23,8 @@ export function PaymentOptionCard({
         "group relative min-h-[178px] overflow-hidden rounded-3xl border p-6 text-left transition-all duration-300",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         highlighted
-          ? "border-primary/35 bg-primary/15 shadow-2xl shadow-primary/20 hover:border-primary/55 hover:bg-primary/20"
-          : "border-white/10 bg-white/[0.035] shadow-xl shadow-black/10 hover:border-primary/35 hover:bg-white/[0.06]",
+          ? "border-primary/30 bg-primary/[0.12] shadow-xl shadow-primary/15 hover:border-primary/50 hover:bg-primary/[0.18]"
+          : "border-white/[0.08] bg-white/[0.04] shadow-lg shadow-black/5 hover:border-white/[0.15] hover:bg-white/[0.07]",
         className
       )}
       {...props}

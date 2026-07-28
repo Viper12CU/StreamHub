@@ -1,13 +1,12 @@
 "use client"
 
-import { useState } from "react";
 import { StarRating } from "@/components/atoms/star-rating";
-import { DurationButton } from "@/components/atoms/duration-button";
-import { FeatureItem } from "@/components/molecules/feature-item";
 import { InfoBox } from "@/components/molecules/info-box";
 import { PaymentOptionCard } from "@/components/molecules/payment-option-card";
 import { LoginPrompt } from "@/components/molecules/login-prompt";
 import { useSession } from "@/lib/session-context";
+import { useState } from "react";
+import { Icon } from "@/components/atoms/icon";
 import { cn } from "@/lib/utils";
 
 export interface ProductInfoData {
@@ -15,9 +14,27 @@ export interface ProductInfoData {
   rating: number;
   reviewsCount: number;
   priceCUP: string;
+  priceUSD?: number;
   priceMLC?: string;
-  features: string[];
-  durations: { label: string; value: string }[];
+  description: string;
+  availableUnits: number;
+  soldUnits: number;
+  stockInitial: number;
+  lowStockThreshold: number;
+}
+
+function PriceTooltip() {
+  const [show, setShow] = useState(false);
+  return (
+    <span className="relative inline-flex" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+      <Icon name="information" size="sm" className="cursor-help text-muted-foreground hover:text-foreground" />
+      {show && (
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2 glass-panel rounded-lg text-xs text-muted-foreground whitespace-nowrap shadow-lg z-10">
+          Conversión directa desde el toque (USD × 600)
+        </div>
+      )}
+    </span>
+  );
 }
 
 interface ProductInfoSectionProps {
@@ -26,7 +43,6 @@ interface ProductInfoSectionProps {
 }
 
 export function ProductInfoSection({ product, className }: ProductInfoSectionProps) {
-  const [selectedDuration, setSelectedDuration] = useState(product.durations[0]?.value);
   const { isAuthenticated, isLoading } = useSession();
 
   return (
@@ -34,41 +50,67 @@ export function ProductInfoSection({ product, className }: ProductInfoSectionPro
       {/* Title and Rating */}
       <section>
         <h1 className="text-2xl md:text-3xl font-bold mb-2">{product.name}</h1>
-        <div className="flex items-center gap-4 mb-4">
+        {/* <div className="flex items-center gap-4 mb-4">
           <StarRating rating={product.rating} />
           <span className="text-xs text-muted-foreground">({product.reviewsCount} reviews)</span>
-        </div>
-        <div className="flex items-baseline gap-4">
+        </div> */}
+        <div className="flex items-baseline gap-3 flex-wrap m-[1.5rem]">
           <span className="text-4xl font-extrabold">{product.priceCUP}</span>
+          {product.priceUSD && (
+            <span className="text-lg font-medium text-muted-foreground flex items-center gap-1">
+              ≈ ${(product.priceUSD * 600).toLocaleString("es-ES")} CUP
+              <PriceTooltip />
+            </span>
+          )}
           {product.priceMLC ? (
             <span className="text-xl font-semibold text-primary">{product.priceMLC}</span>
           ) : null}
         </div>
       </section>
 
-      {/* Duration Selector */}
-      <section className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Selecciona Duracion
-        </p>
-        <div className="flex gap-3 flex-wrap">
-          {product.durations.map((duration) => (
-            <DurationButton
-              key={duration.value}
-              label={duration.label}
-              isSelected={selectedDuration === duration.value}
-              onClick={() => setSelectedDuration(duration.value)}
-            />
-          ))}
+      {/* Stock Urgency + Social Proof */}
+      <div className="glass-panel rounded-2xl p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <span className={cn(
+            "flex items-center gap-2 text-sm font-semibold",
+            product.availableUnits <= product.lowStockThreshold ? "text-amber-400" : "text-foreground"
+          )}>
+            {product.availableUnits <= product.lowStockThreshold ? (
+              <>
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Solo {product.availableUnits} unidades disponibles
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Disponible
+              </>
+            )}
+          </span>
         </div>
-      </section>
 
-      {/* Features Checklist */}
-      <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {product.features.map((feature, index) => (
-          <FeatureItem key={index} text={feature} />
-        ))}
-      </ul>
+        {/* Progress bar */}
+        <div className="space-y-1">
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div
+              className={cn(
+                "h-full rounded-full transition-all",
+                product.availableUnits <= product.lowStockThreshold ? "bg-amber-500" : "bg-primary"
+              )}
+              style={{ width: `${Math.min((product.soldUnits / product.stockInitial) * 100, 100)}%` }}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground text-right">{product.soldUnits} vendidos</p>
+        </div>
+
+        {/* Social proof */}
+        {product.soldUnits > 0 && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>{product.soldUnits} personas ya compraron esto</span>
+          </div>
+        )}
+      </div>
 
       {/* Purchase Action */}
       {isLoading ? (
@@ -95,10 +137,10 @@ export function ProductInfoSection({ product, className }: ProductInfoSectionPro
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <InfoBox variant="info" className="rounded-2xl border-white/10 bg-white/[0.04] text-muted-foreground backdrop-blur-sm">
+            <InfoBox variant="info">
               Recibiras usuario y contraseña por WhatsApp o correo tras confirmar el pago.
             </InfoBox>
-            <InfoBox variant="guarantee" className="rounded-2xl border-primary/15 bg-primary/[0.08] text-primary">
+            <InfoBox variant="guarantee">
               Garantia de reposicion por 30 dias si la cuenta falla.
             </InfoBox>
           </div>

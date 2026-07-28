@@ -6,6 +6,7 @@ export interface RelatedProductData {
   price: string;
   imageSrc: string;
   accentColor: string;
+  slug: string;
 }
 
 interface RelatedProductsSectionProps {
@@ -17,9 +18,9 @@ export function RelatedProductsSection({ products, className }: RelatedProductsS
   return (
     <section className={cn("space-y-4", className)}>
       <h2 className="text-xl font-semibold">Tambien te puede interesar</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {products.map((product, index) => (
-          <RelatedProductCard key={index} {...product} />
+      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+        {products.map((product) => (
+          <RelatedProductCard key={product.slug} {...product} />
         ))}
       </div>
     </section>

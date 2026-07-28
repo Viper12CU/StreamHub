@@ -68,8 +68,6 @@ export async function signIn(data: { email: string; password: string }) {
     const response = await apiClient.post("/auth/sign-in/email", data);
     const body = response.data?.data ?? response.data;
 
-    console.log("API URL:", process.env.NEXT_PUBLIC_API_URL);
-
     if (body?.token) {
       setSessionToken(body.token);
     }
@@ -96,7 +94,6 @@ export async function getSession() {
   const response = await apiClient.get("/auth/get-session");
   const body = response.data;
 
-  console.log("getSession response:", body);
   if (!body?.user || !body?.session) {
     throw new Error("No hay sesión activa");
   }

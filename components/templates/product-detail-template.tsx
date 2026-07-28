@@ -3,6 +3,7 @@ import { Footer } from "@/components/organisms/footer";
 import { BreadcrumbNav, type BreadcrumbItem } from "@/components/molecules/breadcrumb-nav";
 import { ProductMediaSection } from "@/components/organisms/product-media-section";
 import { ProductInfoSection, type ProductInfoData } from "@/components/organisms/product-info-section";
+import { ProductDescriptionSection } from "@/components/organisms/product-description-section";
 import { FaqSection, type FaqData } from "@/components/organisms/faq-section";
 import { ReviewsSection, type ReviewData } from "@/components/organisms/reviews-section";
 import { RelatedProductsSection, type RelatedProductData } from "@/components/organisms/related-products-section";
@@ -48,6 +49,9 @@ export function ProductDetailTemplate({
               accessType={product.accessType}
               status={product.status}
             />
+            <div className="mt-6">
+              <ProductDescriptionSection description={product.info.description} />
+            </div>
           </div>
 
           {/* Right Column: Product Info & Purchase */}
@@ -62,9 +66,9 @@ export function ProductDetailTemplate({
         </div>
 
         {/* Reviews Section */}
-        <div className="mt-16">
+        {/* <div className="mt-16">
           <ReviewsSection reviews={reviews} />
-        </div>
+        </div> */}
 
         {/* Related Products Section */}
         <div className="mt-16">

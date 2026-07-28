@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { ProductDetailTemplate } from "@/components/templates/product-detail-template";
-import { getProductBySlug, type ProductWithDetails } from "@/lib/api/products";
+import { getProductBySlug, getProducts, type ProductWithDetails } from "@/lib/api/products";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80";
@@ -44,18 +44,13 @@ function mapProductToPageData(product: ProductWithDetails) {
       rating: 4.9,
       reviewsCount: product.total_orders || 0,
       priceCUP: formatPriceLabel(product),
+      priceUSD: product.currency === "USD" ? product.price_sale : undefined,
       priceMLC: undefined,
-      features: [
-        product.description || "Producto disponible en el catálogo",
-        `Plataforma: ${product.platform_name}`,
-        `Unidades disponibles: ${product.available_units}`,
-        `Ventas totales: ${product.total_orders}`,
-      ],
-      durations: [
-        { label: "1 mes", value: "1m" },
-        { label: "3 meses", value: "3m" },
-        { label: "1 año", value: "1y" },
-      ],
+      description: product.description || "Producto disponible en el catálogo",
+      availableUnits: product.available_units,
+      soldUnits: product.sold_units,
+      stockInitial: product.stock_initial,
+      lowStockThreshold: product.low_stock_threshold,
     },
   };
 }
@@ -96,33 +91,6 @@ const reviews = [
   },
 ];
 
-const relatedProducts = [
-  {
-    name: "Disney+",
-    price: "$180 CUP",
-    imageSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuB71UwV7sZbyT0QWY_T3etcSPE7ExY_xHHnyKK-0534dzSbDIeuJCAMOr0CAYznocKAsormwSjirbM8wV7_vfK-8ikM5A5lACVYX6GQJspn4qR9-m2V1B6lsmrp-EhUR46kOGbJQ7yVFhxz8Bj0kcFt8DI3uPZ6OdzS-l_GHXgmMA064GRH1YFN_PezrYLmIqSbaZ7XeSfXpwRXmPIEvIBnEtF28C5QYzwmZN35tOZbz7inzd2Ys5pW4f0ypZnnpAm2MWuS-q_vPA",
-    accentColor: "#0072d2",
-  },
-  {
-    name: "Spotify Premium",
-    price: "$120 CUP",
-    imageSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuAhAyqmuHEyvoaKEwxV3wFRVU7e6ZTR7KjpGTmedn0ui08kqpKbTxvNdKLKv7FEzsA0A07-yBmQTqbrRHQ7ZHg2uBRdr-1mTpPsYd7B3-XgcC6kFS6G-uZyrOzZTxj0IVSjml_KY1u32Ic69siFSbmZYIQHrzs6ODsS-OZoRl5OF17_6Gm1Yq0zVMQWHvObB_otXIavkkuAwGinzRaq9QtTB8hMOxf7c_vjmgerYKkPlQqp86NQbVrVN0zVNNMFUEUnioEIiyE7fg",
-    accentColor: "#1DB954",
-  },
-  {
-    name: "YouTube Premium",
-    price: "$150 CUP",
-    imageSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuAc-9FAt5grgBfY7_pzHZme0Lka0JIvfapRfxpTcBxLrk2-kplUQ_xxP3d6fEh6-Q-2TVdHFmtKRhNmvsyDRBF3oYIMjLJcd8VmVLGThUpiESKyqqPmDDbGuwH0vPR3A0AlSOEDtUMHEfPxCAn40GoHJvwxp_mx2ZIVp5JBkxa_iiey2z6KsTPhIk28FdK5YAvL672frvY-UtCVHYwzkoS34ZKeOQ5vbwGexk7swmvT8PHQsGAIiqQFaW4w6hgR6qRiYyRXudu4MQ",
-    accentColor: "#FF0000",
-  },
-  {
-    name: "HBO Max",
-    price: "$200 CUP",
-    imageSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuDyawlravCm7yVv6xDYoBgAUtukyP7F0eqnRptKGz2yyeBv2Wvyb8oox1gOPupP9a8P0IV8FPlkl44b7k4HSaRFbKpWQUIbgZdLsM2P8TQsWlSGoJqKqO0zLi4mThFnGWQ-bJ1N4OenqFxoSRtBJNpD3XdGwYfRyvCfWIcAZSu0Ot4EAUPTA67Y_bzBp9c2PCoEFiChAdo956JVMN5YlHB5VAnelSiSkRlbrvrMJ74fVpYr4Q-4xViOyilBfsjMyWkWjNO_sGNgHQ",
-    accentColor: "#991bfa",
-  },
-];
-
 export default async function ProductDetailPage({
   params,
 }: {
@@ -136,6 +104,19 @@ export default async function ProductDetailPage({
   }
 
   const productData = mapProductToPageData(product);
+
+  const allProducts = await getProducts({ status: "active" }, 1, 100);
+  const relatedProducts = allProducts.data
+    .filter((p) => p.id !== product.id && p.available_units > 0)
+    .slice(0, 5)
+    .map((p) => ({
+      name: p.name,
+      price: formatPriceLabel(p),
+      imageSrc: p.image_url || p.thumbnail || FALLBACK_IMAGE,
+      accentColor: p.platform_color,
+      slug: p.slug,
+    }));
+
   const breadcrumbs = [
     { label: "Inicio", href: "/web" },
     { label: "Catalogo", href: "/web/catalog" },
