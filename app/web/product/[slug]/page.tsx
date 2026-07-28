@@ -1,36 +1,64 @@
+import { notFound } from "next/navigation";
 import { ProductDetailTemplate } from "@/components/templates/product-detail-template";
+import { getProductBySlug, type ProductWithDetails } from "@/lib/api/products";
 
-const breadcrumbs = [
-  { label: "Inicio", href: "/web" },
-  { label: "Catalogo", href: "/web/catalog" },
-  { label: "Netflix", href: "/web/catalog?platform=netflix" },
-  { label: "Perfil Compartido 1 mes" },
-];
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80";
 
-const productData = {
-  imageSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuCI9zfLe_zSrOXlC62SQ9us0PD-GHcidMDGwnzzGtJ8ZAkzYysD2snSYlVsC0-pxdQHcy9bEouhv9KthrUabOQq84-S2tpfDTYXrnnuMCyEUGdgp0vD-d-MoEp4kD1KeL3Nw0oV3QL8u-pfhZWipDRdLIE6LMRTZWPHmh5ZScny07nTkKIrqdU0Vdg64LoMAjA7jI4LKIbD8vKy4gp6KYlgWRWOUYOVjN54d6Pw0vG79-C9CFo5bIwCU6EJ_w-UsXnOo6tfRfrY_g",
-  imageAlt: "Netflix Premium",
-  accessType: "Perfil compartido",
-  status: "available" as const,
-  info: {
-    name: "Netflix Premium — Perfil Compartido",
-    rating: 4.9,
-    reviewsCount: 128,
-    priceCUP: "$250 CUP",
-    priceMLC: "/ $5 MLC",
-    features: [
-      "Full HD / 4K Ultra HD",
-      "1 pantalla simultanea",
-      "Sin anuncios molestos",
-      "Entrega < 1 hora",
-    ],
-    durations: [
-      { label: "1 mes", value: "1m" },
-      { label: "3 meses", value: "3m" },
-      { label: "1 año", value: "1y" },
-    ],
-  },
+const PRODUCT_TYPE_LABELS: Record<ProductWithDetails["product_type"], string> = {
+  full_account: "Cuenta completa",
+  shared_profile: "Perfil compartido",
+  activation_code: "Código de activación",
+  subscription_package: "Paquete de suscripción",
 };
+
+function formatPriceLabel(product: ProductWithDetails) {
+  const price = new Intl.NumberFormat("es-ES", {
+    minimumFractionDigits: Number.isInteger(product.price_sale) ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(product.price_sale);
+
+  return `$${price} ${product.currency}`;
+}
+
+function getProductStatus(product: ProductWithDetails): "available" | "limited" | "soldout" {
+  if (product.available_units <= 0) {
+    return "soldout";
+  }
+
+  if (product.available_units <= product.low_stock_threshold) {
+    return "limited";
+  }
+
+  return "available";
+}
+
+function mapProductToPageData(product: ProductWithDetails) {
+  return {
+    imageSrc: product.image_url || product.thumbnail || FALLBACK_IMAGE,
+    imageAlt: product.name,
+    accessType: PRODUCT_TYPE_LABELS[product.product_type],
+    status: getProductStatus(product),
+    info: {
+      name: `${product.name}${product.platform_name ? ` — ${product.platform_name}` : ""}`,
+      rating: 4.9,
+      reviewsCount: product.total_orders || 0,
+      priceCUP: formatPriceLabel(product),
+      priceMLC: undefined,
+      features: [
+        product.description || "Producto disponible en el catálogo",
+        `Plataforma: ${product.platform_name}`,
+        `Unidades disponibles: ${product.available_units}`,
+        `Ventas totales: ${product.total_orders}`,
+      ],
+      durations: [
+        { label: "1 mes", value: "1m" },
+        { label: "3 meses", value: "3m" },
+        { label: "1 año", value: "1y" },
+      ],
+    },
+  };
+}
 
 const faqs = [
   {
@@ -95,7 +123,29 @@ const relatedProducts = [
   },
 ];
 
-export default function ProductDetailPage() {
+export default async function ProductDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
+
+  if (!product) {
+    notFound();
+  }
+
+  const productData = mapProductToPageData(product);
+  const breadcrumbs = [
+    { label: "Inicio", href: "/web" },
+    { label: "Catalogo", href: "/web/catalog" },
+    {
+      label: product.platform_name,
+      href: `/web/catalog?platform=${encodeURIComponent(product.platform_slug)}`,
+    },
+    { label: product.name },
+  ];
+
   return (
     <ProductDetailTemplate
       breadcrumbs={breadcrumbs}

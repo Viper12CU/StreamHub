@@ -1,25 +1,33 @@
 "use client";
 
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { FavoriteButton } from "@/components/atoms/favorite-button";
 import { AccessTypeTag } from "@/components/atoms/access-type-tag";
-import { StatusBadge } from "@/components/atoms/status-badge";
 
-type AccessType = "profile" | "account" | "code" | "invitation";
-type StatusType = "available" | "limited" | "soldout";
+type AccessType =
+  | "profile"
+  | "account"
+  | "code"
+  | "invitation"
+  | "full_account"
+  | "shared_profile"
+  | "activation_code"
+  | "subscription_package";
 
 export interface Product {
   id: string;
   name: string;
-  description: string;
   image: string;
   accessType: AccessType;
-  status: StatusType;
-  duration: string;
-  priceCUP: string;
-  priceMLC: string;
-  brandColor: string;
+  price?: string;
+  priceValue?: number;
+  currency?: string;
+  brandColor?: string;
+  slug?: string;
+  platformName?: string;
+  platformSlug?: string;
+  description?: string;
+  availableUnits?: number;
 }
 
 interface ProductCardProps {
@@ -29,73 +37,62 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onBuy, className }: ProductCardProps) {
-  const isSoldOut = product.status === "soldout";
+  const brandColor = product.brandColor || "#E50914";
+  const priceLabel = product.price
+    ? `${product.price}${product.currency ? ` ${product.currency}` : ""}`
+    : "Consultar precio";
 
   return (
     <article
       className={cn(
         "glass-panel rounded-xl overflow-hidden flex flex-col transition-all duration-300 group border-t-2",
-        !isSoldOut && "hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(229,9,20,0.15)]",
-        isSoldOut && "opacity-75",
+        "hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(229,9,20,0.15)]",
         className
       )}
-      style={{ borderTopColor: product.brandColor }}
+      style={{ borderTopColor: brandColor }}
     >
-      {/* Image Section */}
-      <div className={cn("relative h-48 overflow-hidden", isSoldOut && "grayscale")}>
-        <Image
+      <div className="relative h-48 overflow-hidden">
+        <img
           src={product.image}
           alt={product.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+          loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-        
-        {!isSoldOut && (
-          <FavoriteButton className="absolute top-4 right-4" />
-        )}
-        
+
+        <FavoriteButton className="absolute top-4 right-4" />
+
         <div className="absolute bottom-4 left-4">
           <AccessTypeTag type={product.accessType} />
         </div>
       </div>
 
-      {/* Content Section */}
       <div className="p-6 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-semibold">{product.name}</h3>
-          <StatusBadge status={product.status} />
+        <div className="min-w-0 mb-4">
+          {product.platformName && (
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground mb-2">
+              {product.platformName}
+            </p>
+          )}
+          <h3 className="text-xl font-semibold leading-tight">{product.name}</h3>
+          {product.description && (
+            <p className="mt-3 text-sm text-muted-foreground line-clamp-3">
+              {product.description}
+            </p>
+          )}
+          <p className="mt-3 text-xl font-semibold text-primary">{priceLabel}</p>
         </div>
 
-        <p className="text-sm text-muted-foreground mb-4 flex-grow">
-          {product.description}
-        </p>
-
-        <div className="space-y-4">
-          <div className="flex flex-col">
-            <span className="text-xs font-semibold text-muted-foreground">
-              Duración: {product.duration}
-            </span>
-            <span className={cn(
-              "text-xl font-semibold",
-              isSoldOut ? "text-muted-foreground" : "text-primary"
-            )}>
-              {product.priceCUP}{" "}
-              <span className="text-sm text-muted-foreground">/ {product.priceMLC}</span>
-            </span>
-          </div>
+        <div className="space-y-4 mt-auto">
+          
 
           <button
-            onClick={() => !isSoldOut && onBuy?.(product)}
-            disabled={isSoldOut}
+            onClick={() => onBuy?.(product)}
             className={cn(
-              "w-full py-4 rounded-lg font-bold transition-all",
-              isSoldOut
-                ? "bg-muted text-muted-foreground cursor-not-allowed"
-                : "bg-primary text-primary-foreground hover:opacity-90"
+              "w-full py-4 rounded-lg font-bold transition-all bg-primary text-primary-foreground hover:opacity-90"
             )}
           >
-            {isSoldOut ? "Agotado" : "Comprar ahora"}
+            Comprar ahora
           </button>
         </div>
       </div>

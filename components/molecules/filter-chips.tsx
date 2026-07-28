@@ -2,8 +2,10 @@
 
 import { Chip } from "@/components/atoms/chip";
 
+export type FilterChipOption = string | { value: string; label: string };
+
 interface FilterChipsProps {
-  options: string[];
+  options: FilterChipOption[];
   selected: string;
   onSelect: (value: string) => void;
 }
@@ -13,11 +15,11 @@ export function FilterChips({ options, selected, onSelect }: FilterChipsProps) {
     <div className="flex flex-wrap gap-2">
       {options.map((option) => (
         <Chip
-          key={option}
-          active={selected === option}
-          onClick={() => onSelect(option)}
+          key={typeof option === "string" ? option : option.value}
+          active={selected === (typeof option === "string" ? option : option.value)}
+          onClick={() => onSelect(typeof option === "string" ? option : option.value)}
         >
-          {option}
+          {typeof option === "string" ? option : option.label}
         </Chip>
       ))}
     </div>

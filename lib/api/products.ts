@@ -193,7 +193,8 @@ function getErrorMessage(error: AxiosError, action: string): string {
 export async function getProducts(
   filters?: ProductFilters,
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  signal?: AbortSignal
 ): Promise<{ data: ProductWithDetails[]; pagination: PaginationMeta }> {
   try {
     const params = new URLSearchParams();
@@ -212,7 +213,7 @@ export async function getProducts(
     const cached = getCached<{ data: ProductWithDetails[]; pagination: PaginationMeta }>(cacheKey)
     if (cached) return cached
 
-    const response = await apiClient.get(`/products?${params.toString()}`);
+    const response = await apiClient.get(`/products?${params.toString()}`, { signal });
     setCache(cacheKey, response.data)
     return response.data;
   } catch (error) {
@@ -227,6 +228,38 @@ export async function getProductById(id: string): Promise<ProductWithDetails> {
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener producto"));
   }
+}
+
+export async function getProductBySlug(slug: string): Promise<ProductWithDetails | null> {
+  const normalizedSlug = slug.trim().toLowerCase();
+
+  if (!normalizedSlug) {
+    return null;
+  }
+
+  const searchResponse = await getProducts({ search: normalizedSlug }, 1, 100);
+  const searchMatch = searchResponse.data.find((product) => product.slug.toLowerCase() === normalizedSlug);
+
+  if (searchMatch) {
+    return searchMatch;
+  }
+
+  let page = 1;
+  let totalPages = 1;
+
+  while (page <= totalPages) {
+    const fallbackResponse = await getProducts(undefined, page, 100);
+    const fallbackMatch = fallbackResponse.data.find((product) => product.slug.toLowerCase() === normalizedSlug);
+
+    if (fallbackMatch) {
+      return fallbackMatch;
+    }
+
+    totalPages = fallbackResponse.pagination.totalPages;
+    page += 1;
+  }
+
+  return null;
 }
 
 export async function getProductMetrics(id: string): Promise<ProductMetrics> {

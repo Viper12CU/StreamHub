@@ -1,8 +1,11 @@
+"use client"
 import { VerifiedBadge } from "@/components/molecules/verified-badge"
 import { FeatureBadge } from "@/components/molecules/feature-badge"
 import { Button } from "@/components/atoms/button"
+import { useRouter } from "next/navigation";
 
 export function HeroSection() {
+  const router = useRouter();
   return (
     <section className="pt-32 px-4 md:px-6">
       <div className="max-w-10xl mx-auto relative min-h-[800px] flex items-center overflow-hidden hero-gradient rounded-3xl md:rounded-[3rem] border border-white/5">
@@ -25,11 +28,9 @@ export function HeroSection() {
             </p>
 
             <div className="flex flex-wrap gap-6 pt-4">
-              <a href="#catalogo">
-                <Button size="lg" className="min-w-[180px] rounded-2xl hover:scale-105">
+                <Button size="lg" className="min-w-[180px] rounded-2xl hover:scale-105" onClick={() => router.push("/web/catalog")}>
                   Ver Catálogo
                 </Button>
-              </a>
               <a href="#how">
                 <Button
                   variant="secondary"

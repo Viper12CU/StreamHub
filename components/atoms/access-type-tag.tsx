@@ -1,6 +1,14 @@
 import { cn } from "@/lib/utils";
 
-type AccessType = "profile" | "account" | "code" | "invitation";
+type AccessType =
+  | "profile"
+  | "account"
+  | "code"
+  | "invitation"
+  | "full_account"
+  | "shared_profile"
+  | "activation_code"
+  | "subscription_package";
 
 interface AccessTypeTagProps {
   type: AccessType;
@@ -22,6 +30,22 @@ const accessConfig = {
   },
   invitation: {
     label: "Invitación",
+    className: "bg-green-600/90",
+  },
+  full_account: {
+    label: "Cuenta completa",
+    className: "bg-blue-600/90",
+  },
+  shared_profile: {
+    label: "Perfil compartido",
+    className: "bg-purple-600/90",
+  },
+  activation_code: {
+    label: "Código de activación",
+    className: "bg-orange-600/90",
+  },
+  subscription_package: {
+    label: "Paquete de suscripción",
     className: "bg-green-600/90",
   },
 };
