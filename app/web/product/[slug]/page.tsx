@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ProductDetailTemplate } from "@/components/templates/product-detail-template";
 import { getProductBySlug, getProducts, type ProductWithDetails } from "@/lib/api/products";
+import { getUsdCupRate } from "@/lib/api/exchange-rate";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80";
@@ -33,7 +34,7 @@ function getProductStatus(product: ProductWithDetails): "available" | "limited" 
   return "available";
 }
 
-function mapProductToPageData(product: ProductWithDetails) {
+function mapProductToPageData(product: ProductWithDetails, exchangeRate: number | null) {
   return {
     imageSrc: product.image_url || product.thumbnail || FALLBACK_IMAGE,
     imageAlt: product.name,
@@ -46,6 +47,7 @@ function mapProductToPageData(product: ProductWithDetails) {
       priceCUP: formatPriceLabel(product),
       priceUSD: product.currency === "USD" ? product.price_sale : undefined,
       priceMLC: undefined,
+      exchangeRate: exchangeRate ?? 600,
       description: product.description || "Producto disponible en el catálogo",
       availableUnits: product.available_units,
       soldUnits: product.sold_units,
@@ -103,7 +105,8 @@ export default async function ProductDetailPage({
     notFound();
   }
 
-  const productData = mapProductToPageData(product);
+  const usdCupRate = await getUsdCupRate();
+  const productData = mapProductToPageData(product, usdCupRate);
 
   const allProducts = await getProducts({ status: "active" }, 1, 100);
   const relatedProducts = allProducts.data

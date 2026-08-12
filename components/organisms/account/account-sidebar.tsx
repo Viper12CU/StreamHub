@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/atoms/button";
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/atoms/icon";
+import { useSession } from "@/lib/session-context";
+import { getInitials } from "@/lib/constants/shared";
 
 const navItems = [
   { href: "/web/account", label: "Inicio", icon: "view-dashboard" },
@@ -26,6 +28,7 @@ interface AccountSidebarProps {
 
 export function AccountSidebar({ collapsed, onToggle }: AccountSidebarProps) {
   const pathname = usePathname();
+  const { user } = useSession();
 
   return (
     <aside
@@ -51,11 +54,17 @@ export function AccountSidebar({ collapsed, onToggle }: AccountSidebarProps) {
               collapsed ? "p-2 justify-center" : "gap-3 p-4",
             )}
           >
-            <div className="w-10 h-10 rounded-full bg-[var(--surface-container-high)] ring-2 ring-primary/30 shrink-0" />
+            <div className="w-10 h-10 rounded-full bg-[var(--surface-container-high)] ring-2 ring-primary/30 shrink-0 flex items-center justify-center text-xs font-semibold text-primary overflow-hidden">
+              {user?.image ? (
+                <img src={user.image} alt="" className="w-full h-full object-cover" />
+              ) : (
+                getInitials(user?.name ?? "U")
+              )}
+            </div>
             <div className="overflow-hidden">
-              <p className="text-sm font-semibold truncate">Jorge Garcia</p>
+              <p className="text-sm font-semibold truncate">{user?.name ?? ""}</p>
               <p className="text-xs text-[var(--on-surface-variant)] truncate">
-                jorge.g@email.com
+                {user?.email ?? ""}
               </p>
             </div>
           </div>

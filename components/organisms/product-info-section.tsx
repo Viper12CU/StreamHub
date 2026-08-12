@@ -16,6 +16,7 @@ export interface ProductInfoData {
   priceCUP: string;
   priceUSD?: number;
   priceMLC?: string;
+  exchangeRate: number;
   description: string;
   availableUnits: number;
   soldUnits: number;
@@ -23,14 +24,24 @@ export interface ProductInfoData {
   lowStockThreshold: number;
 }
 
-function PriceTooltip() {
+function PriceTooltip({ exchangeRate }: { exchangeRate: number }) {
   const [show, setShow] = useState(false);
+  const date = new Date();
+  const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+  const now = date.toLocaleDateString('es-ES', options);
+
+
   return (
-    <span className="relative inline-flex" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+    <span
+      className="relative inline-flex items-center"
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+    >
       <Icon name="information" size="sm" className="cursor-help text-muted-foreground hover:text-foreground" />
       {show && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2 glass-panel rounded-lg text-xs text-muted-foreground whitespace-nowrap shadow-lg z-10">
-          Conversión directa desde el toque (USD × 600)
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 px-3 py-2 glass-panel rounded-lg text-xs text-muted-foreground whitespace-nowrap shadow-lg z-10">
+          Conversión directa para hoy {now} desde <a href="https://eltoque.com/tasas-de-cambio-cuba" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">elTOQUE</a> (USD × {exchangeRate})
+          <span className="absolute -top-2 left-0 w-full h-2" />
         </div>
       )}
     </span>
@@ -58,8 +69,8 @@ export function ProductInfoSection({ product, className }: ProductInfoSectionPro
           <span className="text-4xl font-extrabold">{product.priceCUP}</span>
           {product.priceUSD && (
             <span className="text-lg font-medium text-muted-foreground flex items-center gap-1">
-              ≈ ${(product.priceUSD * 600).toLocaleString("es-ES")} CUP
-              <PriceTooltip />
+              ≈ ${(product.priceUSD * product.exchangeRate).toLocaleString("es-ES")} CUP
+              <PriceTooltip exchangeRate={product.exchangeRate} />
             </span>
           )}
           {product.priceMLC ? (

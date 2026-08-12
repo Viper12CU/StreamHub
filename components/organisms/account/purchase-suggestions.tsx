@@ -1,15 +1,41 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { Icon } from '@/components/atoms/icon'
-import { products } from '@/components/data/products'
+import { getProducts, type ProductWithDetails } from '@/lib/api/products'
+import type { Product } from '@/components/molecules/product-card'
+
+function mapToCardProduct(p: ProductWithDetails): Product {
+  return {
+    id: p.id,
+    name: p.name,
+    image: p.image_url || p.thumbnail || '',
+    accessType: p.product_type,
+    priceValue: p.price_sale,
+    brandColor: p.platform_color,
+    slug: p.slug,
+    platformName: p.platform_name,
+    platformSlug: p.platform_slug,
+    description: p.description || undefined,
+    availableUnits: p.available_units,
+  }
+}
 
 export function PurchaseSuggestions() {
   const router = useRouter()
-  const suggestions = products.filter((p) => p.status !== 'soldout').slice(0, 3)
+  const [suggestions, setSuggestions] = useState<Product[]>([])
+
+  useEffect(() => {
+    getProducts({ status: 'active', inventory_status: 'available' }, 1, 3)
+      .then((res) => setSuggestions(res.data.map(mapToCardProduct)))
+      .catch(() => {})
+  }, [])
+
+  if (suggestions.length === 0) return null
 
   return (
     <section className="space-y-4">
@@ -30,8 +56,7 @@ export function PurchaseSuggestions() {
           <button
             key={product.id}
             onClick={() => {
-              const slug = encodeURIComponent(product.name.toLowerCase().replace(/\s+/g, '-'))
-              router.push(`/web/product/${slug}`)
+              router.push(`/web/product/${product.slug}`)
             }}
             className={cn(
               'glass-panel rounded-xl overflow-hidden text-left group',
@@ -41,12 +66,16 @@ export function PurchaseSuggestions() {
             style={{ borderTopColor: product.brandColor }}
           >
             <div className="relative h-32 overflow-hidden">
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
-              />
+              {product.image ? (
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+              ) : (
+                <div className="w-full h-full bg-[var(--surface-container-high)]" />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
             </div>
             <div className="p-4">
@@ -56,7 +85,7 @@ export function PurchaseSuggestions() {
               </p>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold text-primary">
-                  {product.priceCUP}
+                  ${product.priceValue} USD
                 </span>
                 <span className="text-[10px] uppercase tracking-[0.15em] text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                   Ver mas
