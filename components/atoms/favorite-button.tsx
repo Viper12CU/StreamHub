@@ -28,7 +28,7 @@ export function FavoriteButton({
     <button
       onClick={handleClick}
       className={cn(
-        "p-2 rounded-full bg-muted/60 backdrop-blur-md text-foreground hover:text-primary transition-colors",
+        "p-2 rounded-full bg-muted/60 backdrop-blur-md text-foreground hover:text-primary transition-colors cursor-pointer",
         className
       )}
     >

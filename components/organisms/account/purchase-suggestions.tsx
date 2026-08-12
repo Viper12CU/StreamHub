@@ -59,7 +59,7 @@ export function PurchaseSuggestions() {
               router.push(`/web/product/${product.slug}`)
             }}
             className={cn(
-              'glass-panel rounded-xl overflow-hidden text-left group',
+              'glass-panel rounded-xl overflow-hidden text-left group cursor-pointer',
               'hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(229,9,20,0.15)]',
               'transition-all duration-300 border-t-2'
             )}

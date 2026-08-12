@@ -20,7 +20,7 @@ export function PaymentOptionCard({
     <button
       type="button"
       className={cn(
-        "group relative min-h-[178px] overflow-hidden rounded-3xl border p-6 text-left transition-all duration-300",
+        "group relative min-h-[178px] cursor-pointer overflow-hidden rounded-3xl border p-6 text-left transition-all duration-300",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         highlighted
           ? "border-primary/30 bg-primary/[0.12] shadow-xl shadow-primary/15 hover:border-primary/50 hover:bg-primary/[0.18]"

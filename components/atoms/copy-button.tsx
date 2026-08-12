@@ -19,7 +19,7 @@ export function CopyButton({ textToCopy }: CopyButtonProps) {
   return (
     <button
       onClick={handleCopy}
-      className="text-blue-500 hover:text-blue-400 transition-colors"
+      className="text-blue-500 hover:text-blue-400 transition-colors cursor-pointer"
     >
       {copied ? (
         <Check className="w-4 h-4" />

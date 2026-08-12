@@ -105,6 +105,17 @@
     background-color: var(--primary);
     color: white;
   }
+  button:not(:disabled),
+  a[href],
+  [role='button'],
+  [role='tab'],
+  summary {
+    cursor: pointer;
+  }
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
 }
 
 /* Glass Panel Effect */

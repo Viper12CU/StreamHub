@@ -14,7 +14,7 @@ export function Chip({ children, active = false, onClick, className }: ChipProps
     <button
       onClick={onClick}
       className={cn(
-        "px-4 py-2 rounded-full glass-panel text-xs font-semibold tracking-wide transition-colors",
+        "px-4 py-2 rounded-full glass-panel text-xs font-semibold tracking-wide transition-colors cursor-pointer",
         active
           ? "bg-primary/20 text-primary border-primary/30"
           : "hover:bg-white/5",
