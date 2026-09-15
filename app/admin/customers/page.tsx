@@ -9,7 +9,7 @@ import { CustomerTable } from "@/components/molecules/customer-table"
 import { CustomerDetailDrawer } from "@/components/molecules/customer-detail-drawer"
 import { CreateCustomerModal } from "@/components/molecules/create-customer-modal"
 import { CustomerAnalytics } from "@/components/molecules/customer-analytics"
-import { RecentCustomerActivity } from "@/components/molecules/recent-customer-activity"
+import { RecentAuditActivity } from "@/components/molecules/recent-audit-activity"
 import { CustomerInsights } from "@/components/molecules/customer-insights"
 import {
   getCustomers,
@@ -344,7 +344,7 @@ export default function CustomersPage() {
       <CustomerAnalytics analytics={analytics} loading={analyticsLoading} />
 
       {/* Activity */}
-      <RecentCustomerActivity />
+      <RecentAuditActivity category="customer" limit={8} />
 
       {/* Modals & Drawers */}
       {selectedCustomer && (

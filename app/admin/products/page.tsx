@@ -11,6 +11,7 @@ import { EditProductModal } from "@/components/molecules/edit-product-modal"
 import { InventoryInsights } from "@/components/molecules/inventory-insights"
 import { TopPerformers } from "@/components/molecules/top-performers"
 import { ProductAnalytics } from "@/components/molecules/product-analytics"
+import { RecentAuditActivity } from "@/components/molecules/recent-audit-activity"
 import {
   getProducts,
   getProductAnalytics,
@@ -406,6 +407,9 @@ export default function ProductsPage() {
 
       {/* Analytics */}
       <ProductAnalytics analytics={analytics} loading={analyticsLoading} />
+
+      {/* Activity */}
+      <RecentAuditActivity category="product" limit={8} />
 
       {/* Modals & Drawers */}
       {showCreateModal && (

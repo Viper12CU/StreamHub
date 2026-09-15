@@ -12,7 +12,7 @@ import { EditPlatformModal } from "@/components/molecules/edit-platform-modal"
 import { PlatformAnalytics } from "@/components/molecules/platform-analytics"
 import { TopProductsByPlatform } from "@/components/molecules/top-products-by-platform"
 import { PlatformHealth } from "@/components/molecules/platform-health"
-import { RecentPlatformActivity } from "@/components/molecules/recent-platform-activity"
+import { RecentAuditActivity } from "@/components/molecules/recent-audit-activity"
 import {
   getPlatforms,
   getHealthAlerts,
@@ -415,8 +415,8 @@ export default function PlatformsPage() {
         <PlatformHealth alerts={healthAlerts} loading={healthLoading} />
       </div>
 
-      {/* Activity — FUTURO: Requiere tabla de auditoria (audit_logs) */}
-      <RecentPlatformActivity />
+      {/* Activity */}
+      <RecentAuditActivity category="platform" limit={8} />
 
       {/* Modals & Drawers */}
       {showCreateModal && (

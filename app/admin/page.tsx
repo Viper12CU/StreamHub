@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Icon } from "@/components/atoms/icon"
 import { MetricCard } from "@/components/atoms/metric-card"
 import { RevenueChart } from "@/components/molecules/revenue-chart"
 import { ActivityTable } from "@/components/molecules/activity-table"
@@ -12,7 +11,7 @@ import { PlatformMix } from "@/components/molecules/platform-mix"
 import { ShortcutsPanel } from "@/components/molecules/shortcuts-panel"
 import { TopProducts } from "@/components/molecules/top-products"
 import { CustomerGrowth } from "@/components/molecules/customer-growth"
-import { RecentActivityFeed } from "@/components/molecules/recent-activity-feed"
+import { RecentAuditActivity } from "@/components/molecules/recent-audit-activity"
 import { getInventoryStats, type InventoryStats } from "@/lib/api/inventory"
 import { getCustomerStats, type CustomerCounts } from "@/lib/api/customers"
 
@@ -88,14 +87,13 @@ export default function AdminDashboardPage() {
         {/* Customer Growth — conectado a API */}
         <CustomerGrowth />
 
-        {/* FUTURO: RecentActivityFeed — requiere endpoint unificado */}
-        <RecentActivityFeed />
+        {/* Actividad reciente — conectado a API de auditorías */}
+        <div className="col-span-full">
+          <RecentAuditActivity limit={10} />
+        </div>
       </div>
 
-      {/* Floating Action Button */}
-      <button className="fixed bottom-10 right-10 w-14 h-14 bg-primary-container text-on-primary-container rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
-        <Icon name="plus" className="text-2xl" />
-      </button>
+
     </>
   )
 }

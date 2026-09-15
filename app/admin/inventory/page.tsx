@@ -10,21 +10,19 @@ import { AssetDetailDrawer } from "@/components/molecules/asset-detail-drawer"
 import { CreateAssetModal } from "@/components/molecules/create-asset-modal"
 import { InventoryHealth } from "@/components/molecules/inventory-health"
 import { LowStockMonitoring } from "@/components/molecules/low-stock-monitoring"
-import { RecentInventoryActivity } from "@/components/molecules/recent-inventory-activity"
+import { RecentAuditActivity } from "@/components/molecules/recent-audit-activity"
 import { InventoryAssignmentCenter } from "@/components/molecules/inventory-assignment-center"
 import {
   getInventory,
   getInventoryStats,
   getInventoryHealth,
   getLowStock,
-  getInventoryActivity,
   bulkInventoryAction,
   clearInventoryCache,
   type InventoryWithDetails,
   type InventoryStats,
   type InventoryHealth as InventoryHealthType,
   type LowStockItem,
-  type InventoryActivity,
   type InventoryFilters as InventoryFiltersType,
 } from "@/lib/api/inventory"
 import { getPlatforms, type Platform } from "@/lib/api/platforms"
@@ -45,12 +43,10 @@ export default function InventoryPage() {
   const [stats, setStats] = useState<InventoryStats | null>(null)
   const [health, setHealth] = useState<InventoryHealthType | null>(null)
   const [lowStock, setLowStock] = useState<LowStockItem[]>([])
-  const [activities, setActivities] = useState<InventoryActivity[]>([])
   const [loading, setLoading] = useState(true)
   const [statsLoading, setStatsLoading] = useState(true)
   const [healthLoading, setHealthLoading] = useState(true)
   const [lowStockLoading, setLowStockLoading] = useState(true)
-  const [activityLoading, setActivityLoading] = useState(true)
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 })
   const [tabTypeCounts, setTabTypeCounts] = useState({ accounts: 0, profiles: 0, codes: 0, packages: 0 })
 
@@ -124,18 +120,6 @@ export default function InventoryPage() {
     }
   }, [])
 
-  const fetchActivity = useCallback(async () => {
-    setActivityLoading(true)
-    try {
-      const data = await getInventoryActivity(10)
-      setActivities(data)
-    } catch {
-      // silent
-    } finally {
-      setActivityLoading(false)
-    }
-  }, [])
-
   const fetchTabTypeCounts = useCallback(async () => {
     try {
       const [accounts, profiles, codes, packages] = await Promise.all([
@@ -160,9 +144,8 @@ export default function InventoryPage() {
     fetchStats()
     fetchHealth()
     fetchLowStock()
-    fetchActivity()
     fetchTabTypeCounts()
-  }, [fetchItems, fetchStats, fetchHealth, fetchLowStock, fetchActivity, fetchTabTypeCounts])
+  }, [fetchItems, fetchStats, fetchHealth, fetchLowStock, fetchTabTypeCounts])
 
   useEffect(() => { fetchAll() }, [fetchAll])
 
@@ -401,7 +384,7 @@ export default function InventoryPage() {
       {/* Low Stock & Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <LowStockMonitoring items={lowStock} loading={lowStockLoading} />
-        <RecentInventoryActivity activities={activities} loading={activityLoading} />
+        <RecentAuditActivity category="inventory" limit={8} />
       </div>
 
       {/* Modals & Drawers */}

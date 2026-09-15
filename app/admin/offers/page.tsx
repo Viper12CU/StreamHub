@@ -10,7 +10,7 @@ import { OfferTable } from "@/components/molecules/offer-table"
 import { OfferDetailDrawer } from "@/components/molecules/offer-detail-drawer"
 import { CreateOfferModal } from "@/components/molecules/create-offer-modal"
 import { OfferAnalytics } from "@/components/molecules/offer-analytics"
-import { RecentOfferActivity } from "@/components/molecules/recent-offer-activity"
+import { RecentAuditActivity } from "@/components/molecules/recent-audit-activity"
 import {
   getOffers,
   getOfferById,
@@ -446,8 +446,8 @@ export default function OffersPage() {
       {/* Analytics */}
       <OfferAnalytics offers={offers} loading={loading} />
 
-      {/* Recent Activity */}
-      <RecentOfferActivity />
+      {/* Activity */}
+      <RecentAuditActivity category="offer" limit={8} />
 
       {/* Modals & Drawers */}
       {showCreateModal && (

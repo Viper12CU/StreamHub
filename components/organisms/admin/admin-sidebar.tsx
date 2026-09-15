@@ -17,6 +17,8 @@ const navItems = [
   // { label: "Pedidos", icon: "cart", href: "/admin/orders" },
   { label: "Ofertas", icon: "tag", href: "/admin/offers" },
   { label: "Clientes", icon: "account-group", href: "/admin/customers" },
+  { label: "Auditoría", icon: "text-box-check", href: "/admin/audit" },
+  { label: "Créditos", icon: "cash", href: "/admin/credits" },
 ]
 
 interface AdminSidebarProps {

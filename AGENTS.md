@@ -130,14 +130,14 @@ components/
 - `molecules/platform-analytics.tsx` — Analytics de plataformas (ingresos, órdenes, inventario, clientes)
 - `molecules/top-products-by-platform.tsx` — Tabla de top productos por plataforma (ventas, ingresos, inventario)
 - `molecules/platform-health.tsx` — Monitoreo de salud de plataformas (inventario bajo, productos inactivos, caída ingresos, activos por expirar)
-- `molecules/recent-platform-activity.tsx` — Timeline de actividad reciente de plataformas
+- `molecules/recent-audit-activity.tsx` — Timeline de actividad reciente por categoría (API de auditorías, reutilizable)
 - `molecules/offer-tabs.tsx` — Tabs de estado de ofertas (4 estados: All, Active, Inactive, Expired) con conteo
 - `molecules/offer-filters.tsx` — Filtros de ofertas (tipo: discount/combo, fechas de vigencia)
 - `molecules/offer-table.tsx` — Tabla de ofertas con selección múltiple, menú acciones (ver, duplicar, activar/desactivar, eliminar)
 - `molecules/offer-detail-drawer.tsx` — Drawer de detalle de oferta (resumen, productos, notas) con API real
 - `molecules/create-offer-modal.tsx` — Modal de creación de oferta 4 pasos (tipo, detalle, vigencia, resumen) conectado a API
 - `molecules/offer-analytics.tsx` — Analytics de ofertas (donut estados, barras tipos, resumen descuentos)
-- `molecules/recent-offer-activity.tsx` — Timeline de actividad reciente de ofertas (mock data)
+
 - `organisms/admin/admin-sidebar.tsx` — Sidebar completa (11 items de navegación)
 - `organisms/admin/admin-top-bar.tsx` — Top bar completa (compone AdminSearchInput, AdminUserProfile)
 
