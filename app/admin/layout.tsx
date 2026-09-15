@@ -46,6 +46,7 @@ export default function AdminLayout({
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [initialized, setInitialized] = useState(false)
   const isLoginPage = pathname === "/admin/login"
 
   useEffect(() => {
@@ -55,9 +56,12 @@ export default function AdminLayout({
   useEffect(() => {
     if (isLoginPage) {
       setIsLoading(false)
+      setInitialized(false)
       return
     }
 
+    setIsLoading(true)
+    setInitialized(false)
     getSession()
       .then(({ user }) => {
         const role = user?.role
@@ -75,22 +79,23 @@ export default function AdminLayout({
       })
       .finally(() => {
         setIsLoading(false)
+        setInitialized(true)
       })
   }, [isLoginPage])
 
   useEffect(() => {
-    if (!isLoading && !isLoginPage) {
-      if (!isAuthenticated) {
-        router.replace("/admin/login")
-      } else if (!isAdmin) {
-        sileo.error({
-          title: "No autorizado",
-          description: "No tienes permisos de administrador para acceder a esta seccion.",
-        })
-        router.replace("/admin/login")
-      }
+    if (!initialized || isLoading || isLoginPage) return
+
+    if (!isAuthenticated) {
+      router.replace("/admin/login")
+    } else if (!isAdmin) {
+      sileo.error({
+        title: "No autorizado",
+        description: "No tienes permisos de administrador para acceder a esta seccion.",
+      })
+      router.replace("/admin/login")
     }
-  }, [isLoading, isAuthenticated, isAdmin, isLoginPage, router])
+  }, [initialized, isLoading, isAuthenticated, isAdmin, isLoginPage, router])
 
   const handleToggle = useCallback(() => setCollapsed((prev) => !prev), [])
 

@@ -56,6 +56,11 @@ export async function signUp(data: {
   try {
     const response = await apiClient.post("/auth/sign-up/email", data);
     const body = response.data?.data ?? response.data;
+
+    if (body?.token) {
+      setSessionToken(body.token);
+    }
+
     return body;
   } catch (error) {
     const axiosError = error as AxiosError;
