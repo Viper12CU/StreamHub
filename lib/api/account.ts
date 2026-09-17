@@ -1,5 +1,6 @@
 import apiClient from "../axios"
 import type { AxiosError } from "axios"
+import type { CreditTransactionType } from "./credits"
 
 // ─── Simple request cache ─────────────────────────────────
 
@@ -136,5 +137,72 @@ export async function getMyOrders(): Promise<MyOrder[]> {
     return result
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener ordenes"))
+  }
+}
+
+// ─── Credits (Customer-facing) ─────────────────────────────
+
+export interface MyCreditBalance {
+  id: string
+  customer_id: string
+  balance: number
+  lifetime_credited: number
+  lifetime_spent: number
+  created_at: string
+  updated_at: string
+}
+
+export interface MyCreditTransaction {
+  id: string
+  customer_id: string
+  type: CreditTransactionType
+  amount: number
+  balance_before: number
+  balance_after: number
+  reason: string | null
+  created_at: string
+}
+
+export interface CreditPaginationMeta {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+export async function getMyCreditBalance(): Promise<MyCreditBalance> {
+  try {
+    const cacheKey = "account:credits:balance"
+    const cached = getCached<MyCreditBalance>(cacheKey)
+    if (cached) return cached
+
+    const response = await apiClient.get("/credits/me")
+    const result = response.data.data
+    setCache(cacheKey, result)
+    return result
+  } catch (error) {
+    throw new Error(getErrorMessage(error as AxiosError, "obtener balance de créditos"))
+  }
+}
+
+export async function getMyCreditTransactions(
+  page: number = 1,
+  limit: number = 20
+): Promise<{ data: MyCreditTransaction[]; pagination: CreditPaginationMeta }> {
+  try {
+    const params = new URLSearchParams()
+    params.set("page", String(page))
+    params.set("limit", String(limit))
+
+    const cacheKey = `account:credits:transactions:${params.toString()}`
+    const cached = getCached<{ data: MyCreditTransaction[]; pagination: CreditPaginationMeta }>(cacheKey)
+    if (cached) return cached
+
+    const response = await apiClient.get(`/credits/me/transactions?${params.toString()}`)
+    const result = { data: response.data.data, pagination: response.data.pagination }
+    setCache(cacheKey, result)
+    return result
+  } catch (error) {
+    throw new Error(getErrorMessage(error as AxiosError, "obtener transacciones de crédito"))
   }
 }

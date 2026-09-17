@@ -1,12 +1,13 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Button } from "@/components/atoms/button";
-import { cn } from "@/lib/utils";
-import { Icon } from "@/components/atoms/icon";
-import { useSession } from "@/lib/session-context";
-import { getInitials } from "@/lib/constants/shared";
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { Button } from "@/components/atoms/button"
+import { cn } from "@/lib/utils"
+import { Icon } from "@/components/atoms/icon"
+import { useSession } from "@/lib/session-context"
+import { getInitials } from "@/lib/constants/shared"
+import { CreditBalanceBadge } from "@/components/molecules/credit-balance-badge"
 
 const navItems = [
   { href: "/web/account", label: "Inicio", icon: "view-dashboard" },
@@ -16,10 +17,11 @@ const navItems = [
     label: "Servicios Activos",
     icon: "credit-card-outline",
   },
+  { href: "/web/account/credits", label: "Mis Créditos", icon: "cash-multiple" },
   { href: "/web/account/wishlist", label: "Wishlist", icon: "heart" },
   { href: "/web/catalog", label: "Catálogo", icon: "store" },
   { href: "/web/account/settings", label: "Configuracion", icon: "cog" },
-];
+]
 
 interface AccountSidebarProps {
   collapsed: boolean;
@@ -69,6 +71,8 @@ export function AccountSidebar({ collapsed, onToggle }: AccountSidebarProps) {
             </div>
           </div>
         )}
+
+        <CreditBalanceBadge collapsed={collapsed} />
 
         <nav className="space-y-2 text-sm">
           {navItems.map((item) => {

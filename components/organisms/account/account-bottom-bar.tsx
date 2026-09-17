@@ -8,6 +8,7 @@ import { Icon } from "@/components/atoms/icon"
 const navItems = [
   { href: "/web/account", label: "Inicio", icon: "view-dashboard" },
   { href: "/web/account/purchases", label: "Compras", icon: "shopping" },
+  { href: "/web/account/credits", label: "Créditos", icon: "cash-multiple" },
   { href: "/web/account/active-services", label: "Servicios", icon: "credit-card-outline" },
   { href: "/web/account/wishlist", label: "Wishlist", icon: "heart" },
   { href: "/web/catalog", label: "Tienda", icon: "store" },

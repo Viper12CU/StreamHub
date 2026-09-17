@@ -162,3 +162,29 @@ export function getInventoryColor(count: number): string {
   if (count >= 5) return "text-amber-500"
   return "text-error"
 }
+
+// ─── Credit Constants ───────────────────────────────────────────────────────
+
+export const creditTransactionLabels: Record<string, string> = {
+  admin_grant: "Recarga",
+  admin_deduct: "Deducción",
+  adjustment: "Ajuste",
+  purchase: "Compra",
+  refund: "Reembolso",
+}
+
+export const creditTransactionColors: Record<string, string> = {
+  admin_grant: "text-green-400",
+  admin_deduct: "text-red-400",
+  adjustment: "text-yellow-400",
+  purchase: "text-blue-400",
+  refund: "text-purple-400",
+}
+
+export const creditTransactionIcons: Record<string, string> = {
+  admin_grant: "plus-circle",
+  admin_deduct: "minus-circle",
+  adjustment: "cog",
+  purchase: "shopping",
+  refund: "rotate-left",
+}

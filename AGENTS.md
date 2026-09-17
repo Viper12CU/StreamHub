@@ -27,6 +27,7 @@ Toda la web de la tienda. Layout independiente con Providers y branding.
 | `/web/account` | `app/web/account/page.tsx` + `layout.tsx` (AuthGuard + sidebar) |
 | `/web/account/purchases` | `app/web/account/purchases/page.tsx` |
 | `/web/account/active-services` | `app/web/account/active-services/page.tsx` |
+| `/web/account/credits` | `app/web/account/credits/page.tsx` (saldo, historial, recarga WhatsApp/QvaPay) |
 | `/web/account/wishlist` | `app/web/account/wishlist/page.tsx` |
 | `/web/account/settings` | `app/web/account/settings/page.tsx` |
 
@@ -143,24 +144,31 @@ components/
 
 ### Web components clave
 - `organisms/navbar.tsx` — Navegación principal (usa rutas `/web/*`)
-- `organisms/account/account-sidebar.tsx` — Sidebar de cuenta (colapsable, similar a admin)
+- `organisms/account/account-sidebar.tsx` — Sidebar de cuenta (colapsable, similar a admin, incluye CreditBalanceBadge)
 - `organisms/account/account-layout-client.tsx` — Layout client de cuenta con sidebar
 - `organisms/account/auth-guard.tsx` — Guard de autenticación (redirige a `/web/login`)
+- `organisms/account/account-hero.tsx` — Hero con stats + balance de créditos
 - `organisms/login-form-card.tsx` — Formulario login (usa `FormField` + `Button`)
 - `organisms/hero-slider/` — Hero slider animado con GSAP (4 archivos + index)
 - `templates/login-template.tsx` — Layout login con `BrandingSection`
+- `molecules/credit-balance-badge.tsx` — Badge de saldo de créditos (sidebar + bottom bar)
+- `molecules/credit-hero-card.tsx` — Hero card de créditos (balance, recargado, gastado)
+- `molecules/credit-transaction-table.tsx` — Tabla de historial de transacciones (paginada)
+- `molecules/credit-recharge-options.tsx` — Opciones de recarga (WhatsApp + QvaPay)
 
 ## Lib & Hooks
 
 ```
 lib/
   api/auth.ts          — Funciones de autenticación (signIn, signUp, signOut, setSessionToken)
+  api/account.ts       — API de cuenta cliente (profile, orders, getMyCreditBalance, getMyCreditTransactions)
+  api/credits.ts       — API de créditos admin (accounts, transactions, grant/deduct/adjust, cache 30s)
   api/customers.ts     — API de clientes (CRUD, stats, analytics, insights, activity, cache 30s)
   api/inventory.ts     — API de inventario (CRUD, stats, health, low-stock, activity, bulk, assign, cache 30s)
   api/offers.ts        — API de ofertas (CRUD, deactivate, duplicate, addProduct, removeProduct, cache 30s)
   api/platforms.ts     — API de plataformas (CRUD, analytics, health, cache 30s)
   api/products.ts      — API de productos (CRUD, analytics, health, bulk, duplicate, cache 30s)
-  constants/shared.ts  — Constantes compartidas: statusMap (product/platform/customer/order/offer/inventory), productTypeMap, assetTypeLabels, platformCategories, platformColors, generateSlug, formatDate, formatRelativeDate, formatDateFull, getInitials, getRelativeDate, getMonthYear, getLetter, getInventoryColor
+  constants/shared.ts  — Constantes compartidas: statusMap (product/platform/customer/order/offer/inventory), productTypeMap, assetTypeLabels, platformCategories, platformColors, creditTransactionLabels, creditTransactionColors, creditTransactionIcons, generateSlug, formatDate, formatRelativeDate, formatDateFull, getInitials, getRelativeDate, getMonthYear, getLetter, getInventoryColor
   constants/products.ts — Re-exporta desde shared.ts + productTypes, statusOptions, safeToFixed (específicos de productos)
   axios.ts             — Instancia de axios configurada
   session-context.tsx  — Context de sesión (useSession, SessionProvider)
