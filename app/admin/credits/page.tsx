@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
+import { useDebounce } from "@/hooks/use-debounce"
 import { Icon } from "@/components/atoms/icon"
 import { sileo } from "sileo"
 import { CreditStatsCards } from "@/components/molecules/credit-stats-cards"
@@ -14,14 +15,12 @@ import { GrantCreditsModal } from "@/components/molecules/grant-credits-modal"
 import { DeductCreditsModal } from "@/components/molecules/deduct-credits-modal"
 import { AdjustCreditsModal } from "@/components/molecules/adjust-credits-modal"
 import {
-  getCreditAccounts,
-  getCreditStats,
-  getCreditAnalytics,
-  type CreditAccountWithUser,
-  type CreditAccountFilters as CreditAccountFiltersType,
-  type CreditStats,
-  type CreditAnalyticsData,
-  type CreditCounts,
+  useSWRCreditAccounts,
+  useSWRCreditStats,
+  useSWRCreditAnalytics,
+} from "@/lib/api/hooks/use-sw-credit"
+import type {
+  CreditAccountFilters as CreditAccountFiltersType,
 } from "@/lib/api/credits"
 
 const sortMap: Record<string, string> = {
@@ -43,103 +42,55 @@ export default function CreditsPage() {
     return "table"
   })
   const [search, setSearch] = useState("")
+  const debouncedSearch = useDebounce(search)
 
   useEffect(() => {
     localStorage.setItem("admin-credits-view", viewMode)
   }, [viewMode])
 
-  const [accounts, setAccounts] = useState<CreditAccountWithUser[]>([])
-  const [loading, setLoading] = useState(true)
-  const [fetchError, setFetchError] = useState<string | null>(null)
-  const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 })
-  const [counts, setCounts] = useState<CreditCounts>({ all: 0, with_balance: 0, no_balance: 0 })
-
-  const [stats, setStats] = useState<CreditStats | null>(null)
-  const [statsLoading, setStatsLoading] = useState(true)
-  const [analytics, setAnalytics] = useState<CreditAnalyticsData | null>(null)
-  const [analyticsLoading, setAnalyticsLoading] = useState(true)
-
   const [filters, setFilters] = useState<CreditAccountFiltersType>({})
   const [sortBy, setSortBy] = useState("Más Recientes")
+  const [page, setPage] = useState(1)
 
   const [showGrantModal, setShowGrantModal] = useState(false)
   const [showDeductModal, setShowDeductModal] = useState(false)
   const [showAdjustModal, setShowAdjustModal] = useState(false)
   const [modalCustomerId, setModalCustomerId] = useState<string>("")
   const [modalUserName, setModalUserName] = useState<string>("")
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [refreshCount, setRefreshCount] = useState(0)
 
-  const filtersRef = useRef(filters)
-  const activeTabRef = useRef(activeTab)
-  const searchRef = useRef(search)
-
-  useEffect(() => { filtersRef.current = filters }, [filters])
-  useEffect(() => { activeTabRef.current = activeTab }, [activeTab])
-  useEffect(() => { searchRef.current = search }, [search])
-
-  const fetchAccounts = useCallback(async (page = 1) => {
-    try {
-      setLoading(true)
-      setFetchError(null)
-      const tabFilters: CreditAccountFiltersType = { ...filtersRef.current }
-      if (activeTabRef.current === "with_balance") {
-        tabFilters.has_balance = true
-      } else if (activeTabRef.current === "no_balance") {
-        tabFilters.has_balance = false
-      }
-      if (searchRef.current) {
-        tabFilters.search = searchRef.current
-      }
-      tabFilters.sort = (sortMap[sortBy] || "recent") as CreditAccountFiltersType["sort"]
-      const result = await getCreditAccounts(tabFilters, page)
-      setAccounts(result.data)
-      setPagination(result.pagination)
-      setCounts({
-        all: result.pagination.total,
-        with_balance: result.data.filter(a => a.balance > 0).length,
-        no_balance: result.data.filter(a => a.balance === 0).length,
-      })
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Error desconocido"
-      setFetchError(msg)
-      sileo.error({ title: "Error", description: "No se pudieron cargar las cuentas de crédito" })
-    } finally {
-      setLoading(false)
+  const effectiveFilters = useMemo<CreditAccountFiltersType>(() => {
+    const f: CreditAccountFiltersType = { ...filters }
+    if (activeTab === "with_balance") {
+      f.has_balance = true
+    } else if (activeTab === "no_balance") {
+      f.has_balance = false
     }
-  }, [sortBy])
-
-  const fetchStats = useCallback(async () => {
-    try {
-      setStatsLoading(true)
-      const data = await getCreditStats()
-      setStats(data)
-    } catch {
-      // Non-critical
-    } finally {
-      setStatsLoading(false)
+    if (debouncedSearch) {
+      f.search = debouncedSearch
     }
-  }, [])
+    f.sort = (sortMap[sortBy] || "recent") as CreditAccountFiltersType["sort"]
+    return f
+  }, [activeTab, filters, debouncedSearch, sortBy])
 
-  const fetchAnalytics = useCallback(async () => {
-    try {
-      setAnalyticsLoading(true)
-      const data = await getCreditAnalytics()
-      setAnalytics(data)
-    } catch {
-      // Non-critical
-    } finally {
-      setAnalyticsLoading(false)
+  const {
+    data: accounts,
+    pagination,
+    isLoading,
+    mutate,
+  } = useSWRCreditAccounts(effectiveFilters, page, 50)
+
+  const { data: stats, isLoading: statsLoading, mutate: mutateStats } = useSWRCreditStats()
+  const { data: analytics, isLoading: analyticsLoading } = useSWRCreditAnalytics()
+
+  const counts = useMemo(() => {
+    if (!pagination) return { all: 0, with_balance: 0, no_balance: 0 }
+    return {
+      all: pagination.total,
+      with_balance: accounts.filter(a => a.balance > 0).length,
+      no_balance: accounts.filter(a => a.balance === 0).length,
     }
-  }, [])
-
-  useEffect(() => {
-    fetchStats()
-    fetchAnalytics()
-  }, [fetchStats, fetchAnalytics])
-
-  useEffect(() => {
-    fetchAccounts()
-  }, [activeTab, filters, search, fetchAccounts])
+  }, [pagination, accounts])
 
   const handleFilterChange = useCallback((newFilters: Record<string, string[]>) => {
     const apiFilters: CreditAccountFiltersType = {}
@@ -148,18 +99,19 @@ export default function CreditsPage() {
       apiFilters.balance_max = Number(newFilters.balance[1])
     }
     setFilters(apiFilters)
+    setPage(1)
   }, [])
 
   const handleSortChange = useCallback((sort: string) => {
     setSortBy(sort)
+    setPage(1)
   }, [])
 
   const handleRefresh = useCallback(() => {
-    fetchAccounts()
-    fetchStats()
-    fetchAnalytics()
-    setRefreshKey(k => k + 1)
-  }, [fetchAccounts, fetchStats, fetchAnalytics])
+    mutate()
+    mutateStats()
+    setRefreshCount(k => k + 1)
+  }, [mutate, mutateStats])
 
   const openGrantModal = useCallback((customerId: string, userName?: string) => {
     setModalCustomerId(customerId)
@@ -260,24 +212,10 @@ export default function CreditsPage() {
       </section>
 
       {/* KPI Overview */}
-      <CreditStatsCards stats={stats} loading={statsLoading} />
-
-      {/* Error State */}
-      {fetchError && !loading && (
-        <div className="glass rounded-xl p-8 border border-error/20 text-center space-y-3">
-          <Icon name="alert-circle" className="text-3xl text-error/50 block" />
-          <p className="text-sm text-on-surface">{fetchError}</p>
-          <button
-            onClick={() => fetchAccounts()}
-            className="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-primary/50"
-          >
-            Reintentar
-          </button>
-        </div>
-      )}
+      <CreditStatsCards stats={stats ?? null} loading={statsLoading} />
 
       {/* Tabs */}
-      <CreditAccountTabs activeTab={activeTab} onTabChange={setActiveTab} counts={counts} loading={loading} />
+      <CreditAccountTabs activeTab={activeTab} onTabChange={setActiveTab} counts={counts} loading={isLoading} />
 
       {/* Filters */}
       <CreditAccountFilters
@@ -294,19 +232,19 @@ export default function CreditsPage() {
             onSelectAccount={setSelectedCustomer}
             viewMode={viewMode}
             accounts={accounts}
-            loading={loading}
+            loading={isLoading}
             hasActiveFilters={hasActiveFilters}
             pagination={pagination}
-            onPageChange={(page) => fetchAccounts(page)}
+            onPageChange={setPage}
           />
         </div>
         <div className="lg:col-span-2 space-y-5">
-          <CreditAnalytics analytics={analytics} loading={analyticsLoading} />
+          <CreditAnalytics analytics={analytics ?? null} loading={analyticsLoading} />
         </div>
       </div>
 
       {/* Transaction History */}
-      <CreditTransactionTable refreshKey={refreshKey} />
+      <CreditTransactionTable />
 
       {/* Modals & Drawers */}
       {selectedCustomer && (

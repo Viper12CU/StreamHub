@@ -46,32 +46,13 @@ export interface AuditFilters {
   search?: string
 }
 
-// ─── Cache (30s) ────────────────────────────────────────────────────────────
-
-const cache = new Map<string, { data: unknown; ts: number }>()
-const CACHE_TTL = 30_000
-
-function getCached<T>(key: string): T | null {
-  const entry = cache.get(key)
-  if (entry && Date.now() - entry.ts < CACHE_TTL) return entry.data as T
-  cache.delete(key)
-  return null
-}
-
-function setCache(key: string, data: unknown) {
-  cache.set(key, { data, ts: Date.now() })
-}
-
-export function clearAuditCache() {
-  cache.clear()
-}
-
 // ─── API ────────────────────────────────────────────────────────────────────
 
 export async function getAudits(
   filters: AuditFilters = {},
   page = 1,
-  limit = 20
+  limit = 20,
+  signal?: AbortSignal
 ): Promise<{ data: Audit[]; pagination: PaginationMeta }> {
   const params = new URLSearchParams()
   params.set("page", String(page))
@@ -84,12 +65,6 @@ export async function getAudits(
   if (filters.end_date) params.set("end_date", filters.end_date)
   if (filters.search) params.set("search", filters.search)
 
-  const cacheKey = `audits:${params.toString()}`
-  const cached = getCached<{ data: Audit[]; pagination: PaginationMeta }>(cacheKey)
-  if (cached) return cached
-
-  const { data } = await axios.get(`/audits?${params.toString()}`)
-  const result = { data: data.data, pagination: data.pagination }
-  setCache(cacheKey, result)
-  return result
+  const { data } = await axios.get(`/audits?${params.toString()}`, { signal })
+  return { data: data.data, pagination: data.pagination }
 }

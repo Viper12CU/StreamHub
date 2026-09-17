@@ -5,7 +5,6 @@ import { InfoBox } from "@/components/molecules/info-box";
 import { PaymentOptionCard } from "@/components/molecules/payment-option-card";
 import { LoginPrompt } from "@/components/molecules/login-prompt";
 import { useSession } from "@/lib/session-context";
-import { useState } from "react";
 import { Icon } from "@/components/atoms/icon";
 import { cn } from "@/lib/utils";
 
@@ -16,36 +15,11 @@ export interface ProductInfoData {
   priceCUP: string;
   priceUSD?: number;
   priceMLC?: string;
-  exchangeRate: number;
   description: string;
   availableUnits: number;
   soldUnits: number;
   stockInitial: number;
   lowStockThreshold: number;
-}
-
-function PriceTooltip({ exchangeRate }: { exchangeRate: number }) {
-  const [show, setShow] = useState(false);
-  const date = new Date();
-  const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-  const now = date.toLocaleDateString('es-ES', options);
-
-
-  return (
-    <span
-      className="relative inline-flex items-center"
-      onMouseEnter={() => setShow(true)}
-      onMouseLeave={() => setShow(false)}
-    >
-      <Icon name="information" size="sm" className="cursor-help text-muted-foreground hover:text-foreground" />
-      {show && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 px-3 py-2 glass-panel rounded-lg text-xs text-muted-foreground whitespace-nowrap shadow-lg z-10">
-          Conversión directa para hoy {now} desde <a href="https://eltoque.com/tasas-de-cambio-cuba" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">elTOQUE</a> (USD × {exchangeRate})
-          <span className="absolute -top-2 left-0 w-full h-2" />
-        </div>
-      )}
-    </span>
-  );
 }
 
 interface ProductInfoSectionProps {
@@ -67,12 +41,6 @@ export function ProductInfoSection({ product, className }: ProductInfoSectionPro
         </div> */}
         <div className="flex items-baseline gap-3 flex-wrap m-[1.5rem]">
           <span className="text-4xl font-extrabold">{product.priceCUP}</span>
-          {product.priceUSD && (
-            <span className="text-lg font-medium text-muted-foreground flex items-center gap-1">
-              ≈ ${(product.priceUSD * product.exchangeRate).toLocaleString("es-ES")} CUP
-              <PriceTooltip exchangeRate={product.exchangeRate} />
-            </span>
-          )}
           {product.priceMLC ? (
             <span className="text-xl font-semibold text-primary">{product.priceMLC}</span>
           ) : null}

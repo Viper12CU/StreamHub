@@ -5,7 +5,7 @@ import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
 import { Icon } from "@/components/atoms/icon"
 import { getProducts, type ProductWithDetails } from "@/lib/api/products"
-import { createInventoryItem, clearInventoryCache, type AssetType } from "@/lib/api/inventory"
+import { createInventoryItem, type AssetType } from "@/lib/api/inventory"
 import { sileo } from "sileo"
 
 interface CreateAssetModalProps {
@@ -92,7 +92,6 @@ export function CreateAssetModal({ onClose, onCreated }: CreateAssetModalProps) 
       })
 
       sileo.success({ title: "Activo creado", description: "El activo fue agregado al inventario" })
-      clearInventoryCache()
       onCreated?.()
       onClose()
     } catch {

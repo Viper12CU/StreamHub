@@ -1,4 +1,4 @@
-import fs from "node:fs"
+import fs from "node:fs/promises"
 import path from "node:path"
 
 // ─── Daily cache on disk ────────────────────────────────
@@ -15,19 +15,19 @@ function todayKey(d: Date = new Date()): string {
   return d.toISOString().slice(0, 10)
 }
 
-function readCache(): ExchangeCacheEntry | null {
+async function readCache(): Promise<ExchangeCacheEntry | null> {
   try {
-    const raw = fs.readFileSync(CACHE_FILE, "utf-8")
+    const raw = await fs.readFile(CACHE_FILE, "utf-8")
     return JSON.parse(raw) as ExchangeCacheEntry
   } catch {
     return null
   }
 }
 
-function writeCache(entry: ExchangeCacheEntry) {
+async function writeCache(entry: ExchangeCacheEntry): Promise<void> {
   try {
-    fs.mkdirSync(CACHE_DIR, { recursive: true })
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(entry), "utf-8")
+    await fs.mkdir(CACHE_DIR, { recursive: true })
+    await fs.writeFile(CACHE_FILE, JSON.stringify(entry), "utf-8")
   } catch {
     // Best effort: ignore disk errors
   }
@@ -48,7 +48,7 @@ interface ElToqueResponse {
  * Falls back to the last cached value if the API call fails.
  */
 export async function getUsdCupRate(): Promise<number | null> {
-  const cached = readCache()
+  const cached = await readCache()
 
   if (cached && cached.date === todayKey() && cached.usd !== null) {
     return cached.usd
@@ -73,7 +73,7 @@ export async function getUsdCupRate(): Promise<number | null> {
     const usd = typeof data.tasas?.USD === "number" ? data.tasas.USD : null
 
     if (usd !== null) {
-      writeCache({ date: data.date || todayKey(), usd })
+      await writeCache({ date: data.date || todayKey(), usd })
       return usd
     }
 

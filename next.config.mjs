@@ -3,12 +3,21 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  poweredByHeader: false,
+  compress: true,
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
         hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "ypqlttxwhjvemvljagpk.supabase.co",
       },
     ],
   },

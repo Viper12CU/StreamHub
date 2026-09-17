@@ -6,7 +6,7 @@ import { Icon } from "@/components/atoms/icon"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { getCustomerById, updateCustomer, clearCustomerCache, type CustomerDetail } from "@/lib/api/customers"
+import { getCustomerById, updateCustomer, type CustomerDetail } from "@/lib/api/customers"
 import { sileo } from "sileo"
 import { customerStatusMap, orderStatusMap, getInitials, getRelativeDate } from "@/lib/constants/shared"
 
@@ -99,7 +99,6 @@ export function CustomerDetailDrawer({ customerId, onClose, onRefresh }: Custome
       setSavingNotes(true)
       await updateCustomer(customer.id, { notes: noteText })
       setCustomer({ ...customer, notes: noteText })
-      clearCustomerCache()
       sileo.success({ title: "Notas guardadas", description: "Las notas internas se han actualizado." })
     } catch {
       sileo.error({ title: "Error", description: "No se pudieron guardar las notas." })
@@ -114,7 +113,6 @@ export function CustomerDetailDrawer({ customerId, onClose, onRefresh }: Custome
       setActionLoading(true)
       await updateCustomer(customer.id, { status: newStatus })
       setCustomer({ ...customer, status: newStatus })
-      clearCustomerCache()
       const labels = { vip: "marcado como VIP", suspended: "suspendido", active: "activado" }
       sileo.success({ title: "Estado actualizado", description: `Cliente ${labels[newStatus]} correctamente.` })
       onRefresh?.()

@@ -1,29 +1,6 @@
 import apiClient from "../axios";
 import type { AxiosError } from "axios";
 
-// ─── Simple request cache ─────────────────────────────────
-
-const cache = new Map<string, { data: unknown; timestamp: number }>()
-const CACHE_TTL = 30_000
-
-function getCached<T>(key: string): T | null {
-  const entry = cache.get(key)
-  if (!entry) return null
-  if (Date.now() - entry.timestamp > CACHE_TTL) {
-    cache.delete(key)
-    return null
-  }
-  return entry.data as T
-}
-
-function setCache(key: string, data: unknown) {
-  cache.set(key, { data, timestamp: Date.now() })
-}
-
-export function clearProductCache() {
-  cache.clear()
-}
-
 // ─── Types ──────────────────────────────────────────────
 
 export type ProductType =
@@ -209,12 +186,7 @@ export async function getProducts(
     params.set("page", String(page));
     params.set("limit", String(limit));
 
-    const cacheKey = `products:${params.toString()}`
-    const cached = getCached<{ data: ProductWithDetails[]; pagination: PaginationMeta }>(cacheKey)
-    if (cached) return cached
-
     const response = await apiClient.get(`/products?${params.toString()}`, { signal });
-    setCache(cacheKey, response.data)
     return response.data;
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener productos"));
@@ -271,18 +243,18 @@ export async function getProductMetrics(id: string): Promise<ProductMetrics> {
   }
 }
 
-export async function getProductAnalytics(): Promise<ProductAnalytics> {
+export async function getProductAnalytics(signal?: AbortSignal): Promise<ProductAnalytics> {
   try {
-    const response = await apiClient.get("/products/analytics");
+    const response = await apiClient.get("/products/analytics", { signal });
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener analytics de productos"));
   }
 }
 
-export async function getProductHealth(): Promise<ProductHealth> {
+export async function getProductHealth(signal?: AbortSignal): Promise<ProductHealth> {
   try {
-    const response = await apiClient.get("/products/health");
+    const response = await apiClient.get("/products/health", { signal });
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener salud del inventario"));
@@ -292,7 +264,6 @@ export async function getProductHealth(): Promise<ProductHealth> {
 export async function createProduct(data: CreateProductInput): Promise<Product> {
   try {
     const response = await apiClient.post("/products", data);
-    clearProductCache()
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "crear producto"));
@@ -302,7 +273,6 @@ export async function createProduct(data: CreateProductInput): Promise<Product> 
 export async function updateProduct(id: string, data: UpdateProductInput): Promise<Product> {
   try {
     const response = await apiClient.put(`/products/${id}`, data);
-    clearProductCache()
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "actualizar producto"));
@@ -312,7 +282,6 @@ export async function updateProduct(id: string, data: UpdateProductInput): Promi
 export async function deleteProduct(id: string): Promise<void> {
   try {
     await apiClient.delete(`/products/${id}`);
-    clearProductCache()
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "eliminar producto"));
   }
@@ -321,7 +290,6 @@ export async function deleteProduct(id: string): Promise<void> {
 export async function duplicateProduct(id: string): Promise<Product> {
   try {
     const response = await apiClient.post(`/products/${id}/duplicate`);
-    clearProductCache()
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "duplicar producto"));
@@ -335,7 +303,6 @@ export async function uploadProductImage(id: string, file: File): Promise<Produc
     const response = await apiClient.post(`/products/${id}/image`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     })
-    clearProductCache()
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "subir imagen del producto"));
@@ -345,7 +312,6 @@ export async function uploadProductImage(id: string, file: File): Promise<Produc
 export async function deleteProductImage(id: string): Promise<void> {
   try {
     await apiClient.delete(`/products/${id}/image`);
-    clearProductCache()
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "eliminar imagen del producto"));
   }
@@ -354,7 +320,6 @@ export async function deleteProductImage(id: string): Promise<void> {
 export async function bulkAction(data: BulkAction): Promise<{ updated?: number; deleted?: number }> {
   try {
     const response = await apiClient.put("/products/bulk", data);
-    clearProductCache()
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "ejecutar acción masiva"));

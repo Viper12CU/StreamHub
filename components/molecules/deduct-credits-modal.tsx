@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { Icon } from "@/components/atoms/icon"
-import { deductCredits, clearCreditsCache } from "@/lib/api/credits"
+import { deductCredits } from "@/lib/api/credits"
 
 interface DeductCreditsModalProps {
   customerId: string
@@ -33,7 +33,6 @@ export function DeductCreditsModal({ customerId, userName, onClose, onCreated }:
       setLoading(true)
       setError(null)
       await deductCredits(customerId, { amount: Number(amount), reason: reason || undefined })
-      clearCreditsCache()
       onCreated()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al deducir créditos")

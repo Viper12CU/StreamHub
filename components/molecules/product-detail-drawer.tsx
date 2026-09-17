@@ -8,7 +8,7 @@ import { Icon } from "@/components/atoms/icon"
 import FileUpload from "@/components/molecules/file-upload"
 import { Skeleton } from "@/components/ui/skeleton"
 import { statusMap, productTypeMap, formatDateFull } from "@/lib/constants/products"
-import { getProductById, getProductMetrics, deleteProduct, bulkAction, uploadProductImage, deleteProductImage, clearProductCache, type ProductWithDetails, type ProductMetrics } from "@/lib/api/products"
+import { getProductById, getProductMetrics, deleteProduct, bulkAction, uploadProductImage, deleteProductImage, type ProductWithDetails, type ProductMetrics } from "@/lib/api/products"
 import { sileo } from "sileo"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
@@ -150,7 +150,6 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
         title: "Exito",
         description: action === "archive" ? "Producto archivado correctamente" : "Producto activado correctamente",
       })
-      clearProductCache()
       setConfirmAction(null)
       onActionChange?.()
       handleClose()
@@ -170,7 +169,6 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
     try {
       await deleteProduct(product.id)
       sileo.success({ title: "Exito", description: "Producto eliminado correctamente" })
-      clearProductCache()
       setConfirmAction(null)
       onActionChange?.()
       handleClose()
@@ -231,7 +229,6 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
       sileo.success({ title: "Exito", description: "Imagen del producto actualizada" })
       setConfirmEditImage(false)
       setPendingImageFile(null)
-      clearProductCache()
       onActionChange?.()
     } catch (err) {
       sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo subir la imagen" })
@@ -249,7 +246,6 @@ export function ProductDetailDrawer({ productId, onClose, onEdit, onActionChange
       setPreviewOpen(false)
       sileo.success({ title: "Exito", description: "Imagen eliminada correctamente" })
       setConfirmDeleteImage(false)
-      clearProductCache()
       onActionChange?.()
     } catch (err) {
       sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo eliminar la imagen" })

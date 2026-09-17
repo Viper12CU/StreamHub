@@ -147,29 +147,9 @@ export interface PaginationMeta {
   totalPages: number
 }
 
-// ─── Cache (30s) ────────────────────────────────────────────────────────────
-
-const cache = new Map<string, { data: unknown; ts: number }>()
-const CACHE_TTL = 30_000
-
-function getCached<T>(key: string): T | null {
-  const entry = cache.get(key)
-  if (entry && Date.now() - entry.ts < CACHE_TTL) return entry.data as T
-  cache.delete(key)
-  return null
-}
-
-function setCache(key: string, data: unknown) {
-  cache.set(key, { data, ts: Date.now() })
-}
-
-export function clearInventoryCache() {
-  cache.clear()
-}
-
 // ─── API Functions ──────────────────────────────────────────────────────────
 
-export async function getInventory(filters: InventoryFilters = {}): Promise<{ data: InventoryWithDetails[]; pagination: PaginationMeta }> {
+export async function getInventory(filters: InventoryFilters = {}, signal?: AbortSignal): Promise<{ data: InventoryWithDetails[]; pagination: PaginationMeta }> {
   const params = new URLSearchParams()
   if (filters.search) params.set("search", filters.search)
   if (filters.product_id) params.set("product_id", filters.product_id)
@@ -183,73 +163,38 @@ export async function getInventory(filters: InventoryFilters = {}): Promise<{ da
   if (filters.limit) params.set("limit", String(filters.limit))
 
   const qs = params.toString()
-  const cacheKey = `inventory:list:${qs}`
-  const cached = getCached<{ data: InventoryWithDetails[]; pagination: PaginationMeta }>(cacheKey)
-  if (cached) return cached
 
-  const { data } = await axios.get(`/inventory?${qs}`)
-  const result = { data: data.data, pagination: data.pagination }
-  setCache(cacheKey, result)
-  return result
+  const { data } = await axios.get(`/inventory?${qs}`, { signal })
+  return { data: data.data, pagination: data.pagination }
 }
 
 export async function getInventoryItem(id: string): Promise<InventoryWithDetails> {
-  const cacheKey = `inventory:item:${id}`
-  const cached = getCached<InventoryWithDetails>(cacheKey)
-  if (cached) return cached
-
   const { data } = await axios.get(`/inventory/${id}`)
-  setCache(cacheKey, data.data)
   return data.data
 }
 
-export async function getInventoryStats(): Promise<InventoryStats> {
-  const cacheKey = "inventory:stats"
-  const cached = getCached<InventoryStats>(cacheKey)
-  if (cached) return cached
-
-  const { data } = await axios.get("/inventory/stats")
-  setCache(cacheKey, data.data)
+export async function getInventoryStats(signal?: AbortSignal): Promise<InventoryStats> {
+  const { data } = await axios.get("/inventory/stats", { signal })
   return data.data
 }
 
-export async function getInventoryHealth(): Promise<InventoryHealth> {
-  const cacheKey = "inventory:health"
-  const cached = getCached<InventoryHealth>(cacheKey)
-  if (cached) return cached
-
-  const { data } = await axios.get("/inventory/health")
-  setCache(cacheKey, data.data)
+export async function getInventoryHealth(signal?: AbortSignal): Promise<InventoryHealth> {
+  const { data } = await axios.get("/inventory/health", { signal })
   return data.data
 }
 
-export async function getLowStock(): Promise<LowStockItem[]> {
-  const cacheKey = "inventory:low-stock"
-  const cached = getCached<LowStockItem[]>(cacheKey)
-  if (cached) return cached
-
-  const { data } = await axios.get("/inventory/low-stock")
-  setCache(cacheKey, data.data)
+export async function getLowStock(signal?: AbortSignal): Promise<LowStockItem[]> {
+  const { data } = await axios.get("/inventory/low-stock", { signal })
   return data.data
 }
 
 export async function getInventoryActivity(limit = 20): Promise<InventoryActivity[]> {
-  const cacheKey = `inventory:activity:${limit}`
-  const cached = getCached<InventoryActivity[]>(cacheKey)
-  if (cached) return cached
-
   const { data } = await axios.get(`/inventory/activity?limit=${limit}`)
-  setCache(cacheKey, data.data)
   return data.data
 }
 
 export async function getPendingOrders(): Promise<PendingOrder[]> {
-  const cacheKey = "inventory:pending-orders"
-  const cached = getCached<PendingOrder[]>(cacheKey)
-  if (cached) return cached
-
   const { data } = await axios.get("/inventory/pending-orders")
-  setCache(cacheKey, data.data)
   return data.data
 }
 
@@ -260,19 +205,16 @@ export async function getCompatibleAssets(orderId: string): Promise<CompatibleAs
 
 export async function createInventoryItem(input: CreateInventoryInput): Promise<InventoryItem> {
   const { data } = await axios.post("/inventory", input)
-  clearInventoryCache()
   return data.data
 }
 
 export async function updateInventoryItem(id: string, input: UpdateInventoryInput): Promise<InventoryItem> {
   const { data } = await axios.put(`/inventory/${id}`, input)
-  clearInventoryCache()
   return data.data
 }
 
 export async function deleteInventoryItem(id: string): Promise<void> {
   await axios.delete(`/inventory/${id}`)
-  clearInventoryCache()
 }
 
 export async function bulkInventoryAction(payload: {
@@ -282,18 +224,15 @@ export async function bulkInventoryAction(payload: {
   order_id?: string
 }): Promise<{ deleted?: number; updated?: number }> {
   const { data } = await axios.post("/inventory/bulk", payload)
-  clearInventoryCache()
   return data.data
 }
 
 export async function autoAssignInventory(orderId: string): Promise<InventoryItem> {
   const { data } = await axios.post("/inventory/auto-assign", { order_id: orderId })
-  clearInventoryCache()
   return data.data
 }
 
 export async function assignInventory(inventoryId: string, orderId: string): Promise<InventoryItem> {
   const { data } = await axios.patch(`/inventory/${inventoryId}/assign`, { order_id: orderId })
-  clearInventoryCache()
   return data.data
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { memo, useEffect, useState } from "react"
 import { Icon } from "@/components/atoms/icon"
 import { cn } from "@/lib/utils"
 import { getMyCreditBalance, type MyCreditBalance } from "@/lib/api/account"
@@ -10,7 +10,7 @@ interface CreditBalanceBadgeProps {
   className?: string
 }
 
-export function CreditBalanceBadge({ collapsed = false, className }: CreditBalanceBadgeProps) {
+export const CreditBalanceBadge = memo(function CreditBalanceBadge({ collapsed = false, className }: CreditBalanceBadgeProps) {
   const [balance, setBalance] = useState<MyCreditBalance | null>(null)
 
   useEffect(() => {
@@ -42,4 +42,4 @@ export function CreditBalanceBadge({ collapsed = false, className }: CreditBalan
       )}
     </div>
   )
-}
+})

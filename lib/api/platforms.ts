@@ -1,27 +1,9 @@
 import apiClient from "../axios";
 import type { AxiosError } from "axios";
-
-// ─── Simple request cache ─────────────────────────────────
-
-const cache = new Map<string, { data: unknown; timestamp: number }>()
-const CACHE_TTL = 30_000
-
-function getCached<T>(key: string): T | null {
-  const entry = cache.get(key)
-  if (!entry) return null
-  if (Date.now() - entry.timestamp > CACHE_TTL) {
-    cache.delete(key)
-    return null
-  }
-  return entry.data as T
-}
-
-function setCache(key: string, data: unknown) {
-  cache.set(key, { data, timestamp: Date.now() })
-}
+import { getCached, setCache, clearCacheByPrefix } from "./cache";
 
 export function clearPlatformCache() {
-  cache.clear()
+  clearCacheByPrefix("platforms:")
 }
 
 // ─── Types ──────────────────────────────────────────────

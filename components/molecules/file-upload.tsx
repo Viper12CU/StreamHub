@@ -7,6 +7,9 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type'
 import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size'
 import type { FilePondFile } from 'filepond'
 import { cn } from '@/lib/utils'
+import 'filepond/dist/filepond.min.css'
+import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
+import '@/app/filepond-theme.css'
 
 registerPlugin(
     FilePondPluginImagePreview,

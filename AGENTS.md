@@ -7,6 +7,13 @@
 - Start: `pnpm start`
 - Lint: `pnpm lint`
 
+## Module Installation Rule
+When a task requires installing a new npm package (e.g. `pnpm add <package>`), DO NOT run the install command yourself. Instead, inform the user which package needs to be installed and wait for explicit confirmation that it has been installed before proceeding. Example:
+
+> "Este cambio requiere instalar `xyz`. Ejecuta `pnpm add xyz` y confirma cuando esté listo."
+
+Do NOT assume packages are available. Always check `package.json` first to verify if a dependency already exists.
+
 ## App structure
 - Next.js App Router under `app/`.
 - Root layout: `app/layout.tsx` (Providers, Inter font, Analytics, Material Symbols).
@@ -162,15 +169,23 @@ components/
 lib/
   api/auth.ts          — Funciones de autenticación (signIn, signUp, signOut, setSessionToken)
   api/account.ts       — API de cuenta cliente (profile, orders, getMyCreditBalance, getMyCreditTransactions)
-  api/credits.ts       — API de créditos admin (accounts, transactions, grant/deduct/adjust, cache 30s)
-  api/customers.ts     — API de clientes (CRUD, stats, analytics, insights, activity, cache 30s)
-  api/inventory.ts     — API de inventario (CRUD, stats, health, low-stock, activity, bulk, assign, cache 30s)
-  api/offers.ts        — API de ofertas (CRUD, deactivate, duplicate, addProduct, removeProduct, cache 30s)
-  api/platforms.ts     — API de plataformas (CRUD, analytics, health, cache 30s)
-  api/products.ts      — API de productos (CRUD, analytics, health, bulk, duplicate, cache 30s)
-  constants/shared.ts  — Constantes compartidas: statusMap (product/platform/customer/order/offer/inventory), productTypeMap, assetTypeLabels, platformCategories, platformColors, creditTransactionLabels, creditTransactionColors, creditTransactionIcons, generateSlug, formatDate, formatRelativeDate, formatDateFull, getInitials, getRelativeDate, getMonthYear, getLetter, getInventoryColor
-  constants/products.ts — Re-exporta desde shared.ts + productTypes, statusOptions, safeToFixed (específicos de productos)
-  axios.ts             — Instancia de axios configurada
+  api/credits.ts       — API de créditos admin (accounts, transactions, grant/deduct/adjust)
+  api/customers.ts     — API de clientes (CRUD, stats, analytics, insights, activity)
+  api/inventory.ts     — API de inventario (CRUD, stats, health, low-stock, activity, bulk, assign)
+  api/offers.ts        — API de ofertas (CRUD, deactivate, duplicate, addProduct, removeProduct)
+  api/platforms.ts     — API de plataformas (CRUD, analytics, health)
+  api/products.ts      — API de productos (CRUD, analytics, health, bulk, duplicate)
+  api/swr-config.ts    — SWR fetcher compartido + buildQS helper
+  api/cache.ts         — Cache in-memory (solo para web-side: account, wishlist, platforms)
+  api/hooks/
+    use-sw-product.ts  — SWR hooks: useSWRProducts, useSWRProductAnalytics, useSWRProductHealth
+    use-sw-customer.ts — SWR hooks: useSWRCustomers, useSWRCustomerStats, useSWRCustomerAnalytics, useSWRCustomerInsights
+    use-sw-inventory.ts — SWR hooks: useSWRInventory, useSWRInventoryStats, useSWRInventoryHealth, useSWRLowStock, useSWRInventoryTabCount
+    use-sw-credit.ts   — SWR hooks: useSWRCreditAccounts, useSWRCreditStats, useSWRCreditAnalytics
+    use-sw-offer.ts    — SWR hooks: useSWROffers
+  constants/shared.ts  — Constantes compartidas: statusMap, productTypeMap, assetTypeLabels, platformCategories, platformColors, creditTransactionLabels, creditTransactionColors, creditTransactionIcons, generateSlug, formatDate, formatRelativeDate, formatDateFull, getInitials, getRelativeDate, getMonthYear, getLetter, getInventoryColor
+  constants/products.ts — Re-exporta desde shared.ts + productTypes, statusOptions, safeToFixed
+  axios.ts             — Instancia de axios configurada (timeout: 15s)
   session-context.tsx  — Context de sesión (useSession, SessionProvider)
   utils.ts             — Utilidad cn() para classnames
 hooks/
@@ -178,6 +193,25 @@ hooks/
   use-mobile.ts        — Hook para detectar dispositivo móvil
   use-platforms.ts     — Hook con cache de plataformas activas (usePlatforms)
 ```
+
+### SWR Data Fetching Pattern
+Admin pages use SWR hooks for data fetching. Pattern:
+```tsx
+import { useSWRProducts, useSWRProductAnalytics, useSWRProductHealth } from "@/lib/api/hooks/use-sw-product"
+
+// In component:
+const effectiveFilters = useMemo(() => ({ ...filters, search: debouncedSearch, sort: sortBy }), [filters, debouncedSearch, sortBy])
+const { data, pagination, isLoading, mutate } = useSWRProducts(effectiveFilters, page, 10)
+const { data: analytics, isLoading: analyticsLoading } = useSWRProductAnalytics()
+
+// After mutation:
+await createProduct(data)
+mutate() // revalidate list
+```
+- SWR handles caching, deduplication, revalidation, and error states
+- `mutate()` revalidates the specific SWR key
+- No manual AbortController needed — SWR manages request lifecycle
+- Web-side pages (account, wishlist) still use manual cache in `lib/api/cache.ts`
 
 ## Config quirks
 
@@ -196,8 +230,8 @@ Each `useState` reads from `localStorage` on init; a `useEffect` syncs on change
 
 
 - `next.config.mjs` sets `typescript.ignoreBuildErrors = true` (type errors won't fail builds).
-- `next.config.mjs` sets `images.unoptimized = true` (no Next image optimization).
-- `next.config.mjs` allows remote images from `images.unsplash.com` via `images.remotePatterns`.
+- `next.config.mjs` sets `poweredByHeader: false` and `compress: true`.
+- `next.config.mjs` allows remote images from `images.unsplash.com`, `lh3.googleusercontent.com`, and `ypqlttxwhjvemvljagpk.supabase.co` via `images.remotePatterns`.
 - `next.config.mjs` proxies `/api/*` to `http://localhost:3001/api/*` (backend server).
 - `components.json` configures shadcn/ui (new-york style, lucide icons, cssVariables).
 

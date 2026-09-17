@@ -1,27 +1,9 @@
 import apiClient from "../axios"
 import type { AxiosError } from "axios"
-
-// ─── Simple request cache ─────────────────────────────────
-
-const cache = new Map<string, { data: unknown; timestamp: number }>()
-const CACHE_TTL = 30_000
-
-function getCached<T>(key: string): T | null {
-  const entry = cache.get(key)
-  if (!entry) return null
-  if (Date.now() - entry.timestamp > CACHE_TTL) {
-    cache.delete(key)
-    return null
-  }
-  return entry.data as T
-}
-
-function setCache(key: string, data: unknown) {
-  cache.set(key, { data, timestamp: Date.now() })
-}
+import { getCached, setCache, clearCacheByPrefix, deleteCacheKey } from "./cache"
 
 export function clearWishlistCache() {
-  cache.clear()
+  clearCacheByPrefix("wishlist:")
 }
 
 // ─── Types ──────────────────────────────────────────────
@@ -84,7 +66,7 @@ export async function getMyWishlist(): Promise<WishlistItem[]> {
 export async function addToWishlist(productId: string): Promise<WishlistItem> {
   try {
     const response = await apiClient.post("/wishlists", { product_id: productId })
-    cache.delete("wishlist:my")
+    deleteCacheKey("wishlist:my")
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "agregar a wishlist"))
@@ -94,7 +76,7 @@ export async function addToWishlist(productId: string): Promise<WishlistItem> {
 export async function removeFromWishlist(productId: string): Promise<void> {
   try {
     await apiClient.delete(`/wishlists/${productId}`)
-    cache.delete("wishlist:my")
+    deleteCacheKey("wishlist:my")
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "eliminar de wishlist"))
   }

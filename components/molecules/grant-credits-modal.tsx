@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { Icon } from "@/components/atoms/icon"
-import { grantCredits, clearCreditsCache } from "@/lib/api/credits"
+import { grantCredits } from "@/lib/api/credits"
 
 interface GrantCreditsModalProps {
   customerId: string
@@ -33,7 +33,6 @@ export function GrantCreditsModal({ customerId, userName, onClose, onCreated }: 
       setLoading(true)
       setError(null)
       await grantCredits(customerId, { amount: Number(amount), reason: reason || undefined })
-      clearCreditsCache()
       onCreated()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al otorgar créditos")

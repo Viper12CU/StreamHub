@@ -1,11 +1,11 @@
 import axios from "axios";
 
-const isServer = typeof window === "undefined";
 const serverBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001/api";
 
 const apiClient = axios.create({
   baseURL: serverBaseURL,
   withCredentials: true,
+  timeout: 15000,
 });
 
 apiClient.interceptors.request.use((config) => {

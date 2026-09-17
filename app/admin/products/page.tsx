@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react"
+import { useState, useCallback, useMemo } from "react"
+import { useDebounce } from "@/hooks/use-debounce"
 import { MetricCard } from "@/components/atoms/metric-card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ProductFilters } from "@/components/molecules/product-filters"
@@ -12,20 +13,8 @@ import { InventoryInsights } from "@/components/molecules/inventory-insights"
 import { TopPerformers } from "@/components/molecules/top-performers"
 import { ProductAnalytics } from "@/components/molecules/product-analytics"
 import { RecentAuditActivity } from "@/components/molecules/recent-audit-activity"
-import {
-  getProducts,
-  getProductAnalytics,
-  getProductHealth,
-  createProduct,
-  bulkAction,
-  clearProductCache,
-  type Product,
-  type ProductWithDetails,
-  type ProductFilters as ProductFiltersType,
-  type ProductAnalytics as ProductAnalyticsType,
-  type ProductHealth,
-  type CreateProductInput,
-} from "@/lib/api/products"
+import { useSWRProducts, useSWRProductAnalytics, useSWRProductHealth } from "@/lib/api/hooks/use-sw-product"
+import { createProduct, bulkAction, type Product, type ProductWithDetails, type ProductFilters as ProductFiltersType, type CreateProductInput } from "@/lib/api/products"
 import { Icon } from "@/components/atoms/icon"
 import { sileo } from "sileo"
 
@@ -42,122 +31,36 @@ export default function ProductsPage() {
     return "table"
   })
   const [search, setSearch] = useState("")
-
-  useEffect(() => {
-    localStorage.setItem("admin-products-view", viewMode)
-  }, [viewMode])
-
-  const [products, setProducts] = useState<ProductWithDetails[]>([])
-  const [analytics, setAnalytics] = useState<ProductAnalyticsType | null>(null)
-  const [health, setHealth] = useState<ProductHealth | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [analyticsLoading, setAnalyticsLoading] = useState(true)
-  const [healthLoading, setHealthLoading] = useState(true)
-  const [fetchError, setFetchError] = useState<string | null>(null)
-  const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 })
-  const [counts, setCounts] = useState({ active: 0, draft: 0, out_of_stock: 0 })
+  const debouncedSearch = useDebounce(search)
+  const [page, setPage] = useState(1)
 
   const [filters, setFilters] = useState<ProductFiltersType>({})
   const [sortBy, setSortBy] = useState("created")
 
-  const filtersRef = useRef(filters)
-  const searchRef = useRef(search)
-  const sortByRef = useRef(sortBy)
+  const effectiveFilters = useMemo<ProductFiltersType>(() => ({
+    ...filters,
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(sortBy ? { sort: sortBy } : {}),
+  }), [filters, debouncedSearch, sortBy])
 
-  useEffect(() => { filtersRef.current = filters }, [filters])
-  useEffect(() => { searchRef.current = search }, [search])
-  useEffect(() => { sortByRef.current = sortBy }, [sortBy])
+  const { data: products, pagination, isLoading, mutate } = useSWRProducts(effectiveFilters, page, 10)
+  const { data: analytics, isLoading: analyticsLoading } = useSWRProductAnalytics()
+  const { data: health, isLoading: healthLoading } = useSWRProductHealth()
 
-  const fetchProducts = useCallback(async (page = 1) => {
-    try {
-      setLoading(true)
-      setFetchError(null)
-      const combinedFilters: ProductFiltersType = { ...filtersRef.current }
-      if (searchRef.current) {
-        combinedFilters.search = searchRef.current
-      }
-      if (sortByRef.current) {
-        combinedFilters.sort = sortByRef.current
-      }
-      const result = await getProducts(combinedFilters, page)
-      setProducts(result.data)
-      setPagination(result.pagination)
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Error desconocido"
-      setFetchError(msg)
-      sileo.error({ title: "Error", description: "No se pudieron cargar los productos" })
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  const fetchAnalytics = useCallback(async () => {
-    try {
-      setAnalyticsLoading(true)
-      const data = await getProductAnalytics()
-      setAnalytics(data)
-    } catch {
-      // Non-critical
-    } finally {
-      setAnalyticsLoading(false)
-    }
-  }, [])
-
-  const fetchHealth = useCallback(async () => {
-    try {
-      setHealthLoading(true)
-      const data = await getProductHealth()
-      setHealth(data)
-    } catch {
-      // Non-critical
-    } finally {
-      setHealthLoading(false)
-    }
-  }, [])
-
-  const fetchCounts = useCallback(async () => {
-    try {
-      const [activeRes, draftRes, healthData] = await Promise.all([
-        getProducts({ status: "active" }, 1, 1),
-        getProducts({ status: "draft" }, 1, 1),
-        getProductHealth(),
-      ])
-      setCounts({
-        active: activeRes.pagination.total,
-        draft: draftRes.pagination.total,
-        out_of_stock: healthData.out_of_stock_products.length,
-      })
-    } catch {
-      // Non-critical
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchAnalytics()
-    fetchHealth()
-    fetchCounts()
-  }, [fetchAnalytics, fetchHealth, fetchCounts])
-
-  useEffect(() => {
-    fetchProducts()
-  }, [filters, search, sortBy, fetchProducts])
+  const totalRevenue = useMemo(() => products.reduce((sum, p) => sum + (p.total_revenue || 0), 0), [products])
 
   const handleCreateProduct = useCallback(async (data: CreateProductInput): Promise<Product> => {
     const created = await createProduct(data)
     sileo.success({ title: "Exito", description: "Producto creado correctamente" })
     setShowCreateModal(false)
-    clearProductCache()
-    fetchProducts()
-    fetchCounts()
+    mutate()
     return created
-  }, [fetchProducts, fetchCounts])
+  }, [mutate])
 
   const handleProductUpdate = useCallback(() => {
     setEditProduct(null)
-    clearProductCache()
-    fetchProducts()
-    fetchCounts()
-  }, [fetchProducts, fetchCounts])
+    mutate()
+  }, [mutate])
 
   const handleBulkAction = useCallback(async (action: "activate" | "deactivate" | "archive" | "delete") => {
     if (selectedProducts.length === 0) return
@@ -165,13 +68,11 @@ export default function ProductsPage() {
       await bulkAction({ action, ids: selectedProducts })
       sileo.success({ title: "Exito", description: `Acción "${action}" ejecutada en ${selectedProducts.length} productos` })
       setSelectedProducts([])
-      clearProductCache()
-      fetchProducts()
-      fetchCounts()
+      mutate()
     } catch (err) {
       sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo ejecutar la acción" })
     }
-  }, [selectedProducts, fetchProducts, fetchCounts])
+  }, [selectedProducts, mutate])
 
   const handleFilterChange = useCallback((newFilters: Record<string, string[]>) => {
     const apiFilters: ProductFiltersType = {}
@@ -188,13 +89,17 @@ export default function ProductsPage() {
       if (!isNaN(val) && val >= 0) apiFilters.price_max = val
     }
     setFilters(apiFilters)
+    setPage(1)
   }, [])
 
   const handleSortChange = useCallback((sort: string) => {
     setSortBy(sort)
+    setPage(1)
   }, [])
 
-  const totalRevenue = useMemo(() => products.reduce((sum, p) => sum + (p.total_revenue || 0), 0), [products])
+  const handlePageChange = useCallback((newPage: number) => {
+    setPage(newPage)
+  }, [])
 
   return (
     <div className="space-y-5">
@@ -214,22 +119,6 @@ export default function ProductsPage() {
             <Icon name="plus"/>
             Crear Producto
           </button>
-          {/* <button
-            className="flex items-center gap-2 px-4 py-2.5 glass text-on-surface text-xs font-semibold rounded-xl hover:bg-white/5 transition-colors border border-white/5 focus-visible:ring-2 focus-visible:ring-primary/50"
-            onClick={() => sileo.success({ title: "Próximamente", description: "Exportación en desarrollo" })}
-            aria-label="Exportar productos"
-          >
-            <Icon name="download" className="text-sm" />
-            Exportar
-          </button>
-          <button
-            className="flex items-center gap-2 px-4 py-2.5 glass text-on-surface text-xs font-semibold rounded-xl hover:bg-white/5 transition-colors border border-white/5 focus-visible:ring-2 focus-visible:ring-primary/50"
-            onClick={() => sileo.success({ title: "Próximamente", description: "Importación en desarrollo" })}
-            aria-label="Importar productos"
-          >
-            <Icon name="upload" className="text-sm" />
-            Importar
-          </button> */}
         </div>
       </section>
 
@@ -309,7 +198,7 @@ export default function ProductsPage() {
 
       {/* KPI Overview */}
       <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        {loading ? (
+        {isLoading ? (
           <>
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="glass p-4 rounded-xl border-l-4 border-primary/30 flex flex-col gap-1">
@@ -327,40 +216,10 @@ export default function ProductsPage() {
             <MetricCard
               label="Total Productos"
               description="Catálogo completo"
-              value={String(pagination.total)}
+              value={String(pagination?.total ?? 0)}
               accent="border-primary"
               icon="inventory"
               iconColor="text-primary"
-            />
-            <MetricCard
-              label="Activos"
-              description={`${counts.active} Activos`}
-              value={String(counts.active)}
-              accent="border-green-500"
-              badge="Activo"
-              badgeColor="text-green-400"
-              icon="check-circle"
-              iconColor="text-green-400"
-            />
-            <MetricCard
-              label="Borradores"
-              description={`${counts.draft} Borradores`}
-              value={String(counts.draft)}
-              accent="border-on-surface-variant"
-              badge="Borrador"
-              badgeColor="text-on-surface-variant"
-              icon="note-edit"
-              iconColor="text-on-surface-variant"
-            />
-            <MetricCard
-              label="Sin Stock"
-              description="Requieren reposición"
-              value={String(counts.out_of_stock)}
-              accent="border-error"
-              badge="Sin Stock"
-              badgeColor="text-error"
-              icon="warning"
-              iconColor="text-error"
             />
             <MetricCard
               label="Ingresos (Página)"
@@ -388,25 +247,25 @@ export default function ProductsPage() {
         <div className="lg:col-span-8">
           <ProductTable
             products={products}
-            loading={loading}
-            pagination={pagination}
+            loading={isLoading}
+            pagination={pagination ? { page: pagination.page, totalPages: pagination.totalPages, total: pagination.total } : { page: 1, totalPages: 1, total: 0 }}
             selectedProducts={selectedProducts}
             onSelectProducts={setSelectedProducts}
             onViewProduct={setSelectedProduct}
-            onPageChange={(page) => fetchProducts(page)}
+            onPageChange={handlePageChange}
             viewMode={viewMode}
           />
         </div>
 
         {/* Sidebar Insights */}
         <div className="lg:col-span-2 space-y-5">
-          <InventoryInsights health={health} loading={healthLoading} />
+          <InventoryInsights health={health ?? null} loading={healthLoading} />
           <TopPerformers topProducts={analytics?.top_products ?? null} loading={analyticsLoading} />
         </div>
       </div>
 
       {/* Analytics */}
-      <ProductAnalytics analytics={analytics} loading={analyticsLoading} />
+      <ProductAnalytics analytics={analytics ?? null} loading={analyticsLoading} />
 
       {/* Activity */}
       <RecentAuditActivity category="product" limit={8} />

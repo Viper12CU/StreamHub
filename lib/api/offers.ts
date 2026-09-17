@@ -1,29 +1,6 @@
 import apiClient from "../axios"
 import type { AxiosError } from "axios"
 
-// ─── Simple request cache ─────────────────────────────────
-
-const cache = new Map<string, { data: unknown; timestamp: number }>()
-const CACHE_TTL = 30_000
-
-function getCached<T>(key: string): T | null {
-  const entry = cache.get(key)
-  if (!entry) return null
-  if (Date.now() - entry.timestamp > CACHE_TTL) {
-    cache.delete(key)
-    return null
-  }
-  return entry.data as T
-}
-
-function setCache(key: string, data: unknown) {
-  cache.set(key, { data, timestamp: Date.now() })
-}
-
-export function clearOfferCache() {
-  cache.clear()
-}
-
 // ─── Types ──────────────────────────────────────────────
 
 export type OfferType = "discount" | "combo"
@@ -113,7 +90,8 @@ function getErrorMessage(error: AxiosError, action: string): string {
 // ─── API Functions ──────────────────────────────────────
 
 export async function getOffers(
-  filters?: OfferFilters
+  filters?: OfferFilters,
+  signal?: AbortSignal
 ): Promise<Offer[]> {
   try {
     const params = new URLSearchParams()
@@ -122,14 +100,8 @@ export async function getOffers(
     if (filters?.status) params.set("status", filters.status)
 
     const qs = params.toString()
-    const cacheKey = `offers:list:${qs}`
-    const cached = getCached<Offer[]>(cacheKey)
-    if (cached) return cached
-
-    const response = await apiClient.get(`/offers?${qs}`)
-    const result = response.data.data as Offer[]
-    setCache(cacheKey, result)
-    return result
+    const response = await apiClient.get(`/offers?${qs}`, { signal })
+    return response.data.data as Offer[]
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener ofertas"))
   }
@@ -137,14 +109,8 @@ export async function getOffers(
 
 export async function getOfferById(id: string): Promise<OfferWithProducts> {
   try {
-    const cacheKey = `offers:item:${id}`
-    const cached = getCached<OfferWithProducts>(cacheKey)
-    if (cached) return cached
-
     const response = await apiClient.get(`/offers/admin/${id}`)
-    const result = response.data.data as OfferWithProducts
-    setCache(cacheKey, result)
-    return result
+    return response.data.data as OfferWithProducts
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener oferta"))
   }
@@ -153,7 +119,6 @@ export async function getOfferById(id: string): Promise<OfferWithProducts> {
 export async function createOffer(data: CreateOfferInput): Promise<OfferWithProducts> {
   try {
     const response = await apiClient.post("/offers", data)
-    clearOfferCache()
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "crear oferta"))
@@ -163,7 +128,6 @@ export async function createOffer(data: CreateOfferInput): Promise<OfferWithProd
 export async function updateOffer(id: string, data: UpdateOfferInput): Promise<Offer> {
   try {
     const response = await apiClient.put(`/offers/admin/${id}`, data)
-    clearOfferCache()
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "actualizar oferta"))
@@ -173,7 +137,6 @@ export async function updateOffer(id: string, data: UpdateOfferInput): Promise<O
 export async function deactivateOffer(id: string): Promise<Offer> {
   try {
     const response = await apiClient.put(`/offers/admin/${id}/deactivate`)
-    clearOfferCache()
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "desactivar oferta"))
@@ -183,7 +146,6 @@ export async function deactivateOffer(id: string): Promise<Offer> {
 export async function activateOffer(id: string): Promise<Offer> {
   try {
     const response = await apiClient.put(`/offers/admin/${id}/activate`)
-    clearOfferCache()
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "activar oferta"))
@@ -193,7 +155,6 @@ export async function activateOffer(id: string): Promise<Offer> {
 export async function deleteOffer(id: string): Promise<void> {
   try {
     await apiClient.delete(`/offers/admin/${id}`)
-    clearOfferCache()
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "eliminar oferta"))
   }
@@ -202,7 +163,6 @@ export async function deleteOffer(id: string): Promise<void> {
 export async function addProductToOffer(offerId: string, productId: string): Promise<OfferProduct> {
   try {
     const response = await apiClient.post(`/offers/admin/${offerId}/products/${productId}`)
-    clearOfferCache()
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "agregar producto a oferta"))
@@ -212,7 +172,6 @@ export async function addProductToOffer(offerId: string, productId: string): Pro
 export async function removeProductFromOffer(offerId: string, productId: string): Promise<void> {
   try {
     await apiClient.delete(`/offers/admin/${offerId}/products/${productId}`)
-    clearOfferCache()
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "eliminar producto de oferta"))
   }

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
+import { useDebounce } from "@/hooks/use-debounce"
 import { MetricCard } from "@/components/atoms/metric-card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CustomerTabs } from "@/components/molecules/customer-tabs"
@@ -12,20 +13,13 @@ import { CustomerAnalytics } from "@/components/molecules/customer-analytics"
 import { RecentAuditActivity } from "@/components/molecules/recent-audit-activity"
 import { CustomerInsights } from "@/components/molecules/customer-insights"
 import {
-  getCustomers,
-  getCustomerStats,
-  getCustomerAnalytics,
-  getCustomerInsights,
   createCustomer,
-  clearCustomerCache,
   type Customer,
   type CustomerFilters as CustomerFiltersType,
-  type CustomerAnalyticsData,
-  type CustomerInsightItem,
   type CustomerCounts,
   type CustomerStatus,
 } from "@/lib/api/customers"
-import { signUp } from "@/lib/api/auth"
+import { useSWRCustomers, useSWRCustomerStats, useSWRCustomerAnalytics, useSWRCustomerInsights } from "@/lib/api/hooks/use-sw-customer"
 import { Icon } from "@/components/atoms/icon"
 import { sileo } from "sileo"
 
@@ -49,99 +43,31 @@ export default function CustomersPage() {
     return "grid"
   })
   const [search, setSearch] = useState("")
+  const debouncedSearch = useDebounce(search)
+  const [page, setPage] = useState(1)
+  const [filters, setFilters] = useState<CustomerFiltersType>({})
+  const [sortBy, setSortBy] = useState("Más Recientes")
 
   useEffect(() => {
     localStorage.setItem("admin-customers-view", viewMode)
   }, [viewMode])
 
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [loading, setLoading] = useState(true)
-  const [fetchError, setFetchError] = useState<string | null>(null)
-  const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 })
-  const [counts, setCounts] = useState<CustomerCounts>({ all: 0, active: 0, inactive: 0, vip: 0, pending: 0, suspended: 0 })
-
-  const [analytics, setAnalytics] = useState<CustomerAnalyticsData | null>(null)
-  const [analyticsLoading, setAnalyticsLoading] = useState(true)
-  const [insights, setInsights] = useState<CustomerInsightItem[]>([])
-  const [insightsLoading, setInsightsLoading] = useState(true)
-
-  const [filters, setFilters] = useState<CustomerFiltersType>({})
-  const [sortBy, setSortBy] = useState("Más Recientes")
-
-  const filtersRef = useRef(filters)
-  const activeTabRef = useRef(activeTab)
-  const searchRef = useRef(search)
-
-  useEffect(() => { filtersRef.current = filters }, [filters])
-  useEffect(() => { activeTabRef.current = activeTab }, [activeTab])
-  useEffect(() => { searchRef.current = search }, [search])
-
-  const fetchCustomers = useCallback(async (page = 1) => {
-    try {
-      setLoading(true)
-      setFetchError(null)
-      const tabFilters: CustomerFiltersType = { ...filtersRef.current }
-      if (activeTabRef.current !== "all") {
-        tabFilters.status = activeTabRef.current as CustomerFiltersType["status"]
-      }
-      if (searchRef.current) {
-        tabFilters.search = searchRef.current
-      }
-      tabFilters.sort = (sortMap[sortBy] || "recent") as CustomerFiltersType["sort"]
-      const result = await getCustomers(tabFilters, page)
-      setCustomers(result.data)
-      setPagination(result.pagination)
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Error desconocido"
-      setFetchError(msg)
-      sileo.error({ title: "Error", description: "No se pudieron cargar los clientes" })
-    } finally {
-      setLoading(false)
+  const effectiveFilters = useMemo<CustomerFiltersType>(() => {
+    const f: CustomerFiltersType = { ...filters }
+    if (activeTab !== "all") {
+      f.status = activeTab as CustomerFiltersType["status"]
     }
-  }, [sortBy])
-
-  const fetchCounts = useCallback(async () => {
-    try {
-      const data = await getCustomerStats()
-      setCounts(data)
-    } catch {
-      // Non-critical
+    if (debouncedSearch) {
+      f.search = debouncedSearch
     }
-  }, [])
+    f.sort = (sortMap[sortBy] || "recent") as CustomerFiltersType["sort"]
+    return f
+  }, [activeTab, filters, debouncedSearch, sortBy])
 
-  const fetchAnalytics = useCallback(async () => {
-    try {
-      setAnalyticsLoading(true)
-      const data = await getCustomerAnalytics()
-      setAnalytics(data)
-    } catch {
-      // Non-critical
-    } finally {
-      setAnalyticsLoading(false)
-    }
-  }, [])
-
-  const fetchInsights = useCallback(async () => {
-    try {
-      setInsightsLoading(true)
-      const data = await getCustomerInsights()
-      setInsights(data)
-    } catch {
-      // Non-critical
-    } finally {
-      setInsightsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchCounts()
-    fetchAnalytics()
-    fetchInsights()
-  }, [fetchCounts, fetchAnalytics, fetchInsights])
-
-  useEffect(() => {
-    fetchCustomers()
-  }, [activeTab, filters, search, fetchCustomers])
+  const { data: customers, pagination, isLoading, mutate } = useSWRCustomers(effectiveFilters, page, 50)
+  const { data: counts } = useSWRCustomerStats()
+  const { data: analytics, isLoading: analyticsLoading } = useSWRCustomerAnalytics()
+  const { data: insights, isLoading: insightsLoading } = useSWRCustomerInsights()
 
   const handleFilterChange = useCallback((newFilters: Record<string, string[]>) => {
     const apiFilters: CustomerFiltersType = {}
@@ -158,15 +84,18 @@ export default function CustomersPage() {
       apiFilters.total_orders_max = Number(newFilters.total_orders[1])
     }
     setFilters(apiFilters)
+    setPage(1)
   }, [])
 
   const handleSortChange = useCallback((sort: string) => {
     setSortBy(sort)
+    setPage(1)
   }, [])
 
-  const hasActiveFilters = useMemo(() => {
-    return Object.keys(filters).length > 0 || search.length > 0
-  }, [filters, search])
+  const hasActiveFilters = Object.keys(filters).length > 0 || search.length > 0
+
+  const defaultCounts: CustomerCounts = { all: 0, active: 0, inactive: 0, vip: 0, pending: 0, suspended: 0 }
+  const countsData = counts ?? defaultCounts
 
   return (
     <div className="space-y-4">
@@ -223,7 +152,7 @@ export default function CustomersPage() {
 
       {/* KPI Overview */}
       <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        {loading ? (
+        {isLoading ? (
           <>
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="glass p-4 rounded-xl border-l-4 border-primary/30 flex flex-col gap-1">
@@ -241,15 +170,15 @@ export default function CustomersPage() {
             <MetricCard
               label="Total Clientes"
               description="Todos los clientes"
-              value={counts.all.toLocaleString()}
+              value={countsData.all.toLocaleString()}
               accent="border-primary"
               icon="group"
               iconColor="text-primary"
             />
             <MetricCard
               label="Activos"
-              description={`${counts.active} Activos`}
-              value={counts.active.toLocaleString()}
+              description={`${countsData.active} Activos`}
+              value={countsData.active.toLocaleString()}
               accent="border-green-500"
               badge="Éxito"
               badgeColor="text-green-400"
@@ -258,8 +187,8 @@ export default function CustomersPage() {
             />
             <MetricCard
               label="Inactivos"
-              description={`${counts.inactive} Inactivos`}
-              value={counts.inactive.toLocaleString()}
+              description={`${countsData.inactive} Inactivos`}
+              value={countsData.inactive.toLocaleString()}
               accent="border-amber-500"
               badge="Pendiente"
               badgeColor="text-amber-500"
@@ -268,8 +197,8 @@ export default function CustomersPage() {
             />
             <MetricCard
               label="VIP"
-              description={`${counts.vip} VIP`}
-              value={counts.vip.toLocaleString()}
+              description={`${countsData.vip} VIP`}
+              value={countsData.vip.toLocaleString()}
               accent="border-amber-500"
               badge="VIP"
               badgeColor="text-amber-500"
@@ -279,7 +208,7 @@ export default function CustomersPage() {
             <MetricCard
               label="En Riesgo"
               description="Activos sin compra 30d"
-              value={counts.pending.toLocaleString()}
+              value={countsData.pending.toLocaleString()}
               accent="border-orange-400"
               badge="Alerta"
               badgeColor="text-orange-400"
@@ -288,8 +217,8 @@ export default function CustomersPage() {
             />
             <MetricCard
               label="Suspendidos"
-              description={`${counts.suspended} Suspendidos`}
-              value={counts.suspended.toLocaleString()}
+              description={`${countsData.suspended} Suspendidos`}
+              value={countsData.suspended.toLocaleString()}
               accent="border-error"
               badge="Alerta"
               badgeColor="text-error"
@@ -301,12 +230,12 @@ export default function CustomersPage() {
       </section>
 
       {/* Error State */}
-      {fetchError && !loading && (
+      {pagination === undefined && !isLoading && (
         <div className="glass rounded-xl p-8 border border-error/20 text-center space-y-3">
           <Icon name="alert-circle" className="text-3xl text-error/50 block" />
-          <p className="text-sm text-on-surface">{fetchError}</p>
+          <p className="text-sm text-on-surface">No se pudieron cargar los clientes</p>
           <button
-            onClick={() => fetchCustomers()}
+            onClick={() => mutate()}
             className="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-primary/50"
           >
             Reintentar
@@ -315,7 +244,7 @@ export default function CustomersPage() {
       )}
 
       {/* Tabs */}
-      <CustomerTabs activeTab={activeTab} onTabChange={setActiveTab} counts={counts} loading={loading} />
+      <CustomerTabs activeTab={activeTab} onTabChange={setActiveTab} counts={countsData} loading={isLoading} />
 
       {/* Filters */}
       <CustomerFilters
@@ -331,17 +260,17 @@ export default function CustomersPage() {
         onSelectCustomer={setSelectedCustomer}
         viewMode={viewMode}
         customers={customers}
-        loading={loading}
+        loading={isLoading}
         hasActiveFilters={hasActiveFilters}
         pagination={pagination}
-        onPageChange={(page) => fetchCustomers(page)}
+        onPageChange={(p) => setPage(p)}
       />
 
       {/* Insights */}
-      {/* <CustomerInsights insights={insights} loading={insightsLoading} /> */}
+      {/* <CustomerInsights insights={insights ?? []} loading={insightsLoading} /> */}
 
       {/* Analytics */}
-      <CustomerAnalytics analytics={analytics} loading={analyticsLoading} />
+      <CustomerAnalytics analytics={analytics ?? null} loading={analyticsLoading} />
 
       {/* Activity */}
       <RecentAuditActivity category="customer" limit={8} />
@@ -351,7 +280,9 @@ export default function CustomersPage() {
         <CustomerDetailDrawer
           customerId={selectedCustomer}
           onClose={() => setSelectedCustomer(null)}
-          onRefresh={() => fetchCustomers()}
+          onRefresh={() => {
+            mutate()
+          }}
         />
       )}
     </div>

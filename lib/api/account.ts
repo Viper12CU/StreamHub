@@ -1,28 +1,10 @@
 import apiClient from "../axios"
 import type { AxiosError } from "axios"
 import type { CreditTransactionType } from "./credits"
-
-// ─── Simple request cache ─────────────────────────────────
-
-const cache = new Map<string, { data: unknown; timestamp: number }>()
-const CACHE_TTL = 30_000
-
-function getCached<T>(key: string): T | null {
-  const entry = cache.get(key)
-  if (!entry) return null
-  if (Date.now() - entry.timestamp > CACHE_TTL) {
-    cache.delete(key)
-    return null
-  }
-  return entry.data as T
-}
-
-function setCache(key: string, data: unknown) {
-  cache.set(key, { data, timestamp: Date.now() })
-}
+import { getCached, setCache, clearCacheByPrefix, deleteCacheKey } from "./cache"
 
 export function clearAccountCache() {
-  cache.clear()
+  clearCacheByPrefix("account:")
 }
 
 // ─── Types ──────────────────────────────────────────────
@@ -118,7 +100,7 @@ export async function getMyProfile(): Promise<MyProfile> {
 export async function updateMyProfile(data: UpdateMyProfileInput): Promise<MyProfile> {
   try {
     const response = await apiClient.put("/customers/me", data)
-    cache.delete("account:profile")
+    deleteCacheKey("account:profile")
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "actualizar perfil"))

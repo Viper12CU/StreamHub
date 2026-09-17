@@ -10,7 +10,6 @@ import {
   activateOffer,
   deactivateOffer,
   deleteOffer,
-  clearOfferCache,
   type OfferWithProducts,
 } from "@/lib/api/offers"
 import { sileo } from "sileo"
@@ -64,7 +63,6 @@ export function OfferDetailDrawer({ offerId, onClose, onRefresh }: OfferDetailDr
         await activateOffer(offer.id)
       }
       sileo.success({ title: "Éxito", description: "Estado de oferta actualizado" })
-      clearOfferCache()
       const updated = await getOfferById(offerId)
       setOffer(updated)
       onRefresh()
@@ -82,7 +80,6 @@ export function OfferDetailDrawer({ offerId, onClose, onRefresh }: OfferDetailDr
     try {
       await deleteOffer(offer.id)
       sileo.success({ title: "Éxito", description: "Oferta eliminada" })
-      clearOfferCache()
       setConfirmAction(null)
       onRefresh()
       onClose()

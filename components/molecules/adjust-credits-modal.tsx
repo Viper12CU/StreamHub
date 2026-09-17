@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { Icon } from "@/components/atoms/icon"
-import { adjustCredits, clearCreditsCache } from "@/lib/api/credits"
+import { adjustCredits } from "@/lib/api/credits"
 
 interface AdjustCreditsModalProps {
   customerId: string
@@ -33,7 +33,6 @@ export function AdjustCreditsModal({ customerId, userName, onClose, onCreated }:
       setLoading(true)
       setError(null)
       await adjustCredits(customerId, { balance: Number(balance), reason: reason || undefined })
-      clearCreditsCache()
       onCreated()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al ajustar créditos")

@@ -5,7 +5,7 @@ import { createPortal } from "react-dom"
 import { StatusBadge } from "@/components/atoms/status-badge"
 import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
-import { getInventoryItem, deleteInventoryItem, updateInventoryItem, clearInventoryCache, type InventoryWithDetails } from "@/lib/api/inventory"
+import { getInventoryItem, deleteInventoryItem, updateInventoryItem, type InventoryWithDetails } from "@/lib/api/inventory"
 import { sileo } from "sileo"
 import { inventoryStatusMap, assetTypeLabels, formatDate } from "@/lib/constants/shared"
 
@@ -48,7 +48,6 @@ export function AssetDetailDrawer({ assetId, onClose, onRefresh }: AssetDetailDr
     try {
       await deleteInventoryItem(assetId)
       sileo.success({ title: "Eliminado", description: "Activo eliminado correctamente" })
-      clearInventoryCache()
       onRefresh?.()
       onClose()
     } catch {

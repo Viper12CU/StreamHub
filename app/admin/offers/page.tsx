@@ -1,6 +1,8 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
+import { useDebounce } from "@/hooks/use-debounce"
+import { useSWROffers } from "@/lib/api/hooks/use-sw-offer"
 import { MetricCard } from "@/components/atoms/metric-card"
 import { Icon } from "@/components/atoms/icon"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -12,31 +14,25 @@ import { CreateOfferModal } from "@/components/molecules/create-offer-modal"
 import { OfferAnalytics } from "@/components/molecules/offer-analytics"
 import { RecentAuditActivity } from "@/components/molecules/recent-audit-activity"
 import {
-  getOffers,
   getOfferById,
   createOffer,
   deactivateOffer,
   deleteOffer,
   updateOffer,
-  clearOfferCache,
-  type Offer,
-  type OfferWithProducts,
   type OfferFilters as OfferFiltersType,
   type CreateOfferInput,
 } from "@/lib/api/offers"
 import { sileo } from "sileo"
 
 export default function OffersPage() {
-  const [offers, setOffers] = useState<Offer[]>([])
   const [selectedOffers, setSelectedOffers] = useState<string[]>([])
   const [showFilters, setShowFilters] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [selectedOffer, setSelectedOffer] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("all")
   const [search, setSearch] = useState("")
+  const debouncedSearch = useDebounce(search)
   const [filters, setFilters] = useState<OfferFiltersType>({})
-  const [loading, setLoading] = useState(true)
-  const [counts, setCounts] = useState<Record<string, number>>({})
   const [viewMode, setViewMode] = useState<"grid" | "table">(() => {
     if (typeof window !== "undefined") {
       return (localStorage.getItem("admin-offers-view") as "grid" | "table") || "table"
@@ -48,86 +44,58 @@ export default function OffersPage() {
     localStorage.setItem("admin-offers-view", viewMode)
   }, [viewMode])
 
-  const fetchOffers = useCallback(async () => {
-    try {
-      setLoading(true)
-      const combinedFilters: OfferFiltersType = { ...filters }
-      if (search) combinedFilters.search = search
-      if (activeTab !== "all") combinedFilters.status = activeTab as OfferFiltersType["status"]
-      const data = await getOffers(combinedFilters)
-      setOffers(data)
-    } catch (err) {
-      sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudieron cargar las ofertas" })
-    } finally {
-      setLoading(false)
-    }
-  }, [filters, search, activeTab])
+  const effectiveFilters = useMemo(() => {
+    const combined: OfferFiltersType = { ...filters }
+    if (debouncedSearch) combined.search = debouncedSearch
+    if (activeTab !== "all") combined.status = activeTab as OfferFiltersType["status"]
+    return combined
+  }, [filters, debouncedSearch, activeTab])
 
-  const fetchCounts = useCallback(async () => {
-    try {
-      const [all, active, inactive, expired] = await Promise.all([
-        getOffers(),
-        getOffers({ status: "active" }),
-        getOffers({ status: "inactive" }),
-        getOffers({ status: "expired" }),
-      ])
-      setCounts({
-        all: all.length,
-        active: active.length,
-        inactive: inactive.length,
-        expired: expired.length,
-      })
-    } catch {
-      sileo.info({ title: "Aviso", description: "No se pudieron cargar las estadísticas" })
-    }
-  }, [])
+  const { data: offers, isLoading, mutate } = useSWROffers(effectiveFilters)
+  const { data: allOffers } = useSWROffers({})
+  const { data: activeOffers } = useSWROffers({ status: "active" })
+  const { data: inactiveOffers } = useSWROffers({ status: "inactive" })
+  const { data: expiredOffers } = useSWROffers({ status: "expired" })
 
-  useEffect(() => {
-    fetchCounts()
-  }, [fetchCounts])
+  const counts = useMemo(() => ({
+    all: allOffers.length,
+    active: activeOffers.length,
+    inactive: inactiveOffers.length,
+    expired: expiredOffers.length,
+  }), [allOffers, activeOffers, inactiveOffers, expiredOffers])
 
-  useEffect(() => {
-    fetchOffers()
-  }, [fetchOffers])
-
-  const handleCreateOffer = useCallback(async (data: CreateOfferInput) => {
+  const handleCreateOffer = async (data: CreateOfferInput) => {
     try {
       await createOffer(data)
       sileo.success({ title: "Éxito", description: "Oferta creada correctamente" })
       setShowCreateModal(false)
-      clearOfferCache()
-      fetchOffers()
-      fetchCounts()
+      mutate()
     } catch (err) {
       sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo crear la oferta" })
     }
-  }, [fetchOffers, fetchCounts])
+  }
 
-  const handleDeleteOffer = useCallback(async (id: string) => {
+  const handleDeleteOffer = async (id: string) => {
     try {
       await deleteOffer(id)
       sileo.success({ title: "Éxito", description: "Oferta eliminada correctamente" })
-      clearOfferCache()
-      fetchOffers()
-      fetchCounts()
+      mutate()
     } catch (err) {
       sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo eliminar la oferta" })
     }
-  }, [fetchOffers, fetchCounts])
+  }
 
-  const handleDeactivateOffer = useCallback(async (id: string) => {
+  const handleDeactivateOffer = async (id: string) => {
     try {
       await deactivateOffer(id)
       sileo.success({ title: "Éxito", description: "Oferta desactivada" })
-      clearOfferCache()
-      fetchOffers()
-      fetchCounts()
+      mutate()
     } catch (err) {
       sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo desactivar la oferta" })
     }
-  }, [fetchOffers, fetchCounts])
+  }
 
-  const handleStatusChange = useCallback(async (id: string, status: "active" | "inactive") => {
+  const handleStatusChange = async (id: string, status: "active" | "inactive") => {
     try {
       if (status === "inactive") {
         await deactivateOffer(id)
@@ -135,15 +103,13 @@ export default function OffersPage() {
         await updateOffer(id, {})
       }
       sileo.success({ title: "Éxito", description: status === "active" ? "Oferta activada" : "Oferta desactivada" })
-      clearOfferCache()
-      fetchOffers()
-      fetchCounts()
+      mutate()
     } catch (err) {
       sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo actualizar la oferta" })
     }
-  }, [fetchOffers, fetchCounts])
+  }
 
-  const handleDuplicateOffer = useCallback(async (id: string) => {
+  const handleDuplicateOffer = async (id: string) => {
     try {
       const offer = await getOfferById(id)
       const duplicateData: CreateOfferInput = {
@@ -160,13 +126,11 @@ export default function OffersPage() {
       }
       await createOffer(duplicateData)
       sileo.success({ title: "Éxito", description: "Oferta duplicada correctamente" })
-      clearOfferCache()
-      fetchOffers()
-      fetchCounts()
+      mutate()
     } catch (err) {
       sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo duplicar la oferta" })
     }
-  }, [fetchOffers, fetchCounts])
+  }
 
   const handleFilterChange = useCallback((newFilters: Record<string, string[]>) => {
     const apiFilters: OfferFiltersType = {}
@@ -174,7 +138,7 @@ export default function OffersPage() {
     setFilters(apiFilters)
   }, [])
 
-  const handleBulkAction = useCallback(async (action: "activate" | "deactivate" | "delete") => {
+  const handleBulkAction = async (action: "activate" | "deactivate" | "delete") => {
     if (selectedOffers.length === 0) return
     try {
       for (const id of selectedOffers) {
@@ -188,13 +152,11 @@ export default function OffersPage() {
       }
       sileo.success({ title: "Éxito", description: `Acción "${action}" ejecutada en ${selectedOffers.length} ofertas` })
       setSelectedOffers([])
-      clearOfferCache()
-      fetchOffers()
-      fetchCounts()
+      mutate()
     } catch (err) {
       sileo.error({ title: "Error", description: err instanceof Error ? err.message : "No se pudo ejecutar la acción" })
     }
-  }, [selectedOffers, fetchOffers, fetchCounts])
+  }
 
   const totalRevenue = useMemo(() => offers.reduce((sum, o) => sum + (o.combo_price_usd || o.discount_amount_usd || 0), 0), [offers])
   const expiringSoon = useMemo(() => {
@@ -292,7 +254,7 @@ export default function OffersPage() {
 
       {/* KPI Overview */}
       <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        {loading ? (
+        {isLoading ? (
           <>
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="glass p-4 rounded-xl border-l-4 border-primary/30 flex flex-col gap-1">
@@ -375,7 +337,7 @@ export default function OffersPage() {
         <div className="lg:col-span-8">
           <OfferTable
             offers={offers}
-            loading={loading}
+            loading={isLoading}
             selectedOffers={selectedOffers}
             onSelectOffers={setSelectedOffers}
             onRowClick={setSelectedOffer}
@@ -444,7 +406,7 @@ export default function OffersPage() {
       </div>
 
       {/* Analytics */}
-      <OfferAnalytics offers={offers} loading={loading} />
+      <OfferAnalytics offers={offers} loading={isLoading} />
 
       {/* Activity */}
       <RecentAuditActivity category="offer" limit={8} />
@@ -457,7 +419,7 @@ export default function OffersPage() {
         <OfferDetailDrawer
           offerId={selectedOffer}
           onClose={() => setSelectedOffer(null)}
-          onRefresh={() => { fetchOffers(); fetchCounts() }}
+          onRefresh={() => mutate()}
         />
       )}
     </div>

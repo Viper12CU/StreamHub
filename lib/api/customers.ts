@@ -1,29 +1,6 @@
 import apiClient from "../axios"
 import type { AxiosError } from "axios"
 
-// ─── Simple request cache ─────────────────────────────────
-
-const cache = new Map<string, { data: unknown; timestamp: number }>()
-const CACHE_TTL = 30_000
-
-function getCached<T>(key: string): T | null {
-  const entry = cache.get(key)
-  if (!entry) return null
-  if (Date.now() - entry.timestamp > CACHE_TTL) {
-    cache.delete(key)
-    return null
-  }
-  return entry.data as T
-}
-
-function setCache(key: string, data: unknown) {
-  cache.set(key, { data, timestamp: Date.now() })
-}
-
-export function clearCustomerCache() {
-  cache.clear()
-}
-
 // ─── Types ──────────────────────────────────────────────
 
 export type CustomerStatus = "active" | "inactive" | "vip" | "suspended"
@@ -166,7 +143,8 @@ function getErrorMessage(error: AxiosError, action: string): string {
 export async function getCustomers(
   filters?: CustomerFilters,
   page: number = 1,
-  limit: number = 50
+  limit: number = 50,
+  signal?: AbortSignal
 ): Promise<{ data: Customer[]; pagination: PaginationMeta }> {
   try {
     const params = new URLSearchParams()
@@ -182,26 +160,17 @@ export async function getCustomers(
     params.set("page", String(page))
     params.set("limit", String(limit))
 
-    const cacheKey = `customers:list:${params.toString()}`
-    const cached = getCached<{ data: Customer[]; pagination: PaginationMeta }>(cacheKey)
-    if (cached) return cached
-
-    const response = await apiClient.get(`/customers?${params.toString()}`)
+    const response = await apiClient.get(`/customers?${params.toString()}`, { signal })
     const result = { data: response.data.data, pagination: response.data.pagination }
-    setCache(cacheKey, result)
     return result
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener clientes"))
   }
 }
 
-export async function getCustomerStats(): Promise<CustomerCounts> {
+export async function getCustomerStats(signal?: AbortSignal): Promise<CustomerCounts> {
   try {
-    const cacheKey = "customers:stats"
-    const cached = getCached<CustomerCounts>(cacheKey)
-    if (cached) return cached
-
-    const response = await apiClient.get("/customers/stats")
+    const response = await apiClient.get("/customers/stats", { signal })
     const raw = response.data.data
     const result: CustomerCounts = {
       all: raw.total_customers ?? 0,
@@ -211,7 +180,6 @@ export async function getCustomerStats(): Promise<CustomerCounts> {
       pending: raw.churn_risk ?? 0,
       suspended: raw.suspended ?? 0,
     }
-    setCache(cacheKey, result)
     return result
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener estadísticas de clientes"))
@@ -227,28 +195,18 @@ export async function getCustomerById(id: string): Promise<CustomerDetail> {
   }
 }
 
-export async function getCustomerAnalytics(): Promise<CustomerAnalyticsData> {
+export async function getCustomerAnalytics(signal?: AbortSignal): Promise<CustomerAnalyticsData> {
   try {
-    const cacheKey = "customers:analytics"
-    const cached = getCached<CustomerAnalyticsData>(cacheKey)
-    if (cached) return cached
-
-    const response = await apiClient.get("/customers/analytics")
-    setCache(cacheKey, response.data.data)
+    const response = await apiClient.get("/customers/analytics", { signal })
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener analytics de clientes"))
   }
 }
 
-export async function getCustomerInsights(): Promise<CustomerInsightItem[]> {
+export async function getCustomerInsights(signal?: AbortSignal): Promise<CustomerInsightItem[]> {
   try {
-    const cacheKey = "customers:insights"
-    const cached = getCached<CustomerInsightItem[]>(cacheKey)
-    if (cached) return cached
-
-    const response = await apiClient.get("/customers/insights")
-    setCache(cacheKey, response.data.data)
+    const response = await apiClient.get("/customers/insights", { signal })
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener insights de clientes"))
@@ -258,7 +216,6 @@ export async function getCustomerInsights(): Promise<CustomerInsightItem[]> {
 export async function createCustomer(data: CreateCustomerInput): Promise<Customer> {
   try {
     const response = await apiClient.post("/customers", data)
-    clearCustomerCache()
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "crear cliente"))
@@ -268,7 +225,6 @@ export async function createCustomer(data: CreateCustomerInput): Promise<Custome
 export async function updateCustomer(id: string, data: UpdateCustomerInput): Promise<Customer> {
   try {
     const response = await apiClient.put(`/customers/${id}`, data)
-    clearCustomerCache()
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "actualizar cliente"))
@@ -278,7 +234,6 @@ export async function updateCustomer(id: string, data: UpdateCustomerInput): Pro
 export async function deleteCustomer(id: string): Promise<void> {
   try {
     await apiClient.delete(`/customers/${id}`)
-    clearCustomerCache()
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "eliminar cliente"))
   }
@@ -294,12 +249,7 @@ export interface CustomerActivityItem {
 
 export async function getCustomerActivity(limit: number = 20): Promise<CustomerActivityItem[]> {
   try {
-    const cacheKey = `customers:activity:${limit}`
-    const cached = getCached<CustomerActivityItem[]>(cacheKey)
-    if (cached) return cached
-
     const response = await apiClient.get(`/customers/activity?limit=${limit}`)
-    setCache(cacheKey, response.data.data)
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener actividad de clientes"))

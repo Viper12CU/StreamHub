@@ -1,29 +1,6 @@
 import apiClient from "../axios"
 import type { AxiosError } from "axios"
 
-// ─── Simple request cache ─────────────────────────────────
-
-const cache = new Map<string, { data: unknown; timestamp: number }>()
-const CACHE_TTL = 30_000
-
-function getCached<T>(key: string): T | null {
-  const entry = cache.get(key)
-  if (!entry) return null
-  if (Date.now() - entry.timestamp > CACHE_TTL) {
-    cache.delete(key)
-    return null
-  }
-  return entry.data as T
-}
-
-function setCache(key: string, data: unknown) {
-  cache.set(key, { data, timestamp: Date.now() })
-}
-
-export function clearCreditsCache() {
-  cache.clear()
-}
-
 // ─── Types ──────────────────────────────────────────────
 
 export type CreditTransactionType = "admin_grant" | "admin_deduct" | "adjustment" | "purchase" | "refund"
@@ -151,7 +128,8 @@ function getErrorMessage(error: AxiosError, action: string): string {
 export async function getCreditAccounts(
   filters?: CreditAccountFilters,
   page: number = 1,
-  limit: number = 50
+  limit: number = 50,
+  signal?: AbortSignal
 ): Promise<{ data: CreditAccountWithUser[]; pagination: PaginationMeta }> {
   try {
     const params = new URLSearchParams()
@@ -163,14 +141,8 @@ export async function getCreditAccounts(
     params.set("page", String(page))
     params.set("limit", String(limit))
 
-    const cacheKey = `credits:accounts:${params.toString()}`
-    const cached = getCached<{ data: CreditAccountWithUser[]; pagination: PaginationMeta }>(cacheKey)
-    if (cached) return cached
-
-    const response = await apiClient.get(`/credits/accounts?${params.toString()}`)
-    const result = { data: response.data.data, pagination: response.data.pagination }
-    setCache(cacheKey, result)
-    return result
+    const response = await apiClient.get(`/credits/accounts?${params.toString()}`, { signal })
+    return { data: response.data.data, pagination: response.data.pagination }
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener cuentas de crédito"))
   }
@@ -185,28 +157,18 @@ export async function getCreditAccountById(customerId: string): Promise<CreditAc
   }
 }
 
-export async function getCreditStats(): Promise<CreditStats> {
+export async function getCreditStats(signal?: AbortSignal): Promise<CreditStats> {
   try {
-    const cacheKey = "credits:stats"
-    const cached = getCached<CreditStats>(cacheKey)
-    if (cached) return cached
-
-    const response = await apiClient.get("/credits/stats")
-    setCache(cacheKey, response.data.data)
+    const response = await apiClient.get("/credits/stats", { signal })
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener estadísticas de créditos"))
   }
 }
 
-export async function getCreditAnalytics(): Promise<CreditAnalyticsData> {
+export async function getCreditAnalytics(signal?: AbortSignal): Promise<CreditAnalyticsData> {
   try {
-    const cacheKey = "credits:analytics"
-    const cached = getCached<CreditAnalyticsData>(cacheKey)
-    if (cached) return cached
-
-    const response = await apiClient.get("/credits/analytics")
-    setCache(cacheKey, response.data.data)
+    const response = await apiClient.get("/credits/analytics", { signal })
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener analytics de créditos"))
@@ -226,14 +188,8 @@ export async function getCreditTransactions(
     params.set("page", String(page))
     params.set("limit", String(limit))
 
-    const cacheKey = `credits:transactions:${params.toString()}`
-    const cached = getCached<{ data: CreditTransactionWithUser[]; pagination: PaginationMeta }>(cacheKey)
-    if (cached) return cached
-
     const response = await apiClient.get(`/credits/transactions?${params.toString()}`)
-    const result = { data: response.data.data, pagination: response.data.pagination }
-    setCache(cacheKey, result)
-    return result
+    return { data: response.data.data, pagination: response.data.pagination }
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener transacciones de crédito"))
   }
@@ -259,7 +215,6 @@ export async function getCreditTransactionsByUser(
 export async function grantCredits(customerId: string, data: GrantCreditsInput): Promise<CreditTransaction> {
   try {
     const response = await apiClient.post(`/credits/accounts/${customerId}/grant`, data)
-    clearCreditsCache()
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "otorgar créditos"))
@@ -269,7 +224,6 @@ export async function grantCredits(customerId: string, data: GrantCreditsInput):
 export async function deductCredits(customerId: string, data: DeductCreditsInput): Promise<CreditTransaction> {
   try {
     const response = await apiClient.post(`/credits/accounts/${customerId}/deduct`, data)
-    clearCreditsCache()
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "deducir créditos"))
@@ -279,7 +233,6 @@ export async function deductCredits(customerId: string, data: DeductCreditsInput
 export async function adjustCredits(customerId: string, data: AdjustCreditsInput): Promise<CreditTransaction> {
   try {
     const response = await apiClient.post(`/credits/accounts/${customerId}/adjust`, data)
-    clearCreditsCache()
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "ajustar créditos"))
