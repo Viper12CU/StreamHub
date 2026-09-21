@@ -244,7 +244,7 @@ export default function CreditsPage() {
       </div>
 
       {/* Transaction History */}
-      <CreditTransactionTable />
+      <CreditTransactionTable mode="admin" />
 
       {/* Modals & Drawers */}
       {selectedCustomer && (

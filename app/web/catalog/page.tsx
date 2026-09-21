@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { sileo } from "sileo";
 import { CatalogTemplate } from "@/components/templates/catalog-template";
-import { getProducts, type ProductWithDetails } from "@/lib/api/products";
+import { useSWRCatalogProducts } from "@/lib/api/hooks/use-sw-catalog";
+import type { ProductWithDetails } from "@/lib/api/products";
 import type { Product } from "@/components/molecules/product-card";
 
 const FALLBACK_IMAGE =
@@ -28,43 +29,29 @@ function mapBackendProduct(product: ProductWithDetails): Product {
 }
 
 export default function CatalogoPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [page] = useState(1);
+  const { data: rawProducts, isLoading, error } = useSWRCatalogProducts(
+    { status: "active", inventory_status: "available" },
+    page,
+    24
+  );
 
-  const loadProducts = useCallback(async () => {
-    setLoading(true);
+  const products = rawProducts
+    .filter((product) => (product.available_units ?? 0) > 0)
+    .map(mapBackendProduct);
 
-    try {
-      const response = await getProducts(
-        { status: "active", inventory_status: "available" },
-        1,
-        24,
-        AbortSignal.timeout(10_000)
-      );
-
-      setProducts(
-        response.data
-          .filter((product) => (product.available_units ?? 0) > 0)
-          .map(mapBackendProduct)
-      );
-    } catch (fetchError) {
-      sileo.error({
-        title: "Error al cargar productos",
-        description:
-          fetchError instanceof Error
-            ? fetchError.message
-            : "No se pudieron cargar los productos. Intenta de nuevo.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadProducts();
-  }, [loadProducts]);
+  if (error) {
+    sileo.error({
+      title: "Error al cargar productos",
+      description: "No se pudieron cargar los productos. Intenta de nuevo.",
+    });
+  }
 
   return (
-    <CatalogTemplate products={products} isLoading={loading} onRetry={loadProducts} />
+    <CatalogTemplate
+      products={products}
+      isLoading={isLoading}
+      onRetry={() => {}}
+    />
   );
 }

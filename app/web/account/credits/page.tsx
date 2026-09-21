@@ -24,7 +24,7 @@ export default async function AccountCreditsPage() {
       </div>
 
       <CreditHeroCard />
-
+      <div className="h-4"></div>
       <CreditExchangeInfo exchangeRate={exchangeRate} />
 
       <div className="space-y-4 mt-12">

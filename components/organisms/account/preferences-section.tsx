@@ -1,41 +1,40 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/atoms/button'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Icon } from '@/components/atoms/icon'
 import { useSession } from '@/lib/session-context'
 import { signOut } from '@/lib/api/auth'
-import { getMyProfile, updateMyProfile } from '@/lib/api/account'
+import { updateMyProfile } from '@/lib/api/account'
+import { useSWRAccountProfile } from '@/lib/api/hooks/use-sw-account'
 import { sileo } from 'sileo'
 
 export function PreferencesSection() {
   const router = useRouter()
   const { clearSession } = useSession()
+  const { data: profile, isLoading: loadingProfile, mutate } = useSWRAccountProfile()
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [loadingProfile, setLoadingProfile] = useState(true)
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [whatsapp, setWhatsapp] = useState('')
+  const [initialized, setInitialized] = useState(false)
 
-  useEffect(() => {
-    getMyProfile()
-      .then((p) => {
-        setName(p.name)
-        setEmail(p.email)
-        setWhatsapp(p.whatsapp || '')
-      })
-      .catch(() => {})
-      .finally(() => setLoadingProfile(false))
-  }, [])
+  if (profile && !initialized) {
+    setName(profile.name)
+    setEmail(profile.email)
+    setWhatsapp(profile.whatsapp || '')
+    setInitialized(true)
+  }
 
   const handleSave = async () => {
     setSaving(true)
     try {
       await updateMyProfile({ name, whatsapp: whatsapp || null })
+      await mutate()
       sileo.success({ title: 'Perfil actualizado', description: 'Tus cambios se guardaron correctamente.' })
     } catch (error) {
       sileo.error({ title: 'Error', description: error instanceof Error ? error.message : 'No se pudieron guardar los cambios.' })

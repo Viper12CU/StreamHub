@@ -12,6 +12,11 @@
       "headers": {
         "Authorization": "Bearer i0_361888665de4_bWVUJukHkYFC3Qzb2A1tv-f93fUCFm9r"
       }
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
+      "enabled": true
     }
   }
 }

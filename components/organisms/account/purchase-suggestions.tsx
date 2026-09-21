@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { Icon } from '@/components/atoms/icon'
-import { getProducts, type ProductWithDetails } from '@/lib/api/products'
+import { useSWRCatalogProducts } from '@/lib/api/hooks/use-sw-catalog'
+import type { ProductWithDetails } from '@/lib/api/products'
 import type { Product } from '@/components/molecules/product-card'
 
 function mapToCardProduct(p: ProductWithDetails): Product {
@@ -27,13 +27,12 @@ function mapToCardProduct(p: ProductWithDetails): Product {
 
 export function PurchaseSuggestions() {
   const router = useRouter()
-  const [suggestions, setSuggestions] = useState<Product[]>([])
-
-  useEffect(() => {
-    getProducts({ status: 'active', inventory_status: 'available' }, 1, 3)
-      .then((res) => setSuggestions(res.data.map(mapToCardProduct)))
-      .catch(() => {})
-  }, [])
+  const { data: rawProducts } = useSWRCatalogProducts(
+    { status: 'active', inventory_status: 'available' },
+    1,
+    3
+  )
+  const suggestions = rawProducts.map(mapToCardProduct)
 
   if (suggestions.length === 0) return null
 

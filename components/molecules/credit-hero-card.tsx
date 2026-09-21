@@ -1,19 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import Link from "next/link"
 import { GlassCard } from "@/components/ui/glass-card"
 import { Icon } from "@/components/atoms/icon"
-import { getMyCreditBalance, type MyCreditBalance } from "@/lib/api/account"
+import { useSWRAccountCreditBalance } from "@/lib/api/hooks/use-sw-account"
 
 export function CreditHeroCard() {
-  const [balance, setBalance] = useState<MyCreditBalance | null>(null)
-
-  useEffect(() => {
-    getMyCreditBalance()
-      .then(setBalance)
-      .catch(() => {})
-  }, [])
+  const { data: balance } = useSWRAccountCreditBalance()
 
   return (
     <Link href="/web/account/credits">

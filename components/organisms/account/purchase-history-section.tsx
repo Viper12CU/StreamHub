@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Icon } from '@/components/atoms/icon'
-import { getMyOrders, type MyOrder } from '@/lib/api/account'
+import { useSWRAccountOrders } from '@/lib/api/hooks/use-sw-account'
 import { formatDate } from '@/lib/constants/shared'
 
 const orderStatusDisplay: Record<string, { label: string; icon: string; tone: string }> = {
@@ -21,17 +20,9 @@ const paymentMethodLabels: Record<string, string> = {
 }
 
 export function PurchaseHistorySection() {
-  const [orders, setOrders] = useState<MyOrder[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: orders, isLoading } = useSWRAccountOrders()
 
-  useEffect(() => {
-    getMyOrders()
-      .then(setOrders)
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <section className="space-y-4">
         <h2 className="text-xl font-semibold flex items-center gap-2">

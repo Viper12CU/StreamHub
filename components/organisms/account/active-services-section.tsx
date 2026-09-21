@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/atoms/button'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Icon } from '@/components/atoms/icon'
-import { getMyProfile, type Subscription } from '@/lib/api/account'
+import { useSWRAccountProfile } from '@/lib/api/hooks/use-sw-account'
+import type { Subscription } from '@/lib/api/account'
 
 const platformIcons: Record<string, string> = {
   netflix: 'movie-open-play',
@@ -29,17 +29,10 @@ function getSubscriptionStatus(sub: Subscription): { label: string; tone: string
 }
 
 export function ActiveServicesSection() {
-  const [services, setServices] = useState<Subscription[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: profile, isLoading } = useSWRAccountProfile()
+  const services = profile?.subscriptions ?? []
 
-  useEffect(() => {
-    getMyProfile()
-      .then((p) => setServices(p.subscriptions))
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <section className="space-y-4">
         <h2 className="text-xl font-semibold flex items-center gap-2">

@@ -1,34 +1,29 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Icon } from '@/components/atoms/icon'
-import { getMyWishlist, removeFromWishlist, type WishlistItem } from '@/lib/api/wishlist'
+import { useSWRWishlist } from '@/lib/api/hooks/use-sw-wishlist'
+import { removeFromWishlist } from '@/lib/api/wishlist'
 import { sileo } from 'sileo'
 
 export default function AccountWishlistPage() {
-  const [items, setItems] = useState<WishlistItem[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    getMyWishlist()
-      .then(setItems)
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
+  const { data: items, isLoading, mutate } = useSWRWishlist()
 
   const handleRemove = async (productId: string) => {
     try {
       await removeFromWishlist(productId)
-      setItems((prev) => prev.filter((i) => i.product_id !== productId))
+      await mutate(
+        (current) => current?.filter((i) => i.product_id !== productId),
+        { revalidate: false }
+      )
       sileo.success({ title: 'Eliminado', description: 'Producto removido de tu wishlist.' })
     } catch {
       sileo.error({ title: 'Error', description: 'No se pudo eliminar de la wishlist.' })
     }
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-4">
         <h2 className="text-xl font-semibold flex items-center gap-2">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { GlassCard } from "@/components/ui/glass-card"
 import { Icon } from "@/components/atoms/icon"
 import { formatDate } from "@/lib/constants/shared"
@@ -9,30 +9,45 @@ import {
   creditTransactionColors,
   creditTransactionIcons,
 } from "@/lib/constants/shared"
-import { getMyCreditTransactions, type MyCreditTransaction } from "@/lib/api/account"
+import { useSWRMyCreditTransactions } from "@/lib/api/hooks/use-sw-account"
+import { useSWRCreditTransactions } from "@/lib/api/hooks/use-sw-credit"
 
 const ITEMS_PER_PAGE = 10
 
-export function CreditTransactionTable() {
-  const [transactions, setTransactions] = useState<MyCreditTransaction[]>([])
-  const [loading, setLoading] = useState(true)
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [total, setTotal] = useState(0)
+interface CreditTransactionTableProps {
+  mode?: "admin" | "account"
+}
 
-  useEffect(() => {
-    setLoading(true)
-    getMyCreditTransactions(page, ITEMS_PER_PAGE)
-      .then((res) => {
-        setTransactions(res.data)
-        setTotalPages(res.pagination.totalPages)
-        setTotal(res.pagination.total)
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [page])
+interface TransactionRow {
+  id: string
+  created_at: string
+  type: string
+  amount: number
+  balance_before: number
+  balance_after: number
+  reason: string | null
+  user_name?: string
+  user_email?: string
+}
 
-  if (loading) {
+interface TransactionTableInnerProps {
+  transactions: TransactionRow[]
+  pagination?: { total: number; totalPages: number }
+  isLoading: boolean
+  page: number
+  setPage: (p: number) => void
+  showUserColumns: boolean
+}
+
+function TransactionTableInner({
+  transactions,
+  pagination,
+  isLoading,
+  page,
+  setPage,
+  showUserColumns,
+}: TransactionTableInnerProps) {
+  if (isLoading) {
     return (
       <GlassCard className="p-6 space-y-4">
         {Array.from({ length: 5 }).map((_, i) => (
@@ -51,7 +66,7 @@ export function CreditTransactionTable() {
         <div className="space-y-1">
           <h3 className="text-lg font-bold">Sin movimientos</h3>
           <p className="text-sm text-[var(--on-surface-variant)] max-w-sm">
-            Aún no hay transacciones en tu cuenta de créditos. Recarga para empezar a comprar.
+            Aun no hay transacciones en tu cuenta de creditos. Recarga para empezar a comprar.
           </p>
         </div>
       </GlassCard>
@@ -62,24 +77,40 @@ export function CreditTransactionTable() {
     <GlassCard className="overflow-hidden">
       <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
         <h3 className="text-sm font-semibold">Historial de Transacciones</h3>
-        <span className="text-xs text-[var(--on-surface-variant)]">{total} movimientos</span>
+        <span className="text-xs text-[var(--on-surface-variant)]">{pagination?.total ?? 0} movimientos</span>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-white/5 text-[var(--on-surface-variant)]">
+              {showUserColumns && (
+                <>
+                  <th className="text-left px-6 py-3 font-medium text-xs uppercase tracking-wider">Usuario</th>
+                  <th className="text-left px-6 py-3 font-medium text-xs uppercase tracking-wider">Email</th>
+                </>
+              )}
               <th className="text-left px-6 py-3 font-medium text-xs uppercase tracking-wider">Fecha</th>
               <th className="text-left px-6 py-3 font-medium text-xs uppercase tracking-wider">Tipo</th>
               <th className="text-right px-6 py-3 font-medium text-xs uppercase tracking-wider">Monto</th>
               <th className="text-right px-6 py-3 font-medium text-xs uppercase tracking-wider">Antes</th>
-              <th className="text-right px-6 py-3 font-medium text-xs uppercase tracking-wider">Después</th>
-              <th className="text-left px-6 py-3 font-medium text-xs uppercase tracking-wider">Descripción</th>
+              <th className="text-right px-6 py-3 font-medium text-xs uppercase tracking-wider">Despues</th>
+              <th className="text-left px-6 py-3 font-medium text-xs uppercase tracking-wider">Descripcion</th>
             </tr>
           </thead>
           <tbody>
             {transactions.map((tx) => (
               <tr key={tx.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                {showUserColumns && (
+                  <>
+                    <td className="px-6 py-3 text-sm whitespace-nowrap">
+                      {tx.user_name || "—"}
+                    </td>
+                    <td className="px-6 py-3 text-[var(--on-surface-variant)] text-sm whitespace-nowrap">
+                      {tx.user_email || "—"}
+                    </td>
+                  </>
+                )}
                 <td className="px-6 py-3 text-[var(--on-surface-variant)] whitespace-nowrap">
                   {formatDate(tx.created_at)}
                 </td>
@@ -111,10 +142,10 @@ export function CreditTransactionTable() {
         </table>
       </div>
 
-      {totalPages > 1 && (
+      {(pagination?.totalPages ?? 0) > 1 && (
         <div className="px-6 py-4 border-t border-white/5 flex items-center justify-between">
           <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            onClick={() => setPage(Math.max(1, page - 1))}
             disabled={page === 1}
             className="flex items-center gap-1 text-xs text-[var(--on-surface-variant)] hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
@@ -122,11 +153,11 @@ export function CreditTransactionTable() {
             Anterior
           </button>
           <span className="text-xs text-[var(--on-surface-variant)]">
-            Página {page} de {totalPages}
+            Pagina {page} de {pagination?.totalPages ?? 1}
           </span>
           <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
+            onClick={() => setPage(Math.min(pagination?.totalPages ?? 1, page + 1))}
+            disabled={page === (pagination?.totalPages ?? 1)}
             className="flex items-center gap-1 text-xs text-[var(--on-surface-variant)] hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             Siguiente
@@ -136,4 +167,38 @@ export function CreditTransactionTable() {
       )}
     </GlassCard>
   )
+}
+
+function AccountTransactionTable() {
+  const [page, setPage] = useState(1)
+  const { data: transactions, pagination, isLoading } = useSWRMyCreditTransactions(page, ITEMS_PER_PAGE)
+  return (
+    <TransactionTableInner
+      transactions={transactions}
+      pagination={pagination}
+      isLoading={isLoading}
+      page={page}
+      setPage={setPage}
+      showUserColumns={false}
+    />
+  )
+}
+
+function AdminTransactionTable() {
+  const [page, setPage] = useState(1)
+  const { data: transactions, pagination, isLoading } = useSWRCreditTransactions(page, ITEMS_PER_PAGE)
+  return (
+    <TransactionTableInner
+      transactions={transactions}
+      pagination={pagination}
+      isLoading={isLoading}
+      page={page}
+      setPage={setPage}
+      showUserColumns={true}
+    />
+  )
+}
+
+export function CreditTransactionTable({ mode = "account" }: CreditTransactionTableProps) {
+  return mode === "admin" ? <AdminTransactionTable /> : <AccountTransactionTable />
 }

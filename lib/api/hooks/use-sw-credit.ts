@@ -4,6 +4,7 @@ import { swrFetcher, buildQS } from "../swr-config"
 import type {
   CreditAccountWithUser,
   CreditAccountFilters,
+  CreditTransactionWithUser,
   CreditStats,
   CreditAnalyticsData,
   PaginationMeta,
@@ -18,6 +19,8 @@ export const creditKeys = {
     `${PREFIX}/accounts?${buildQS({ ...filters, page, limit })}` as const,
   stats: () => `${PREFIX}/stats` as const,
   analytics: () => `${PREFIX}/analytics` as const,
+  transactions: (page: number, limit: number) =>
+    `${PREFIX}/transactions?page=${page}&limit=${limit}` as const,
 }
 
 // ─── Hooks ─────────────────────────────────────────────
@@ -52,4 +55,19 @@ export function useSWRCreditAnalytics() {
     { revalidateOnFocus: false, dedupingInterval: 10000 }
   )
   return { data: raw?.data ?? null, error, isLoading }
+}
+
+interface CreditTransactionsResponse {
+  data: CreditTransactionWithUser[]
+  pagination: PaginationMeta
+}
+
+export function useSWRCreditTransactions(page: number, limit = 20) {
+  const key = creditKeys.transactions(page, limit)
+  const { data: raw, error, isLoading, mutate } = useSWR<CreditTransactionsResponse>(
+    key,
+    swrFetcher,
+    { revalidateOnFocus: false, dedupingInterval: 5000 }
+  )
+  return { data: raw?.data ?? [], pagination: raw?.pagination, error, isLoading, mutate }
 }

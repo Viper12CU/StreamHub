@@ -1,9 +1,9 @@
 "use client"
 
-import { memo, useEffect, useState } from "react"
+import { memo } from "react"
 import { Icon } from "@/components/atoms/icon"
 import { cn } from "@/lib/utils"
-import { getMyCreditBalance, type MyCreditBalance } from "@/lib/api/account"
+import { useSWRAccountCreditBalance } from "@/lib/api/hooks/use-sw-account"
 
 interface CreditBalanceBadgeProps {
   collapsed?: boolean
@@ -11,13 +11,7 @@ interface CreditBalanceBadgeProps {
 }
 
 export const CreditBalanceBadge = memo(function CreditBalanceBadge({ collapsed = false, className }: CreditBalanceBadgeProps) {
-  const [balance, setBalance] = useState<MyCreditBalance | null>(null)
-
-  useEffect(() => {
-    getMyCreditBalance()
-      .then(setBalance)
-      .catch(() => {})
-  }, [])
+  const { data: balance } = useSWRAccountCreditBalance()
 
   return (
     <div
