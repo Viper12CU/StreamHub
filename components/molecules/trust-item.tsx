@@ -27,13 +27,13 @@ export function TrustItem({
               <IconComponent key={i} className="w-6 h-6" fill="currentColor" />
             ))}
           </div>
-          <h4 className="text-xl font-semibold">{title}</h4>
+          <h3 className="text-xl font-semibold">{title}</h3>
           <p className="text-muted-foreground">{description}</p>
         </div>
       ) : (
         <>
           <IconComponent className={cn("w-12 h-12 mx-auto", iconColor)} fill="currentColor" />
-          <h4 className="text-xl font-semibold">{title}</h4>
+          <h3 className="text-xl font-semibold">{title}</h3>
           <p className="text-muted-foreground">{description}</p>
         </>
       )}

@@ -6,9 +6,17 @@ interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
   reference: string;
+  onViewOrders: () => void;
+  onContinueShopping: () => void;
 }
 
-export function ConfirmationModal({ isOpen, onClose, reference }: ConfirmationModalProps) {
+export function ConfirmationModal({
+  isOpen,
+  onClose,
+  reference,
+  onViewOrders,
+  onContinueShopping,
+}: ConfirmationModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -31,11 +39,14 @@ export function ConfirmationModal({ isOpen, onClose, reference }: ConfirmationMo
           <span className="text-blue-500 font-bold text-xl">{reference}</span>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 w-full">
-          <button className="flex-1 bg-blue-500 text-white px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all">
+          <button
+            onClick={onViewOrders}
+            className="flex-1 bg-blue-500 text-white px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all"
+          >
             Ver mis pedidos
           </button>
           <button
-            onClick={onClose}
+            onClick={onContinueShopping}
             className="flex-1 text-white hover:text-red-500 px-8 py-4 rounded-xl font-semibold transition-all"
           >
             Seguir comprando

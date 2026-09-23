@@ -1,11 +1,11 @@
 import { Logo } from "@/components/atoms/logo"
 import { Button } from "@/components/atoms/button"
 import Link from "next/link"
-import { CreditCard, Landmark, Wifi } from "lucide-react"
+import { CreditCard, Wifi } from "lucide-react"
 
 const footerLinks = [
   { href: "/#catalogo", label: "Catálogo" },
-  { href: "/web/checkout", label: "Checkout" },
+  { href: "/web/catalog", label: "Comprar" },
 ]
 
 export function Footer() {
@@ -20,7 +20,6 @@ export function Footer() {
           </p>
           <div className="flex gap-4 justify-center md:justify-start pt-2">
             <CreditCard className="w-5 h-5 opacity-50" />
-            <Landmark className="w-5 h-5 opacity-50" />
             <Wifi className="w-5 h-5 opacity-50" />
           </div>
         </div>

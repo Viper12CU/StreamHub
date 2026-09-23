@@ -40,10 +40,14 @@ function mapProductToPageData(product: ProductWithDetails) {
     accessType: PRODUCT_TYPE_LABELS[product.product_type],
     status: getProductStatus(product),
     info: {
+      productId: product.id,
+      slug: product.slug,
       name: `${product.name}${product.platform_name ? ` — ${product.platform_name}` : ""}`,
       rating: 4.9,
       reviewsCount: product.total_orders || 0,
       priceCUP: formatPriceLabel(product),
+      priceValue: product.price_sale,
+      currency: product.currency,
       priceUSD: product.currency === "USD" ? product.price_sale : undefined,
       priceMLC: undefined,
       description: product.description || "Producto disponible en el catálogo",
@@ -58,7 +62,7 @@ function mapProductToPageData(product: ProductWithDetails) {
 const faqs = [
   {
     question: "¿Como recibo mi compra?",
-    answer: "Una vez confirmado tu pago a traves de Transfermovil, Enzona o Zelle, recibiras las credenciales (correo y contraseña) directamente en tu WhatsApp o direccion de correo electronico en un plazo maximo de 1 hora.",
+    answer: "Una vez confirmado tu pago con creditos, recibiras las credenciales (correo y contraseña) directamente en tu WhatsApp o direccion de correo electronico en un plazo maximo de 1 hora.",
   },
   {
     question: "¿Que pasa si la cuenta deja de funcionar?",
@@ -66,7 +70,7 @@ const faqs = [
   },
   {
     question: "¿Puedo usar la cuenta en cualquier dispositivo?",
-    answer: "Si, puedes usar tu perfil en cualquier dispositivo compatible con Netflix: Smart TV, celular, tablet, computadora o consola de videojuegos.",
+    answer: "Si, puedes usar tu perfil en cualquier dispositivo compatible: Smart TV, celular, tablet, computadora o consola de videojuegos.",
   },
 ];
 

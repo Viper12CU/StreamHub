@@ -14,7 +14,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       primary: "bg-primary text-primary-foreground hover:opacity-90 shadow-lg shadow-primary/20",
       secondary: "glass-panel hover:bg-white/5",
       ghost: "bg-transparent hover:bg-white/5",
-      whatsapp: "bg-[#25D366] text-white hover:scale-105",
+      whatsapp: "bg-[#075E54] text-white hover:bg-[#064D44]",
     }
 
     const sizeClasses = {

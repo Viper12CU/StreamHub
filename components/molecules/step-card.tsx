@@ -31,7 +31,7 @@ export function StepCard({
         <IconComponent className="w-8 h-8" />
       </div>
       <div className="space-y-2">
-        <h4 className="text-xl font-semibold">{stepNumber}. {title}</h4>
+        <h3 className="text-xl font-semibold">{stepNumber}. {title}</h3>
         <p className="text-muted-foreground">{description}</p>
       </div>
     </div>

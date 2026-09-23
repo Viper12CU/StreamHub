@@ -13,7 +13,7 @@ const steps = [
   {
     stepNumber: 2,
     title: "Paga",
-    description: "Aceptamos Transfermóvil, Zelle y depósitos en MLC. Rápido y sin complicaciones.",
+    description: "Paga con los creditos de tu cuenta. Rápido, sin complicaciones y 100% digital.",
     icon: Wallet,
     variant: "secondary" as const,
   },

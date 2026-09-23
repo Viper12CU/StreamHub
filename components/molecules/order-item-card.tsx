@@ -5,9 +5,9 @@ interface OrderItemCardProps {
   type: string;
   title: string;
   duration: string;
-  originalPrice: string;
+  originalPrice?: string;
   price: string;
-  mlcPrice: string;
+  mlcPrice?: string;
 }
 
 export function OrderItemCard({
@@ -48,13 +48,17 @@ export function OrderItemCard({
             <p className="mt-1">Garantia total de acceso</p>
           </div>
           <div className="text-right">
-            <div className="text-neutral-400 line-through text-xs">
-              {originalPrice}
-            </div>
+            {originalPrice ? (
+              <div className="text-neutral-400 line-through text-xs">
+                {originalPrice}
+              </div>
+            ) : null}
             <div className="text-white font-bold text-2xl">{price}</div>
-            <div className="text-blue-500 font-semibold text-xs uppercase tracking-wider">
-              {mlcPrice}
-            </div>
+            {mlcPrice ? (
+              <div className="text-blue-500 font-semibold text-xs uppercase tracking-wider">
+                {mlcPrice}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

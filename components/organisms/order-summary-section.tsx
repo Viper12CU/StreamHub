@@ -7,9 +7,9 @@ interface OrderItem {
   type: string;
   title: string;
   duration: string;
-  originalPrice: string;
+  originalPrice?: string;
   price: string;
-  mlcPrice: string;
+  mlcPrice?: string;
 }
 
 interface OrderSummarySectionProps {
