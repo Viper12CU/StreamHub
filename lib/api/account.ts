@@ -34,7 +34,7 @@ export interface MyProfile {
 }
 
 export type OrderStatus = "pending" | "proof_sent" | "confirmed" | "delivered" | "cancelled"
-export type PaymentMethod = "transfermovil" | "zelle" | "mlc"
+export type PaymentMethod = "transfermovil" | "zelle" | "mlc" | "credits"
 
 export interface MyOrder {
   id: string
@@ -44,6 +44,8 @@ export interface MyOrder {
   payment_method: PaymentMethod
   amount_usd: number
   amount_mlc: number
+  amount_credits: number
+  credit_transaction_id: string | null
   credentials: string | null
   product_title: string
   platform_name: string
@@ -186,5 +188,51 @@ export async function getMyCreditTransactions(
     return result
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "obtener transacciones de crédito"))
+  }
+}
+
+// ─── Purchase with credits ──────────────────────────────────
+
+export interface PurchaseOrderSummary {
+  id: string
+  order_number: string
+  amount_credits: number
+}
+
+export interface PurchaseWithCreditsResult {
+  order: PurchaseOrderSummary
+}
+
+const PURCHASE_ERROR_MESSAGES: Record<number, string> = {
+  400: "El producto no esta disponible para compra.",
+  401: "Tu sesion ha expirado. Inicia sesion de nuevo.",
+  402: "Creditos insuficientes para completar la compra.",
+  404: "Producto no encontrado.",
+  409: "No hay inventario disponible para este producto.",
+}
+
+export async function purchaseWithCredits(productId: string): Promise<PurchaseWithCreditsResult> {
+  try {
+    const response = await apiClient.post("/credits/purchase", { product_id: productId })
+    const result: PurchaseWithCreditsResult = response.data.data
+
+    deleteCacheKey("account:credits:balance")
+    clearCacheByPrefix("account:credits:transactions")
+    deleteCacheKey("account:orders")
+
+    return result
+  } catch (error) {
+    const axiosError = error as AxiosError<{ error?: string; message?: string }>
+    const status = axiosError.response?.status
+
+    if (status && PURCHASE_ERROR_MESSAGES[status]) {
+      const serverMsg = axiosError.response?.data?.error
+      if (status === 400 && serverMsg && serverMsg !== "Product is not available" && serverMsg !== "Product credit price must be greater than zero") {
+        throw new Error(serverMsg)
+      }
+      throw new Error(PURCHASE_ERROR_MESSAGES[status])
+    }
+
+    throw new Error(getErrorMessage(axiosError, "completar la compra"))
   }
 }

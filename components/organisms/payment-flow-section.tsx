@@ -2,24 +2,27 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { mutate } from "swr";
 import { Icon } from "@/components/atoms/icon";
-import { useSWRAccountCreditBalance } from "@/lib/api/hooks/use-sw-account";
+import { accountKeys, useSWRAccountCreditBalance } from "@/lib/api/hooks/use-sw-account";
+import { purchaseWithCredits } from "@/lib/api/account";
 import { sileo } from "sileo";
 
 interface PaymentFlowSectionProps {
+  productId: string;
   creditCost: number;
   priceLabel: string;
-  onConfirm: () => void;
+  onConfirm: (orderNumber: string) => void;
 }
 
-export function PaymentFlowSection({ creditCost, priceLabel, onConfirm }: PaymentFlowSectionProps) {
+export function PaymentFlowSection({ productId, creditCost, priceLabel, onConfirm }: PaymentFlowSectionProps) {
   const [isConfirming, setIsConfirming] = useState(false);
   const { data: balance, isLoading: balanceLoading } = useSWRAccountCreditBalance();
 
   const balanceAmount = balance?.balance ?? 0;
   const hasEnoughCredits = !balanceLoading && balance !== null && balanceAmount >= creditCost;
 
-  function handleConfirm() {
+  async function handleConfirm() {
     if (isConfirming) return;
 
     if (balance === null || !hasEnoughCredits) {
@@ -31,15 +34,32 @@ export function PaymentFlowSection({ creditCost, priceLabel, onConfirm }: Paymen
     }
 
     setIsConfirming(true);
-    // Simulacion de compra con creditos: pendiente de POST /credits/purchase
-    setTimeout(() => {
-      setIsConfirming(false);
+    try {
+      const result = await purchaseWithCredits(productId);
+      const orderNumber = result.order?.order_number ?? "";
+      const spent = result.order?.amount_credits ?? creditCost;
+
+      await Promise.all([
+        mutate(accountKeys.creditBalance()),
+        mutate(accountKeys.orders()),
+        mutate((key) => typeof key === "string" && key.startsWith("/credits/me/transactions")),
+      ]);
+
       sileo.success({
         title: "Compra con creditos confirmada",
-        description: `Se descontarian ${creditCost} creditos. Pendiente de integracion con el backend.`,
+        description: orderNumber
+          ? `Orden ${orderNumber}. Se descontaron ${spent} creditos.`
+          : `Se descontaron ${spent} creditos.`,
       });
-      onConfirm();
-    }, 600);
+      onConfirm(orderNumber);
+    } catch (error) {
+      sileo.error({
+        title: "No se pudo completar la compra",
+        description: error instanceof Error ? error.message : "Intentalo de nuevo.",
+      });
+    } finally {
+      setIsConfirming(false);
+    }
   }
 
   return (

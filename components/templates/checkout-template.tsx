@@ -48,11 +48,6 @@ export function CheckoutTemplate({
     }
   }, [isLoading, isAuthenticated, router]);
 
-  useEffect(() => {
-    const suffix = Math.random().toString(36).slice(2, 8).toUpperCase();
-    setReference(`SH-${suffix}`);
-  }, []);
-
   const breadcrumbs = [
     { label: "Inicio", href: "/web" },
     { label: "Catalogo", href: "/web/catalog" },
@@ -106,9 +101,13 @@ export function CheckoutTemplate({
           {/* Right Column: Credits Payment */}
           <div className="lg:col-span-7">
             <PaymentFlowSection
+              productId={orderItem.id}
               creditCost={creditCost}
               priceLabel={subtotal}
-              onConfirm={() => setShowConfirmation(true)}
+              onConfirm={(orderNumber) => {
+                setReference(orderNumber);
+                setShowConfirmation(true);
+              }}
             />
           </div>
         </div>

@@ -17,6 +17,7 @@ const paymentMethodLabels: Record<string, string> = {
   transfermovil: 'Transfermovil',
   zelle: 'Zelle',
   mlc: 'MLC',
+  credits: 'Creditos',
 }
 
 export function PurchaseHistorySection() {
@@ -80,7 +81,11 @@ export function PurchaseHistorySection() {
                       <span className="font-medium">{order.product_title}</span>
                     </div>
                   </td>
-                  <td className="px-5 py-4 font-medium">${order.amount_usd} USD</td>
+                  <td className="px-5 py-4 font-medium">
+                    {order.amount_credits && order.amount_credits > 0
+                      ? `${order.amount_credits} creditos`
+                      : `$${order.amount_usd} USD`}
+                  </td>
                   <td className="px-5 py-4 text-[var(--on-surface-variant)]">
                     {paymentMethodLabels[order.payment_method] || order.payment_method}
                   </td>
