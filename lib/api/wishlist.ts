@@ -1,9 +1,21 @@
 import apiClient from "../axios"
 import type { AxiosError } from "axios"
+import { mutate } from "swr"
 import { getCached, setCache, clearCacheByPrefix, deleteCacheKey } from "./cache"
 
 export function clearWishlistCache() {
   clearCacheByPrefix("wishlist:")
+}
+
+export const WISHLIST_SWR_KEYS = {
+  my: "/wishlists/my",
+  ids: "/wishlists/ids",
+} as const
+
+function invalidateWishlistCaches() {
+  deleteCacheKey("wishlist:my")
+  void mutate(WISHLIST_SWR_KEYS.my)
+  void mutate(WISHLIST_SWR_KEYS.ids)
 }
 
 // ─── Types ──────────────────────────────────────────────
@@ -63,10 +75,19 @@ export async function getMyWishlist(): Promise<WishlistItem[]> {
   }
 }
 
+export async function getWishlistIds(): Promise<string[]> {
+  try {
+    const response = await apiClient.get("/wishlists/ids")
+    return response.data.data
+  } catch (error) {
+    throw new Error(getErrorMessage(error as AxiosError, "obtener ids de wishlist"))
+  }
+}
+
 export async function addToWishlist(productId: string): Promise<WishlistItem> {
   try {
     const response = await apiClient.post("/wishlists", { product_id: productId })
-    deleteCacheKey("wishlist:my")
+    invalidateWishlistCaches()
     return response.data.data
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "agregar a wishlist"))
@@ -76,7 +97,7 @@ export async function addToWishlist(productId: string): Promise<WishlistItem> {
 export async function removeFromWishlist(productId: string): Promise<void> {
   try {
     await apiClient.delete(`/wishlists/${productId}`)
-    deleteCacheKey("wishlist:my")
+    invalidateWishlistCaches()
   } catch (error) {
     throw new Error(getErrorMessage(error as AxiosError, "eliminar de wishlist"))
   }

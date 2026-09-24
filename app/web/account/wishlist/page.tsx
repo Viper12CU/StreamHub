@@ -14,7 +14,13 @@ export default function AccountWishlistPage() {
     try {
       await removeFromWishlist(productId)
       await mutate(
-        (current) => current?.filter((i) => i.product_id !== productId),
+        (current) =>
+          current
+            ? {
+                ...current,
+                data: current.data.filter((i) => i.product_id !== productId),
+              }
+            : current,
         { revalidate: false }
       )
       sileo.success({ title: 'Eliminado', description: 'Producto removido de tu wishlist.' })

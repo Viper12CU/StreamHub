@@ -2,33 +2,39 @@
 
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useWishlist } from "@/lib/api/hooks/use-wishlist";
 
 interface FavoriteButtonProps {
-  initialFavorite?: boolean;
-  onToggle?: (isFavorite: boolean) => void;
+  productId: string;
   className?: string;
+  onToggle?: (isFavorite: boolean) => void;
 }
 
 export function FavoriteButton({
-  initialFavorite = false,
-  onToggle,
+  productId,
   className,
+  onToggle,
 }: FavoriteButtonProps) {
-  const [isFavorite, setIsFavorite] = useState(initialFavorite);
+  const { isInWishlist, toggle, isToggling } = useWishlist();
+  const isFavorite = isInWishlist(productId);
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const newValue = !isFavorite;
-    setIsFavorite(newValue);
-    onToggle?.(newValue);
+    if (isToggling) return;
+    const next = await toggle(productId);
+    if (next !== null) onToggle?.(next);
   };
 
   return (
     <button
       onClick={handleClick}
+      disabled={isToggling}
+      aria-pressed={isFavorite}
+      aria-label={isFavorite ? "Quitar de wishlist" : "Agregar a wishlist"}
+      title={isFavorite ? "Quitar de wishlist" : "Guardar en wishlist"}
       className={cn(
         "p-2 rounded-full bg-muted/60 backdrop-blur-md text-foreground hover:text-primary transition-colors cursor-pointer",
+        "disabled:opacity-60 disabled:cursor-wait",
         className
       )}
     >

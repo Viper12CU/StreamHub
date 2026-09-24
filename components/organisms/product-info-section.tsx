@@ -6,6 +6,7 @@ import { InfoBox } from "@/components/molecules/info-box"
 import { LoginPrompt } from "@/components/molecules/login-prompt"
 import { Button } from "@/components/atoms/button"
 import { Icon } from "@/components/atoms/icon"
+import { FavoriteButton } from "@/components/atoms/favorite-button"
 import { useSession } from "@/lib/session-context"
 import { useSWRAccountCreditBalance } from "@/lib/api/hooks/use-sw-account"
 import { cn } from "@/lib/utils"
@@ -62,7 +63,10 @@ export function ProductInfoSection({ product, className }: ProductInfoSectionPro
     <div className={cn("space-y-6", className)}>
       {/* Title and Rating */}
       <section>
-        <h1 className="text-2xl md:text-3xl font-bold mb-2">{product.name}</h1>
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">{product.name}</h1>
+          <FavoriteButton productId={product.productId} className="shrink-0 mt-1" />
+        </div>
         {/* <div className="flex items-center gap-4 mb-4">
           <StarRating rating={product.rating} />
           <span className="text-xs text-muted-foreground">({product.reviewsCount} reviews)</span>

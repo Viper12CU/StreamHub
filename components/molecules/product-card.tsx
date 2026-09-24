@@ -60,7 +60,7 @@ export function ProductCard({ product, onBuy, className }: ProductCardProps) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
 
-        <FavoriteButton className="absolute top-4 right-4" />
+        <FavoriteButton productId={product.id} className="absolute top-4 right-4" />
 
         <div className="absolute bottom-4 left-4">
           <AccessTypeTag type={product.accessType} />
